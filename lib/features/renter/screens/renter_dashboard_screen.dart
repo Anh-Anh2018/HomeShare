@@ -219,7 +219,7 @@ class _RenterDashboardScreenState extends ConsumerState<RenterDashboardScreen> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF006948), Color(0xFF00855D)],
+                      colors: [AppColors.primary, AppColors.primaryLight],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),

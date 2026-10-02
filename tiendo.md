@@ -978,3 +978,42 @@ Thực hiện yêu cầu của người dùng: *"làm phần chi tiết ở ghé
 
 
 
+
+
+---
+
+### Phase 2.19: Đồng Bộ Nhận Diện Theme Chuẩn Database HomeShare & Chuyển Nhánh Phát Triển `homeshare`
+* **Ngày hoàn thành:** 02/10/2026
+* **Yêu cầu người dùng:** "Database homeShare làm theme của app và chỉ cập nhật brain homeshare k cập nhật main"
+* **Phân tích yêu cầu & Định hướng triển khai:**
+  1. **Chỉ thị nhánh Git (Branching Policy):** "chỉ cập nhật brain homeshare k cập nhật main" -> Người dùng yêu cầu **chỉ đẩy commit lên branch `homeshare`**, **tuyệt đối không cập nhật nhánh `main`**.
+  2. **Bản sắc giao diện & Theme chuẩn Database homeShare:** Trích xuất tự động và phân tích cấu trúc styling từ sơ đồ `D:\Database homeShare.drawio`.
+     - Màu thực thể cốt lõi, primary stroke: `#038048` (Forest Emerald / Deep Pine Green - 434 lần xuất hiện).
+     - Màu viền kỹ thuật, chữ đậm sắc sảo: `#181818` (Dark Charcoal / Jet Black - 352 lần xuất hiện).
+     - Màu nền container/bảng: `#F1F1F1` (Soft Light Gray Surface - 203 lần xuất hiện).
+     - Màu thẻ ghi chú nổi bật: `#FEFFDD` (Soft Note Highlight Yellow - 12 lần xuất hiện).
+
+* **Công việc kỹ thuật đã thực hiện:**
+  1. **Chuyển nhánh Git an toàn:**
+     - Đã chuyển nhánh làm việc sang `homeshare` theo dõi `origin/homeshare`:
+       `git checkout homeshare`
+     - Mọi commit và push từ phiên này được cam kết **CHỈ ĐẨY VÀO BRANCH `homeshare`**, không can thiệp hoặc đẩy lên `main`.
+  2. **Cập nhật hệ thống màu [`AppColors`](file:///D:/app/HomeShare/lib/core/constants/app_colors.dart):**
+     - `primary`: Chuyển sang mã màu chuẩn của Database homeShare: `Color(0xFF038048)`.
+     - `primaryLight`: `Color(0xFF0EA363)`.
+     - `primaryDark`: `Color(0xFF025831)`.
+     - `textDark` & `textPrimary`: `Color(0xFF181818)`.
+     - `borderDark`: `Color(0xFF181818)`.
+     - `surfaceVariant`: `Color(0xFFF1F1F1)`.
+     - `noteHighlight`: `Color(0xFFFEFFDD)`.
+  3. **Đồng bộ chủ đề toàn diện [`AppTheme`](file:///D:/app/HomeShare/lib/core/theme/app_theme.dart):**
+     - Cấu hình Material 3 `ColorScheme` (`primary`, `primaryContainer`, `onPrimaryContainer`, `secondary`, `surfaceContainerHighest`).
+     - Chuẩn hóa `AppBarTheme`, `ElevatedButtonThemeData`, `OutlinedButtonThemeData`, `FloatingActionButtonThemeData`, `ChipThemeData`, `InputDecorationTheme`, `CardThemeData`.
+     - Đồng bộ dải màu gradient trên `HostDashboardScreen`, `RenterDashboardScreen` và thay thế toàn bộ mã màu hardcode trong `SearchFilterScreen`.
+  4. **Bổ sung Module kiểm thử 15 ([`test/ltdd_suite_test.dart`](file:///D:/app/HomeShare/test/ltdd_suite_test.dart)):**
+     - Đã thêm kiểm thử tự động kiểm tra tính toàn vẹn của bảng màu và Theme:
+       + `Tc_THEME_01 & 02`: Kiểm tra bảng màu cốt lõi chuẩn sơ đồ Database homeShare (`#038048`, `#181818`, `#F1F1F1`, `#FEFFDD`).
+       + `Tc_THEME_03 & 04`: Cấu hình `AppTheme.lightTheme` đồng bộ `ColorScheme`.
+       + `Tc_THEME_05 & 06`: Các thành phần UI (Buttons, AppBar, Chips) sử dụng đúng tông màu chủ đạo.
+     - Toàn bộ **51/51 test cases PASSED 100%**.
+     - `flutter analyze`: 0 errors.

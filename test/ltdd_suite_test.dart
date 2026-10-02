@@ -11,8 +11,15 @@ import 'package:home_share/features/profile/screens/cccd_scanner_screen.dart';
 import 'package:home_share/core/utils/vietqr_helper.dart';
 import 'package:home_share/core/services/roommate_service.dart';
 import 'package:home_share/core/services/image_storage_service.dart';
+import 'package:home_share/core/constants/app_colors.dart';
+import 'package:home_share/core/theme/app_theme.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/material.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  GoogleFonts.config.allowRuntimeFetching = false;
+
   group('Module 1: Màn hình chào mừng (Tc_WELCOME_01 - 50)', () {
     test('Tc_WELCOME_01 & 02: Onboarding content and default attributes', () {
       const appTitle = 'HomeShare';
@@ -1036,5 +1043,40 @@ void main() {
       expect(convForB.partnerName, equals('Anh Toàn'));
     });
   });
+
+  group('Module 15: Nhận diện thương hiệu chuẩn từ Database homeShare (Tc_THEME_01 - 10)', () {
+    test('Tc_THEME_01 & 02: Bảng màu cốt lõi chuẩn sơ đồ Database homeShare (DrawIO)', () {
+      // 1. Primary color là màu xanh ngọc Forest Emerald #038048 của sơ đồ
+      expect(AppColors.primary, equals(const Color(0xFF038048)));
+      
+      // 2. Text dark / nét viền đậm #181818
+      expect(AppColors.textDark, equals(const Color(0xFF181818)));
+      expect(AppColors.borderDark, equals(const Color(0xFF181818)));
+      
+      // 3. Surface variant (nền bảng diagram #F1F1F1)
+      expect(AppColors.surfaceVariant, equals(const Color(0xFFF1F1F1)));
+      
+      // 4. Note highlight (màu ghi chú vàng nhạt #FEFFDD)
+      expect(AppColors.noteHighlight, equals(const Color(0xFFFEFFDD)));
+    });
+
+    test('Tc_THEME_03 & 04: Cấu hình AppTheme.lightTheme đồng bộ ColorScheme', () {
+      final theme = AppTheme.lightTheme;
+      expect(theme.useMaterial3, isTrue);
+      expect(theme.colorScheme.primary, equals(const Color(0xFF038048)));
+      expect(theme.colorScheme.surface, equals(const Color(0xFFFFFFFF)));
+      expect(theme.colorScheme.surfaceContainerHighest, equals(const Color(0xFFF1F1F1)));
+      expect(theme.scaffoldBackgroundColor, equals(AppColors.background));
+    });
+
+    test('Tc_THEME_05 & 06: Các thành phần UI (Buttons, AppBar, Chips) sử dụng tông màu chủ đạo', () {
+      final theme = AppTheme.lightTheme;
+      expect(theme.appBarTheme.foregroundColor, equals(AppColors.textDark));
+      expect(theme.elevatedButtonTheme.style?.backgroundColor?.resolve({}), equals(const Color(0xFF038048)));
+      expect(theme.chipTheme.backgroundColor, equals(AppColors.surfaceVariant));
+      expect(theme.floatingActionButtonTheme.backgroundColor, equals(const Color(0xFF038048)));
+    });
+  });
 }
+
 

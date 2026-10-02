@@ -279,7 +279,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
             padding: const EdgeInsets.only(right: 16.0),
             child: CircleAvatar(
               radius: 16,
-              backgroundColor: const Color(0xFF006948),
+              backgroundColor: AppColors.primary,
               child: Text(
                 profile?.displayName.isNotEmpty == true ? profile!.displayName[0].toUpperCase() : 'U',
                 style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
@@ -311,7 +311,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF006948),
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   minimumSize: const Size.fromHeight(50),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -321,7 +321,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
               const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.circle, size: 6, color: Color(0xFF006948)),
+                  Icon(Icons.circle, size: 6, color: AppColors.primary),
                   SizedBox(width: 6),
                   Text(
                     'Hơn 12.400+ phòng trọ chính chủ đang sẵn sàng',
@@ -366,7 +366,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                 width: 4,
                 height: 16,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF006948),
+                  color: AppColors.primary,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -403,7 +403,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                   Icon(
                     _selectedCity == 'Tất cả' ? Icons.location_on_outlined : Icons.near_me_outlined,
                     size: 18,
-                    color: const Color(0xFF006948),
+                    color: AppColors.primary,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -546,7 +546,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
           color: isSelected ? const Color(0xFFE8F5E9) : Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? const Color(0xFF006948) : const Color(0xFFE5E7EB),
+            color: isSelected ? AppColors.primary : const Color(0xFFE5E7EB),
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -558,7 +558,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                 Icon(
                   icon,
                   size: 16,
-                  color: isSelected ? const Color(0xFF006948) : AppColors.textMuted,
+                  color: isSelected ? AppColors.primary : AppColors.textMuted,
                 ),
                 const SizedBox(width: 4),
                 Text(
@@ -566,7 +566,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    color: isSelected ? const Color(0xFF006948) : AppColors.textDark,
+                    color: isSelected ? AppColors.primary : AppColors.textDark,
                   ),
                 ),
               ],
@@ -575,7 +575,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
             Icon(
               isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
               size: 14,
-              color: isSelected ? const Color(0xFF006948) : Colors.grey.shade400,
+              color: isSelected ? AppColors.primary : Colors.grey.shade400,
             ),
           ],
         ),
@@ -608,7 +608,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
             children: [
               const Row(
                 children: [
-                  Icon(Icons.tune, size: 20, color: Color(0xFF006948)),
+                  Icon(Icons.tune, size: 20, color: AppColors.primary),
                   SizedBox(width: 8),
                   Text(
                     'Bộ lọc',
@@ -641,7 +641,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
               ),
               Text(
                 '${currencyFormatter.format(_priceRange.start)}đ - ${currencyFormatter.format(_priceRange.end)}đ',
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF006948)),
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.primary),
               ),
             ],
           ),
@@ -694,7 +694,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
             min: _minPriceLimit,
             max: _maxPriceLimit,
             divisions: 40,
-            activeColor: const Color(0xFF006948),
+            activeColor: AppColors.primary,
             inactiveColor: const Color(0xFFE5E7EB),
             onChanged: (values) {
               setState(() => _priceRange = values);
@@ -719,7 +719,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
               ),
               Text(
                 '${_areaRange.start.toInt()} m² - ${_areaRange.end.toInt()} m²',
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF006948)),
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.primary),
               ),
             ],
           ),
@@ -772,7 +772,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
             min: _minAreaLimit,
             max: _maxAreaLimit,
             divisions: 38,
-            activeColor: const Color(0xFF006948),
+            activeColor: AppColors.primary,
             inactiveColor: const Color(0xFFE5E7EB),
             onChanged: (values) {
               setState(() => _areaRange = values);
@@ -793,7 +793,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
             children: [
               const Row(
                 children: [
-                  Icon(Icons.checklist, size: 18, color: Color(0xFF006948)),
+                  Icon(Icons.checklist, size: 18, color: AppColors.primary),
                   SizedBox(width: 6),
                   Text(
                     'Tiện ích & Yêu cầu',
@@ -803,7 +803,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
               ),
               Text(
                 '${_selectedAmenities.length} đang chọn',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF006948)),
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primary),
               ),
             ],
           ),
@@ -834,7 +834,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
               ElevatedButton(
                 onPressed: _addCustomAmenity,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF006948),
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -866,7 +866,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                   color: isSelected ? const Color(0xFFE8F5E9) : Colors.white,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: isSelected ? const Color(0xFF006948) : const Color(0xFFE5E7EB),
+                    color: isSelected ? AppColors.primary : const Color(0xFFE5E7EB),
                     width: isSelected ? 1.5 : 1,
                   ),
                 ),
@@ -880,7 +880,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                         Icon(
                           isSelected ? Icons.check_circle : Icons.check_box_outline_blank,
                           size: 20,
-                          color: isSelected ? const Color(0xFF006948) : AppColors.textMuted,
+                          color: isSelected ? AppColors.primary : AppColors.textMuted,
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -889,7 +889,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                              color: isSelected ? const Color(0xFF006948) : AppColors.textDark,
+                              color: isSelected ? AppColors.primary : AppColors.textDark,
                             ),
                           ),
                         ),
@@ -905,10 +905,10 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                               children: [
                                 Text(
                                   'Đã chọn',
-                                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF006948)),
+                                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primary),
                                 ),
                                 SizedBox(width: 4),
-                                Icon(Icons.close, size: 12, color: Color(0xFF006948)),
+                                Icon(Icons.close, size: 12, color: AppColors.primary),
                               ],
                             ),
                           )
@@ -962,7 +962,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                   icon: const Icon(Icons.search, size: 18),
                   label: const Text('Tìm kiếm', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF006948),
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -991,7 +991,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                   width: 4,
                   height: 16,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF006948),
+                    color: AppColors.primary,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -1220,7 +1220,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF006948),
+                        color: AppColors.primary,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -1270,7 +1270,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                                   color: Color(0xFFE8F5E9),
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(Icons.phone, size: 14, color: Color(0xFF006948)),
+                                child: const Icon(Icons.phone, size: 14, color: AppColors.primary),
                               ),
                             ),
                             const SizedBox(width: 6),
@@ -1409,7 +1409,7 @@ class _LocationSearchBottomSheetState extends State<_LocationSearchBottomSheet> 
                 decoration: InputDecoration(
                   hintText: widget.searchHint,
                   hintStyle: const TextStyle(fontSize: 14, color: AppColors.textMuted),
-                  icon: const Icon(Icons.search, size: 20, color: Color(0xFF006948)),
+                  icon: const Icon(Icons.search, size: 20, color: AppColors.primary),
                   border: InputBorder.none,
                   suffixIcon: _query.isNotEmpty
                       ? IconButton(
@@ -1456,7 +1456,7 @@ class _LocationSearchBottomSheetState extends State<_LocationSearchBottomSheet> 
                                 ? Icons.location_on_outlined
                                 : Icons.near_me_outlined,
                             size: 18,
-                            color: isSelected ? const Color(0xFF006948) : AppColors.textMuted,
+                            color: isSelected ? AppColors.primary : AppColors.textMuted,
                           ),
                         ),
                         title: Text(
@@ -1464,11 +1464,11 @@ class _LocationSearchBottomSheetState extends State<_LocationSearchBottomSheet> 
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                            color: isSelected ? const Color(0xFF006948) : AppColors.textDark,
+                            color: isSelected ? AppColors.primary : AppColors.textDark,
                           ),
                         ),
                         trailing: isSelected
-                            ? const Icon(Icons.check_circle, color: Color(0xFF006948), size: 20)
+                            ? const Icon(Icons.check_circle, color: AppColors.primary, size: 20)
                             : null,
                         onTap: () {
                           widget.onSelected(item);

@@ -164,7 +164,7 @@ class _ReportHostScreenState extends ConsumerState<ReportHostScreen> {
                       height: 50,
                       color: Colors.grey.shade200,
                       child: widget.room.images.isNotEmpty
-                          ? Image.network(widget.room.images.first, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.home))
+                          ? Image.network(widget.room.images.first, fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => const Icon(Icons.home))
                           : const Icon(Icons.home, color: AppColors.primary),
                     ),
                   ),

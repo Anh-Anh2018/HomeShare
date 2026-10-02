@@ -13,9 +13,13 @@ class AppTheme {
         primary: AppColors.primary,
         onPrimary: Colors.white,
         primaryContainer: AppColors.primaryContainer,
-        onPrimaryContainer: AppColors.primary,
+        onPrimaryContainer: AppColors.primaryDark,
+        secondary: AppColors.primaryLight,
+        onSecondary: Colors.white,
         surface: AppColors.surface,
         onSurface: AppColors.textPrimary,
+        surfaceContainerHighest: AppColors.surfaceVariant,
+        outline: AppColors.border,
         error: AppColors.danger,
         onError: Colors.white,
       ),
@@ -61,6 +65,7 @@ class AppTheme {
           fontWeight: FontWeight.w600,
           color: AppColors.textDark,
         ),
+        iconTheme: const IconThemeData(color: AppColors.textDark),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -95,6 +100,40 @@ class AppTheme {
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.primary,
+          side: const BorderSide(color: AppColors.primary, width: 1.2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          textStyle: GoogleFonts.plusJakartaSans(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        elevation: 2,
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: AppColors.surfaceVariant,
+        selectedColor: AppColors.primaryContainer,
+        labelStyle: GoogleFonts.plusJakartaSans(
+          fontSize: 13,
+          color: AppColors.textPrimary,
+        ),
+        secondaryLabelStyle: GoogleFonts.plusJakartaSans(
+          fontSize: 13,
+          color: AppColors.primary,
+          fontWeight: FontWeight.w600,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
         ),
       ),
       cardTheme: CardThemeData(

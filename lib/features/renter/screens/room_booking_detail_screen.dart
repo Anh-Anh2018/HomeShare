@@ -393,7 +393,7 @@ class _RoomBookingDetailScreenState extends ConsumerState<RoomBookingDetailScree
                       ? Image.network(
                           widget.room.images.first,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Icon(Icons.home, color: Color(0xFF2563EB)),
+                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.home, color: Color(0xFF2563EB)),
                         )
                       : const Icon(Icons.home, color: Color(0xFF2563EB)),
                 ),
