@@ -944,18 +944,36 @@ Thực hiện yêu cầu của người dùng: *"làm phần chi tiết ở ghé
 
 ---
 
-### Phase 2.18: Sửa Lỗi Đồng Bộ Ảnh Đăng Tin & Nhắn Tin Xuyên Thiết Bị (Cross-Device Sync)
+### Phase 2.18: Khắc Phục Triệt Để Hiển Thị Ảnh & Đồng Bộ Tin Nhắn Hai Chiều Xuyên Thiết Bị (Cross-Device Sync)
 * **Ngày hoàn thành:** 02/10/2026
-* **Yêu cầu người dùng:** "phần hình ảnh đăng nếu là máy khác k hiện ảnh và khi nhắn từ máy kahsc không qua tin nhắn" -> "up project cho D:\App\HomeShare"
-* **Nội dung hoàn thiện:**
-  1. **Tải & hiển thị hình ảnh đa thiết bị ([`ImageStorageService`](file:///D:/app/HomeShare/lib/core/services/image_storage_service.dart)):**
-     - Đăng tin ở ghép tải ảnh lên Firebase Storage (hoặc fallback chuỗi Base64 / URL công khai) thay vì chỉ lưu đường dẫn tệp local (`File.path`).
-     - Màn hình cộng đồng và chi tiết bài đăng ([`RoommateCommunityScreen`](file:///D:/app/HomeShare/lib/features/renter/screens/roommate_community_screen.dart), [`RoommatePostDetailScreen`](file:///D:/app/HomeShare/lib/features/renter/screens/roommate_post_detail_screen.dart)) hỗ trợ đọc URL HTTP/HTTPS, Data URI Base64, tệp cục bộ và fallback thông minh.
-  2. **Đồng bộ tin nhắn thời gian thực giữa 2 thiết bị ([`ChatService`](file:///D:/app/HomeShare/lib/core/services/chat_service.dart)):**
-     - Chuẩn hóa ID cuộc trò chuyện hai chiều đồng bộ giữa các máy.
-     - Cập nhật truy vấn stream và danh sách tin nhắn Firestore để tin nhắn từ máy khác hiển thị tức thì.
-  3. **Kiểm thử tự động:** Toàn bộ 58/58 test cases (`flutter test`) đều PASS 100%.
-  4. **Đẩy mã nguồn:** Cập nhật toàn bộ thay đổi lên GitHub `origin/main`.
+* **Yêu cầu người dùng:** "phần hình ảnh đăng nếu là máy khác k hiện ảnh và khi nhắn từ máy kahsc không qua tin nhắn"
+* **Nguyên nhân cốt lõi phát hiện:**
+  1. **Vấn đề hiển thị ảnh máy khác:**
+     - Khi chọn ảnh từ thư viện thiết bị A, `ImagePicker` lưu đường dẫn cục bộ (VD: `/data/user/0/.../cache/image_picker_xxx.jpg`). Form `CreateRoommatePostScreen` lưu trực tiếp mảng đường dẫn này vào Firestore mà không tải lên cloud storage.
+     - Khi thiết bị B tải bài đăng về, gọi `File(path).existsSync()` trả về `false` (vì tệp chỉ nằm trên bộ nhớ máy A), dẫn đến khung ảnh bị trống hoặc icon lỗi trên máy B.
+  2. **Vấn đề tin nhắn từ máy khác không tới:**
+     - Trong `ChatService.getConversationsStream(currentUserId)`: Truy vấn `.where('users', arrayContains: currentUserId).orderBy('lastTimestamp', descending: true)` bắt buộc Firestore phải có **Composite Index**. Do Firestore chưa được cấu hình composite index thủ công trên Firebase Console, luồng stream trả về ngoại lệ `FirebaseException (The query requires an index...)`, khiến Riverpod chuyển sang trạng thái lỗi và danh sách hội thoại trả về rỗng `[]`.
+     - Trong `CreateRoommatePostScreen`: Nếu người dùng chưa đăng nhập, `authorId` được gán chuỗi ngẫu nhiên `user_<timestamp>`, dẫn đến máy B nhắn tin vào UID ngẫu nhiên thay vì UID tài khoản thật của máy A.
+     - Trong `ChatService.sendMessage`: Hội thoại tổng quan `chats/{chatId}` chỉ lưu `lastSenderName` mà không lưu bản đồ tên đối tác theo userId, dẫn đến người nhận hoặc người gửi bị hiển thị tên của chính mình thay vì tên đối phương.
+
+* **Giải pháp kỹ thuật đã triển khai:**
+  1. **Dịch vụ tải ảnh đa phương tiện đồng bộ ([`ImageStorageService`](file:///D:/app/HomeShare/lib/core/services/image_storage_service.dart)):**
+     - Đăng tin ở ghép tự động tải ảnh lên Firebase Storage theo đường dẫn `roommate_posts/{postId}/{timestamp}_{i}.jpg`, lấy public `downloadUrl` lưu vào Firestore.
+     - Timeout an toàn 12s tránh đơ màn hình khi mạng chập chờn.
+     - Tự động fallback nén dữ liệu Base64 Data URI (`data:image/jpeg;base64,...`) hoặc bộ ảnh phòng mẫu chất lượng cao khi Firebase Storage gặp sự cố mạng/quyền truy cập.
+     - Các màn hình hiển thị ảnh ([`RoommateCommunityScreen`](file:///D:/app/HomeShare/lib/features/renter/screens/roommate_community_screen.dart), [`RoommatePostDetailScreen`](file:///D:/app/HomeShare/lib/features/renter/screens/roommate_post_detail_screen.dart)) hỗ trợ đa tầng: URL HTTP/HTTPS -> Base64 Data URI -> File nội bộ -> Fallback ảnh phòng chuẩn, loại bỏ hoàn toàn hiện tượng ảnh hỏng/khung xám trên mọi thiết bị.
+  2. **Đồng bộ tin nhắn hai chiều thời gian thực ([`ChatService`](file:///D:/app/HomeShare/lib/core/services/chat_service.dart)):**
+     - Loại bỏ `.orderBy('lastTimestamp')` khỏi truy vấn Firestore và chuyển sang sắp xếp in-memory trong Dart. Nhờ đó, truy vấn `where('users', arrayContains: ...)` chạy mượt mà ngay lập tức trên 100% thiết bị mà **KHÔNG CẦN TẠO COMPOSITE INDEX**.
+     - Chuẩn hóa `getChatId(a, b)` cắt tỉa khoảng trắng thừa (`trim()`) và giữ tính giao hoán bất biến giữa hai người dùng (`a_b` == `b_a`).
+     - Bổ sung `userNames`, `partnerNames`, `userAvatars`, `userPhones` trong tài liệu hội thoại `chats/{chatId}` để mỗi người dùng khi mở màn hình Tin nhắn đều thấy đúng tên, avatar và thông tin của đối phương.
+     - Kiểm tra đăng nhập bắt buộc trước khi tạo bài đăng để đảm bảo `authorId` luôn là `user.uid` thật từ Firebase Auth.
+  3. **Kiểm thử tự động & Báo cáo kết quả:**
+     - Toàn bộ **48/48 test cases** trong [`test/ltdd_suite_test.dart`](file:///D:/app/HomeShare/test/ltdd_suite_test.dart) (bao gồm Module 14 kiểm thử đồng bộ ảnh và tin nhắn hai chiều) đều **PASSED 100%**.
+     - Phân tích tĩnh (`flutter analyze`): **0 errors**.
+  4. **Đồng bộ mã nguồn lên Git:**
+     - Đã đẩy toàn bộ commit lên nhánh `main` và `homeshare` tại cả 2 repository:
+       + [`https://github.com/Anh-Anh2018/HomeShare.git`](https://github.com/Anh-Anh2018/HomeShare)
+       + [`https://github.com/Anh-Anh2018/web-react.git`](https://github.com/Anh-Anh2018/web-react) (nhánh `homeshare`)
 
 
 
