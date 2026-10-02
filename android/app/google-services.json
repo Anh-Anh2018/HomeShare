@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "452451086417",
+    "project_id": "homeshare-fe18e",
+    "storage_bucket": "homeshare-fe18e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:452451086417:android:4e43bd4626c0c0afcbc870",
+        "android_client_info": {
+          "package_name": "com.homeshare.app.homeShare"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAaMvYaXeTWYz-qzXEXMt8FxrC_WFwbjdc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:452451086417:android:94df7b7ff261a664cbc870",
+        "android_client_info": {
+          "package_name": "com.homeshare.app.home_share"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAaMvYaXeTWYz-qzXEXMt8FxrC_WFwbjdc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

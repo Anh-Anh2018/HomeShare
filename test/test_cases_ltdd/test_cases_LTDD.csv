@@ -1,0 +1,108 @@
+TC'ID,Title,Estimate (mins),Area,Steps,Expect Result,Priority
+Tc_DASHBOARD_01,Ki?m tra di?u hu?ng nút Chuông Thông báo,3,Header,"B1. M? màn hình Trang Ch?.
+B2. Nh?n vào icon Chuông thông báo ? góc trên bên ph?i header.",H? th?ng di?u hu?ng chính xác sang màn hình Trung tâm Thông báo (Notification Center).,Hight
+Tc_DASHBOARD_02,Ki?m tra di?u hu?ng Avatar tài kho?n ngu?i dùng,3,Header,"B1. M? màn hình Trang Ch?.
+B2. Nh?n vào icon Avatar ngu?i dùng ? góc trên bên ph?i header.",H? th?ng chuy?n hu?ng ngu?i dùng sang màn hình Trang cá nhân (Tenant Profile & Account).,Normal
+Tc_DASHBOARD_03,Ki?m tra hi?n th? Logo và Tiêu d? Trang Ch?,2,Header,"B1. M? màn hình Trang Ch?.
+B2. Quan sát ph?n Header phía trên cùng.","Logo hình ngôi nhà màu xanh và ch? ""Trang Ch?"" hi?n th? rõ ràng, dúng màu s?c và v? trí thi?t k?.",Low
+Tc_DASHBOARD_04,Ki?m tra c?p nh?t ch?m d? thông báo m?i trên icon Chuông,5,Header,"B1. Tài kho?n dang ? màn hình Trang Ch?.
+B2. Có m?t thông báo m?i g?i t?i tài kho?n t? h? th?ng/ch? tr?.
+B3. Quan sát icon Chuông trên header.",Icon Chuông t? d?ng xu?t hi?n ch?m d? (red badge indicator) báo hi?u có thông báo chua d?c.,Normal
+Tc_DASHBOARD_05,Ki?m tra di?u hu?ng các tab trên thanh Bottom Navigation,5,Navigation Bar,"B1. M? màn hình Trang Ch?.
+B2. L?n lu?t nh?n vào các tab: Tin nh?n, Ðang bài (+), Tìm ? ghép, Cá nhân.
+B3. Nh?n l?i vào tab Trang ch?.","?ng d?ng chuy?n d?i mu?t mà qua các màn hình tuong ?ng. Khi nh?n l?i tab Trang ch?, h? th?ng quay v? màn hình chính thành công.",Hight
+Tc_DASHBOARD_06,Ki?m tra ch?m vào Search Bar m? giao di?n g?i ý tìm ki?m,3,Search Bar,"B1. M? màn hình Trang Ch?.
+B2. Ch?m vào ô tìm ki?m (Search Bar).","H? th?ng hi?n th? bàn phím ?o, con tr? nh?p nháy trong ô input và hi?n th? danh sách ""Tìm ki?m g?n dây"" cùng ""Khu v?c sinh viên & van phòng"".",Hight
+Tc_DASHBOARD_07,Ki?m tra tìm ki?m v?i t? khóa h?p l?,5,Search Bar,"B1. Ch?m vào ô tìm ki?m.
+B2. Nh?p t? khóa: ""Th? Ð?c"".
+B3. Nh?n nút Tìm ki?m trên bàn phím ?o.",H? th?ng t?i và hi?n th? danh sách các phòng tr? thu?c khu v?c Th? Ð?c kh?p v?i t? khóa tìm ki?m.,Hight
+Tc_DASHBOARD_08,Ki?m tra tìm ki?m v?i t? khóa có kho?ng tr?ng d?u/cu?i,3,Search Bar,"B1. Ch?m vào ô tìm ki?m.
+B2. Nh?p chu?i: ""   Bình Th?nh   "".
+B3. Nh?n nút Tìm ki?m.",H? th?ng t? d?ng c?t b? kho?ng tr?ng th?a (trim) và tr? v? k?t qu? chính xác cho khu v?c "Bình Th?nh".,Normal
+Tc_DASHBOARD_09,Ki?m tra tìm ki?m v?i ký t? d?c bi?t,3,Search Bar,"B1. Ch?m vào ô tìm ki?m.
+B2. Nh?p các ký t? d?c bi?t: ""@#$%^&*()_+"".
+B3. Nh?n nút Tìm ki?m.","H? th?ng x? lý an toàn không b? crash/l?i SQL injection, hi?n th? thông báo ""Không tìm th?y k?t qu? phù h?p"".",Normal
+Tc_DASHBOARD_10,Ki?m tra tìm ki?m khi d? tr?ng ô tìm ki?m,3,Search Bar,"B1. Ch?m vào ô tìm ki?m.
+B2. Ð? ô tìm ki?m tr?ng ho?c ch? nh?p d?u cách.
+B3. Nh?n Tìm ki?m.","H? th?ng không th?c hi?n g?i truy v?n rác, gi? nguyên màn hình g?i ý ho?c hi?n th? toàn b? phòng tr? m?c d?nh.",Normal
+Tc_DASHBOARD_11,Ki?m tra d? dài t?i da c?a t? khóa tìm ki?m (>100 ký t?),5,Search Bar,"B1. Ch?m vào ô tìm ki?m.
+B2. Dán do?n van b?n dài 120 ký t?.
+B3. Quan sát ô nh?p li?u và nh?n Tìm ki?m.","Ô tìm ki?m gi?i h?n t?i da 100 ký t? (ho?c c?t g?n an toàn), không gây tràn giao di?n và không làm crash app.",Normal
+Tc_DASHBOARD_12,Ki?m tra ch?c nang nút Xóa t? khóa ("X") trên Search Bar,3,Search Bar,"B1. Nh?p t? khóa b?t k? vào ô tìm ki?m (VD: ""Phòng tr?"").
+B2. Quan sát nút icon ""X"" xu?t hi?n bên ph?i ô.
+B3. Nh?n vào nút ""X"".","Toàn b? t? khóa trong ô tìm ki?m b? xóa s?ch ngay l?p t?c, con tr? d?t l?i ? d?u ô nh?p li?u.",Normal
+Tc_DASHBOARD_13,Ki?m tra nút Quay l?i (Back Arrow) t? màn hình tìm ki?m,3,Search Bar,"B1. Ch?m vào ô tìm ki?m d? m? danh sách g?i ý.
+B2. Nh?n vào icon mui tên quay l?i (Back Arrow) bên trái ô tìm ki?m.",?ng d?ng dóng bàn phím ?o và quay v? tr?ng thái màn hình Trang Ch? m?c d?nh.,Normal
+Tc_DASHBOARD_14,Ki?m tra tìm ki?m v?i d?a di?m không t?n t?i (Empty State),5,Search Bar,"B1. Nh?p t? khóa: ""Ð?a di?m không có th?t 99999"".
+B2. Nh?n Tìm ki?m.","Hi?n th? màn hình r?ng (Empty State) v?i hình minh h?a và thông báo: ""Không tìm th?y phòng tr? phù h?p, vui lòng th? l?i v?i t? khóa khác"".",Hight
+Tc_DASHBOARD_15,Ki?m tra di?u hu?ng nút [B? l?c] c?nh Search Bar,3,Search Bar,"B1. M? màn hình Trang Ch?.
+B2. Nh?n vào nút [B? l?c] (icon thanh tru?t b? l?c).","H? th?ng m? màn hình/Bottom Sheet ""B? l?c tìm ki?m"" cho phép ch?n kho?ng giá, khu v?c, di?n tích, ti?n ích.",Hight
+Tc_DASHBOARD_16,Ki?m tra ch?m vào m?c Tìm ki?m g?n dây,3,Recent Searches,"B1. M? giao di?n tìm ki?m.
+B2. Ch?m vào m?c ""Ð?i h?c Bách Khoa"" trong danh sách ""Tìm ki?m g?n dây"".",T? khóa "Ð?i h?c Bách Khoa" t? d?ng di?n vào ô tìm ki?m và h? th?ng t?i ngay danh sách phòng tr? quanh khu v?c này.,Hight
+Tc_DASHBOARD_17,Ki?m tra xóa m?t m?c don l? trong Tìm ki?m g?n dây,3,Recent Searches,"B1. M? giao di?n tìm ki?m.
+B2. Nh?n vào icon ""x"" bên c?nh m?c ""Bình Th?nh du?i 4 tri?u"".",M?c "Bình Th?nh du?i 4 tri?u" b? xóa kh?i danh sách tìm ki?m g?n dây; các m?c khác v?n gi? nguyên.,Normal
+Tc_DASHBOARD_18,Ki?m tra ch?c nang "Xóa t?t c?" Tìm ki?m g?n dây,3,Recent Searches,"B1. M? giao di?n tìm ki?m có s?n 4 m?c l?ch s? tìm ki?m.
+B2. Nh?n vào nút ch? ""Xóa t?t c?"".","Toàn b? danh sách l?ch s? tìm ki?m g?n dây b? xóa s?ch, ph?n ""Tìm ki?m g?n dây"" ?n di ho?c hi?n tr?ng.",Normal
+Tc_DASHBOARD_19,Ki?m tra luu t? khóa m?i vào d?u danh sách Tìm ki?m g?n dây,5,Recent Searches,"B1. Nh?p t? khóa m?i: ""Khu CNC Qu?n 9"" và nh?n Tìm ki?m.
+B2. Quay l?i giao di?n tìm ki?m và ki?m tra danh sách g?n dây.",T? khóa "Khu CNC Qu?n 9" xu?t hi?n ? v? trí d?u tiên (trên cùng) trong danh sách Tìm ki?m g?n dây.,Normal
+Tc_DASHBOARD_20,Ki?m tra không trùng l?p t? khóa trong Tìm ki?m g?n dây,3,Recent Searches,"B1. Danh sách dã có t? khóa ""Ð?i h?c Bách Khoa"".
+B2. Ngu?i dùng nh?p l?i t? khóa ""Ð?i h?c Bách Khoa"" và tìm ki?m.
+B3. Quay l?i ki?m tra danh sách g?n dây.",T? khóa du?c dua lên d?u danh sách nhung không b? nhân dôi (ch? xu?t hi?n duy nh?t 1 l?n).,Normal
+Tc_DASHBOARD_21,Ki?m tra nh?n vào th? Khu v?c "Làng Ð?i h?c Th? Ð?c",5,Popular Areas,"B1. M? màn hình tìm ki?m.
+B2. Nh?n vào th? ""Làng Ð?i h?c Th? Ð?c (124 phòng tr? s?n có)"".",H? th?ng áp d?ng b? l?c khu v?c Làng Ð?i h?c và di?u hu?ng sang danh sách hi?n th? các phòng tr? t?i dây.,Hight
+Tc_DASHBOARD_22,Ki?m tra s? lu?ng phòng hi?n th? trên th? khu v?c kh?p d? li?u,5,Popular Areas,"B1. Quan sát s? lu?ng phòng trên th? ""D2 - Ði?n Biên Ph? Bình Th?nh"" (VD: 150 phòng).
+B2. Nh?n vào th? d? xem danh sách k?t qu?.",T?ng s? k?t qu? tìm th?y ? màn hình danh sách kh?p v?i con s? hi?n th? trên th? g?i ý.,Normal
+Tc_DASHBOARD_23,Ki?m tra cu?n danh sách các khu v?c sinh viên & van phòng,3,Popular Areas,"B1. M? giao di?n tìm ki?m.
+B2. Vu?t ngón tay cu?n d?c ph?n ""Khu v?c sinh viên & van phòng"".","Danh sách cu?n mu?t mà, hi?n th? d?y d? các khu v?c (Nguy?n Ki?m, D2, Khu CNC Q.9, Qu?n 10...).",Low
+Tc_DASHBOARD_24,Ki?m tra hi?n th? d?i Active Filter Chips sau khi l?c,5,Filter Chips,"B1. Ngu?i dùng áp d?ng b? l?c: Qu?n Th? Ð?c, Giá 1tr - 3.5tr, ? m?t mình.
+B2. Quan sát d?i Filter Chips du?i thanh tìm ki?m.","Xu?t hi?n d?y d? 3 tag chip: ""Th? Ð?c [x]"", ""1tr - 3.5tr [x]"", ""? m?t mình [x]"" v?i n?n màu xám/xanh nh?t.",Hight
+Tc_DASHBOARD_25,Ki?m tra xóa m?t chip l?c b?ng nút [x],5,Filter Chips,"B1. Ðang có 3 chip l?c du?c áp d?ng.
+B2. Nh?n vào d?u [x] trên chip ""1tr - 3.5tr"".",Chip "1tr - 3.5tr" bi?n m?t ngay l?p t?c; danh sách phòng t? d?ng t?i l?i mà không còn áp d?ng di?u ki?n giá này.,Hight
+Tc_DASHBOARD_26,Ki?m tra xóa toàn b? các chip l?c,5,Filter Chips,"B1. L?n lu?t nh?n [x] d? xóa h?t t?t c? các chip l?c dang hi?n th?.
+B2. Quan sát danh sách phòng tr?.","Khi không còn chip l?c nào, h? th?ng t? d?ng t?i l?i danh sách toàn b? phòng tr? m?c d?nh ban d?u.",Normal
+Tc_DASHBOARD_27,Ki?m tra cu?n ngang d?i Filter Chips khi có nhi?u tiêu chí,3,Filter Chips,"B1. Áp d?ng d?ng th?i 6 tiêu chí l?c nâng cao.
+B2. Vu?t ngang (Swipe left/right) trên d?i chip l?c.","D?i chip l?c cu?n ngang mu?t mà, không b? che khu?t và các nút [x] trên t?ng chip v?n nh?n tuong tác t?t.",Low
+Tc_DASHBOARD_28,Ki?m tra c?t ch? (ellipsis) khi tên tiêu chí l?c quá dài,3,Filter Chips,"B1. Ch?n m?t phu?ng/xã có tên dài (VD: ""Phu?ng Th?nh M? L?i"").
+B2. Quan sát chip l?c hi?n th?.","Text trên chip hi?n th? g?n gàng, t? d?ng rút g?n kèm d?u ""..."" n?u vu?t quá d? r?ng t?i da c?a chip.",Low
+Tc_DASHBOARD_29,Ki?m tra hi?n th? t?ng s? k?t qu? "Tìm th?y X phòng tr?",3,Results List,"B1. Th?c hi?n tìm ki?m v?i b? l?c b?t k?.
+B2. Quan sát dòng text k?t qu? ? góc trên danh sách phòng.",Dòng text hi?n th? dúng s? lu?ng phòng tìm du?c (VD: "Tìm th?y 24 phòng tr?" kèm ch?m tròn xanh).,Normal
+Tc_DASHBOARD_30,Ki?m tra s?p x?p theo "Giá th?p d?n cao",5,Results List,"B1. Nh?n vào dropdown ""S?p x?p: Phù h?p nh?t"".
+B2. Ch?n tùy ch?n ""Giá: Th?p d?n cao"".",Danh sách phòng tr? t? d?ng s?p x?p l?i theo th? t? giá thuê tang d?n (t? giá th?p nh?t d?n cao nh?t).,Hight
+Tc_DASHBOARD_31,Ki?m tra s?p x?p theo "M?i nh?t",5,Results List,"B1. Nh?n vào dropdown s?p x?p.
+B2. Ch?n tùy ch?n ""M?i nh?t"".","Danh sách phòng tr? s?p x?p l?i v?i các bài dang m?i nh?t (VD: M?i dang 15p, 1 gi? tru?c) hi?n th? lên trên d?u.",Normal
+Tc_DASHBOARD_32,Ki?m tra m? và dóng Dropdown s?p x?p,3,Results List,"B1. Ch?m vào menu dropdown s?p x?p d? m? danh sách tùy ch?n.
+B2. Ch?m vào vùng bên ngoài menu.",Menu dropdown dóng l?i tron tru mà không làm thay d?i l?a ch?n s?p x?p hi?n t?i.,Low
+Tc_DASHBOARD_33,Ki?m tra gi? nguyên b? l?c khi thay d?i tiêu chí s?p x?p,5,Results List,"B1. Ðang áp d?ng l?c khu v?c ""Th? Ð?c"".
+B2. Ð?i s?p x?p t? ""Phù h?p nh?t"" sang ""Giá th?p d?n cao"".",Danh sách s?p x?p theo giá nhung v?n d?m b?o toàn b? k?t qu? ch? thu?c khu v?c "Th? Ð?c".,Normal
+Tc_DASHBOARD_34,Ki?m tra di?u hu?ng khi ch?m vào Th? phòng tr?,5,Room Card,"B1. ? màn hình k?t qu? tìm ki?m trên Trang Ch?.
+B2. Ch?m vào b?t k? v? trí nào trên th? phòng ""Studio gác dúc Linh Trung"".",H? th?ng di?u hu?ng ngay l?p t?c sang màn hình Chi ti?t phòng tr? tuong ?ng (Node `3338:950`).,Hight
+Tc_DASHBOARD_35,Ki?m tra tính chính xác c?a d? li?u hi?n th? trên Th? phòng,5,Room Card,"B1. Quan sát th? phòng tr? trên màn hình.
+B2. Ð?i chi?u các tru?ng thông tin: Giá (2.800.000 d), Di?n tích (25m²), T?ng (T?ng 2), Ð?a ch? (Ðu?ng s? 8 Linh Trung), Ti?n ích (Có gác, Máy l?nh, Gi? t? do...).","Toàn b? thông s? hi?n th? d?y d?, không b? l?i font, d?nh d?ng ti?n t? dúng chu?n Vi?t Nam (VND).",Hight
+Tc_DASHBOARD_36,Ki?m tra vu?t chuy?n ?nh (Image Carousel) tr?c ti?p trên Th? phòng,5,Room Card,"B1. Ð?t ngón tay lên ?nh bìa phòng tr?.
+B2. Vu?t sang trái (Swipe left) r?i vu?t sang ph?i (Swipe right).",?nh chuy?n sang ?nh ti?p theo/tru?c dó mu?t mà; ch?m tròn ch? th? v? trí ?nh (dots indicator) c?p nh?t dúng v? trí.,Normal
+Tc_DASHBOARD_37,Ki?m tra b?m icon Trái tim d? Luu vào danh sách Yêu thích,5,Room Card,"B1. Th? phòng dang có icon Trái tim màu tr?ng (chua luu).
+B2. Ch?m vào icon Trái tim ? góc trên bên ph?i ?nh phòng.","Icon Trái tim d?i sang màu d? r?c r?, hi?n th? thông báo ""Ðã luu vào danh sách yêu thích"" và phòng du?c thêm vào Wishlist.",Hight
+Tc_DASHBOARD_38,Ki?m tra b?m icon Trái tim d? B? luu Yêu thích,5,Room Card,"B1. Th? phòng dang có icon Trái tim màu d? (dã luu).
+B2. Ch?m l?i vào icon Trái tim.","Icon Trái tim chuy?n v? màu tr?ng vi?n den, hi?n th? thông báo ""Ðã b? luu phòng"" và phòng b? xóa kh?i Wishlist.",Hight
+Tc_DASHBOARD_39,Ki?m tra nh?n nút G?i nhanh Ch? tr? (Phone Call),5,Room Card,"B1. Quan sát góc du?i bên ph?i th? phòng có icon Ði?n tho?i.
+B2. Ch?m vào nút icon Ði?n tho?i.",?ng d?ng kích ho?t ?ng d?ng G?i di?n tho?i m?c d?nh c?a di?n tho?i v?i s? di?n tho?i c?a Ch? tr? (VD: `0903***888`) du?c di?n s?n trên bàn phím quay s?.,Hight
+Tc_DASHBOARD_40,Ki?m tra nh?n nút [Nh?n tin] v?i Ch? tr?,5,Room Card,B1. Ch?m vào nút màu xanh [Nh?n tin] trên th? phòng "Chú Ba Linh Trung".,"H? th?ng chuy?n th?ng sang màn hình Chat trao d?i v?i Chú Ba, d?ng th?i th? thông tin phòng dó du?c ghim s?n ? d?u do?n chat.",Hight
+Tc_DASHBOARD_41,Ki?m tra hi?n th? các Badge nhãn trên ?nh phòng,3,Room Card,B1. Quan sát các th? phòng tr? khác nhau trên danh sách.,"Các nhãn ""Chính ch? cho thuê"" (Badge xanh), ""M?i dang 15p"" (Badge tr?ng), ""Uu dãi sinh viên"" (Badge vàng cam) hi?n th? n?i b?t trên góc ?nh.",Low
+Tc_DASHBOARD_42,Ki?m tra hi?n th? các tag Ti?n ích trên Th? phòng,3,Room Card,B1. Quan sát hàng ti?n ích trên th? phòng.,"Các tag: ""Có gác"", ""Máy l?nh"", ""Ch? d? xe"", ""C?ng vân tay"", ""Gi? t? do"" hi?n th? v?i icon nh? và ch? rõ ràng, t? xu?ng dòng h?p lý.",Low
+Tc_DASHBOARD_43,Ki?m tra d?nh d?ng hi?n th? v?i các kho?ng giá thuê khác nhau,3,Room Card,"B1. L?c phòng giá r? (VD: 800.000 d/tháng) và phòng giá cao (VD: 12.500.000 d/tháng).
+B2. Quan sát hi?n th? giá trên th? phòng.","Giá ti?n luôn du?c phân cách d?u ch?m hàng nghìn rõ ràng (800.000 d, 12.500.000 d) kèm h?u t? ""/tháng"", không b? l?i tràn vi?n.",Normal
+Tc_DASHBOARD_44,Ki?m tra ch?m nhanh liên t?c vào nút Yêu thích (Double Tap/Spam),5,Room Card,"B1. Ch?m liên t?c 3-4 l?n th?t nhanh vào icon Trái tim trên th? phòng.
+B2. Quan sát tr?ng thái icon và ph?n h?i app.","?ng d?ng x? lý debounce an toàn, tr?ng thái cu?i cùng hi?n th? dúng s? l?n nh?n l?/ch?n, không b? gi?t lag hay g?i trùng l?p request API.",Normal
+Tc_DASHBOARD_45,Ki?m tra thao tác Kéo d? làm m?i trang (Pull-to-Refresh),5,General Operations,"B1. ? d?u màn hình Trang Ch?.
+B2. Kéo màn hình t? trên xu?ng du?i (Pull-to-refresh) r?i th? tay ra.",Bi?u tu?ng loading xoay tròn xu?t hi?n; h? th?ng g?i API l?y d? li?u m?i nh?t và làm m?i danh sách phòng tr? thành công.,Hight
+Tc_DASHBOARD_46,Ki?m tra t?i thêm d? li?u khi cu?n xu?ng cu?i trang (Infinite Scroll / Pagination),5,General Operations,"B1. Cu?n danh sách phòng tr? xu?ng cu?i màn hình.
+B2. Quan sát ph?n h?i ? dáy danh sách.","Xu?t hi?n vòng tròn xoay loading nh?, sau dó n?p thêm d?t phòng tr? ti?p theo (trang 2, trang 3) mu?t mà mà không làm gián do?n ngu?i dùng.",Hight
+Tc_DASHBOARD_47,Ki?m tra x? lý khi m?t k?t n?i m?ng Internet (Offline Mode),5,Error / Exception,"B1. B?t ch? d? máy bay (ng?t Wifi và 4G/5G).
+B2. M? app ho?c th?c hi?n tìm ki?m phòng tr? trên Trang Ch?.","?ng d?ng không b? crash; hi?n th? thông báo ""Không có k?t n?i m?ng, vui lòng ki?m tra l?i Internet"" kèm nút [Th? l?i].",Hight
+Tc_DASHBOARD_48,Ki?m tra ph?c h?i d? li?u khi có m?ng Internet tr? l?i,5,Error / Exception,"B1. Sau khi b? m?t m?ng, b?t l?i k?t n?i Wifi/4G.
+B2. Nh?n nút [Th? l?i] (Retry) trên màn hình l?i.",H? th?ng t? d?ng k?t n?i l?i server và t?i d?y d? d? li?u phòng tr? lên Trang Ch?.,Normal
+Tc_DASHBOARD_49,Ki?m tra gi? nguyên v? trí cu?n khi Back t? Chi ti?t phòng v? Trang Ch?,5,Navigation & State,"B1. Cu?n danh sách Trang Ch? xu?ng phòng tr? th? 8.
+B2. B?m vào phòng th? 8 d? vào màn hình Chi ti?t phòng.
+B3. Nh?n nút Back d? quay l?i Trang Ch?.","?ng d?ng quay l?i dúng v? trí cu?n c?a phòng th? 8, ngu?i dùng không b? vang ngu?c v? d?u trang.",Normal
+Tc_DASHBOARD_50,Ki?m tra hi?n th? giao di?n trên các kích thu?c màn hình khác nhau (Responsiveness),5,UI / Compatibility,"B1. Cài d?t và m? ?ng d?ng trên các thi?t b? màn hình nh? (VD: màn 4.7 inch, 5.5 inch) và màn hình l?n (6.7 inch).
+B2. Ki?m tra can ch?nh layout Trang Ch?.","B? c?c th? phòng, thanh tìm ki?m, và bottom navigation t? co giãn linh ho?t, không b? v? khung hay tràn ch? ? b?t k? thi?t b? nào.",Normal

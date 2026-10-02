@@ -1,0 +1,4360 @@
+Tab 1
+THU DUC COLLEGE OF TECHNOLOGY FACULTY OF INFORMATION TECHNOLOGY
+SOFTWARE SPECIFICATION DOCUMENT HOME SHARE - BOARDING HOUSE MANAGEMENT SYSTEM
+Instructor: TIEU KIM CUONG
+Students:
+Tran Tra Quoc Man
+Vo Pham Tien Anh
+Le Van The
+Tran Thanh Anh Toan
+Nguyen Nhu Quynh
+Major: Information Technology        Class: 26111TNC10713101 Group: 4
+Ho Chi Minh City, Day 18 Month 9 Year 2026
+No.
+Student ID
+Full Name
+Role / Responsibilities
+Contribution
+Signature
+1
+23211TT0240
+Nguyen Nhu Quynh
+Admin
+20%
+2
+24211TT2773
+Tran Tra Quoc Man
+Landlord
+20%
+3
+23211TT4693
+Vo Pham Tien Anh
+Landlord
+20%
+4
+24211TT3499
+Le Van The
+Tenant
+20%
+5
+24211TT2069
+Tran Thanh Anh Toan
+Tenant
+20%
+Revision History
+Date
+Version
+Description
+Author
+Revised by
+20/09/2026
+1.0
+First version
+Nguyen Nhu Quynh
+Tran Tra Quoc Man
+21/09/2026
+1.0
+Add Role Tenant and respective function requirement
+Le Van The, Tran Thanh Anh Toan
+Tran Tra Quoc Man
+21/09/2026
+1.0
+Add Role Landlord and respective  function requirement
+Tran Tra Quoc Man, Vo Pham Tien Anh
+Tran Tra Quoc Man
+Table of Contents
+1. Introduction33
+1.1 Overview33
+1.2 Scope33
+2. Functional Requirements34
+2.1 Feature/Component #1: Admin Dashboard & Financial Report Screen34
+2.1.1 User Interfaces34
+2.1.2 Functional Requirements35
+2.2 Feature/Component #2: Order Management Screen37
+2.2.1 User Interfaces37
+2.2.2 Functional Requirements39
+2.3 Feature/Component #3: Landlord Invoice Settlement & Transaction Receipt Screen44
+2.3.1 User Interfaces44
+2.3.2 Functional Requirements45
+2.4 Feature/Component #4: System Audit Log Screen49
+2.4.1 User Interfaces49
+2.4.2 Functional Requirements50
+2.5 Feature/Component #5: Listing Management & Moderation Screen54
+2.5.1 User Interfaces54
+2.5.2 Functional Requirements55
+2.6 Feature/Component #6: Dashboard Role Tenant61
+2.6.1 User Interfaces61
+2.6.2 Functional Requirements61
+2.7 Feature/Component #7: Search69
+2.7.1 User Interfaces69
+2.7.2 Functional Requirements72
+2.8 Feature/Component #8: Detail Room78
+2.8.1 User Interfaces78
+2.8.2 Functional Requirements79
+2.9 Feature/Component #9: MyMobile Valuation Screen83
+2.9.1 User Interfaces83
+2.9.2 Functional Requirements85
+2.10 Feature/Component #10: Chat Screen90
+2.10.1 User Interfaces90
+2.10.2 Functional Requirements92
+2.11 Feature/Component #11:Rental Details96
+2.11.1 User Interfaces96
+2.11.2 Functional Requirements98
+2.12 Feature/Component #12: Payment103
+2.12.1 User Interfaces103
+2.12.2 Functional Requirements104
+2.13 Feature/Component #13: Booking confirmation109
+2.13.1 User Interfaces109
+2.13.2 Functional Requirements111
+2.14 Feature/Component #14: profile Screen115
+2.14.1 User Interfaces115
+2.14.2 Functional Requirements117
+2.15 Feature/Component #15: Booking Management124
+2.15.1 User Interfaces124
+2.15.2 Functional Requirements124
+2.16 Feature/Component #16: Roommate Finder Screen130
+2.16.1 User Interfaces130
+2.16.2 Functional Requirements130
+2.17 Feature/Component #17:Filter Screen137
+2.17.1 User Interfaces137
+2.17.2 Functional Requirements139
+2.18 Feature/Component #18: MyMobile Valuation Screen145
+2.18.1 User Interfaces145
+2.18.2 Functional Requirements147
+2.19 Feature/Component #19: MyMobile Valuation Screen154
+2.19.1 User Interfaces154
+2.19.2 Functional Requirements156
+2.20 Feature/Component #20: MyMobile Valuation Screen161
+2.20.1 User Interfaces161
+2.20.2 Functional Requirements162
+2.21 Feature/Component #21: MyMobile Valuation Screen166
+2.21.1 User Interfaces166
+2.21.2 Functional Requirements167
+2.22 Feature/Component #22: MyMobile Valuation Screen171
+2.22.1 User Interfaces171
+2.22.2 Functional Requirements173
+2.23 Feature/Component #23: Home Screen And Post Listing177
+2.23.1 User Interfaces177
+2.24 Feature/Component #24: Search, Filter, and Result Listing181
+2.24.1 User Interfaces181
+2.24.2 Functional Requirements182
+2.25 Feature/Component #25: Message List187
+2.25.1 User Interfaces187
+2.25.2 Functional Requirements187
+2.26 Feature/Component #26: Conversation Details189
+2.26.1 User Interfaces189
+2.26.2 Functional Requirements189
+2.27 Feature/Component #27: Create Post Screen192
+2.27.1 User Interfaces192
+2.27.2 Functional Requirements192
+2.28 Feature/Component #28: Pending Requests List198
+2.28.1 User Interfaces198
+2.28.2 Functional Requirements198
+2.29 Feature/Component #29: Deposited Request List200
+2.29.1 User Interfaces200
+2.29.2 Functional Requirements200
+2.30 Feature/Component #30: Update Deposit Information202
+2.30.1 User Interfaces202
+2.30.2 Functional Requirements203
+2.31 Feature/Component #31: Confirm Booking Changes206
+2.31.1 User Interfaces206
+2.31.2 Functional Requirements206
+2.32 Feature/Component #32: Profile209
+2.32.1 User Interfaces209
+2.32.2 Functional Requirements210
+2.33 Feature/Component #33: Edit Profile Information212
+2.33.1 User Interfaces212
+2.33.2 Functional Requirements212
+2.34 Feature/Component #34: Account Settings216
+2.34.1 User Interfaces216
+2.34.2 Functional Requirements216
+2.35 Feature/Component #35: Boarding House Management219
+2.35.1 User Interfaces219
+2.35.2 Functional Requirements219
+2.36 Feature/Component #36: Rooms Management222
+2.36.1 User Interfaces222
+2.36.2 Functional Requirements222
+2.37 Feature/Component #37: Room Detail225
+2.37.1 User Interfaces225
+2.37.2 Functional Requirements225
+2.38 Feature/Component #38: Tenant & Resident Management228
+2.38.1 User Interfaces228
+2.38.2 Functional Requirements229
+2.39 Feature/Component #39: Check-in & Check-out Management231
+2.39.1 User Interfaces231
+2.39.2 Functional Requirements233
+2.40 Feature/Component #40: Room Handover238
+2.40.1 User Interfaces238
+2.40.2 Functional Requirements240
+2.41 Feature/Component #41: Room Handover & Check-out242
+2.41.1 User Interfaces242
+2.41.2 Functional Requirements244
+2.42 Feature/Component #42: Violation & Penalty Fee Management247
+2.42.1 User Interfaces247
+2.42.2 Functional Requirements249
+2.43 Feature/Component #43: Financial Management251
+2.43.1 User Interfaces251
+2.43.2 Functional Requirements252
+2.44 Feature/Component #44: Transaction Receipt255
+2.44.1 User Interfaces255
+2.44.2 Functional Requirements256
+Introduction
+Overview
+The Home Share - Boarding House Management System is a comprehensive mobile platform designed to modernize and streamline boarding house management, room rentals, and shared accommodation. The application provides an integrated digital environment serving three key user groups:
+Tenants (Renters): Users who can browse verified property listings, submit rental requests for rooms or entire houses, manage their stay, and communicate directly with property owners via real-time messaging.
+Landlords (Property Owners): Users equipped with tools to list rental properties, manage house and room inventories, track tenant records, monitor rental income and utility payments, and interact with prospective/current tenants.
+Administrators (System Admins): Supervisors responsible for platform content moderation, publishing system-wide announcements, and overseeing transaction commission management.
+Scope
+The system is developed as a practical rental accommodation management platform for managing rental properties, rooms, tenants, and related rental activities.
+Platform: Cross-platform mobile application developed using Flutter.
+Supported platforms: Android.
+Supported Android version: Android 8.0 (Oreo) and above.
+User roles: Admin, Landlord, and Tenant.
+Test device: Android Emulator / Physical Android Device.
+Supported screen orientation: Portrait mode.
+Functional Requirements
+Feature/Component #1: Admin Dashboard & Financial Report Screen
+User Interfaces
+Financial & Operational KPI Tracking: Provides admins with a quick overview of system-wide metrics, including total cash flow, net platform revenue (service/commission fees), completed transactions, and total registered users.
+Revenue Visualization (Analytics & Charts): Time-series charts (Week / Month / Year) help analyze revenue growth trends and identify peak performance periods.
+Actionable Alerts & Urgent Tasks: Displays urgent notifications requiring immediate action, such as approving deposit disbursements to landlords.
+System Navigation: Provides quick shortcuts to other management modules, including Listings, Order Management, and Transaction History.
+_
+Functional Requirements
+Item
+Description
+User Action
+System Response
+Admin Overview Screen
+Main overview interface for Admin including: Header, Summary Cards, Revenue Chart, Deposit Alert, and Bottom Navigation Bar.
+N/A
+N/A
+Header Title & Subtitle
+Displays page title "ADMIN MANAGEMENT" and description "System-wide overview data / Financial report".
+N/A
+N/A
+Header Action Button
+Profile/Notification icon (Avatar with a red notification dot) at the top right corner.
+Tap Avatar icon
+Redirects to the Admin Notification / Profile screen.
+System Summary Cards
+Card section displaying 4 core summary metrics: Total Cash Flow, Platform Revenue, Successful Transactions, and Total System Users.
+N/A
+N/A
+Cash Flow Card
+Displays Total Cash Flow + growth percentage compared to previous month/YoY (+14.3% / +18.4% YoY).
+N/A
+N/A
+Revenue Card
+Displays Platform Revenue (Net) + fee category notes (Commission & Package fee, Listing fee).
+N/A
+N/A
+Transactions Card
+Displays number of Successful Transactions + 99.2% auto-match rate.
+N/A
+N/A
+Users Card
+Displays Total Platform Users + count of +320 new landlords.
+N/A
+N/A
+Revenue Chart Section
+Revenue statistics chart section filtered over time intervals.
+N/A
+N/A
+Time Filter Toggle
+Filter buttons to switch data view mode (Week / Month / Year).
+Tap a view mode option ("Week", "Month", or "Year")
+Re-renders corresponding chart (Line chart for Week/Month view, Bar chart for Yearly view).
+Chart Data Point / Bar
+Data point on the line chart or bar on the yearly chart.
+Tap any bar/data point (e.g., Sep / T9 bar)
+Displays tooltip with detailed information for that period (e.g., Sep: 18.5M VND (Highest)).
+Average Revenue Text
+Static text displaying average monthly revenue metric (e.g., ⚡ Monthly avg: 14,020,000 VND).
+N/A
+N/A
+Deposit Alert Card
+Alert card requiring processing for pending landlord deposit payouts.
+N/A
+N/A
+Alert Content Info
+Text displaying Order ID (#DH8821 → CT0089), Landlord Name (Dang Thu Ha), and Deposit Amount (4,250,000 VND).
+N/A
+N/A
+Process Button
+Green action button [Process Now].
+Tap [Process Now]
+Redirects directly to the deposit payout detail screen for the corresponding order.
+Bottom Navigation Bar
+Main navigation bar for Admin comprising 4 tabs: Overview, Listings, Order Management, History.
+Tap any tab
+Redirects to the corresponding feature screen and sets the selected tab as active.
+Feature/Component #2: Order Management Screen
+User Interfaces
+Order & Transaction Management: Allows admins to search, filter, and track booking/payment orders by specific landlord, location, contract ID, or reconciliation date.
+Status-based Tracking: Categorizes orders into clear stages (Pending, Deposited, and Fully Paid) for efficient workflow management and deadline monitoring.
+Deposit Processing & Disbursement Control: Enables admins to confirm deposits and manage disbursement conditions (e.g., locking disbursement until the tenant successfully checks in).
+Batch Invoice Generation: Supports selecting single or multiple completed transactions to issue official invoices.
+Functional Requirements
+Item
+Description
+User Action
+System Response
+Order Management Screen
+Main interface for managing order/transaction lists by landlord, status, search filters, and generating payment invoices.
+N/A
+N/A
+Header - Back Button
+Left arrow icon < at the top-left of the header.
+Tap < button
+Navigates back to the previous screen.
+Header - Title
+Static text displaying the screen title "ORDER MANAGEMENT".
+N/A
+N/A
+Landlord Filter Dropdown
+Dropdown filter by Landlord / Area (e.g., 1-Landlord A (Binh Thanh Area)).
+Tap dropdown and select a Landlord
+Reloads the order list corresponding to the selected Landlord.
+Search Bar
+Input field to search orders by Contract ID, Tenant Name, or Task Type.
+Input search keywords
+Automatically filters and displays matching orders.
+Reconciliation Date Filter
+Date selector button for data reconciliation (e.g., Reconciliation: 16/09/2026).
+Tap to select Reconciliation Date
+Filters order list matching the selected reconciliation date.
+Status Tab Bar
+Tab bar to switch between order statuses: "Processing", "Deposited", "Fully Paid" (includes count badges).
+Tap any status tab
+Updates list to display orders corresponding to the selected tab.
+Order List Header
+Column headers categorizing order info (TX ID / TRANSFER DUE DATE and STATUS).
+N/A
+N/A
+Order Card - Processing Tab
+Card displaying orders pending confirmation: TX ID, Tenant Name, Room, Countdown timer (Remaining 15m), Deposit Type, Amount.
+N/A
+N/A
+Confirm Deposit Button
+Green action button [Confirm Deposit].
+Tap [Confirm Deposit]
+Confirms transaction, updates order status to "Deposited", sends notification to Tenant/Landlord, and moves order to the "Deposited" tab.
+Order Card - Eligible (Deposited / Fully Paid)
+Card for orders eligible for processing (already checked in), allowing selection for invoice creation.
+N/A
+N/A
+Selection Checkbox
+Checkbox at the top-left corner of eligible order cards.
+Tap to check / uncheck Checkbox
+Toggles selection state; automatically recalculates selected order count and total payment amount on the bottom toolbar.
+Check-in Badge & System Tag
+Check-in status badge (e.g., ✓ Checked-in (12/09)) and classification tag System Auto-selected.
+N/A
+N/A
+Order Card - Locked (Not Checked-in)
+Card for orders not eligible for payout processing because the tenant has not checked in yet.
+N/A
+N/A
+Locked Warning Banner
+Yellow alert banner Locked: Tenant has not checked in with lock icon 🔒.
+Tap card
+Selection disabled; card remains locked.
+Payout Disabled Status
+Note label Unable to disburse / Not checked in on the right side of the card.
+N/A
+N/A
+Bottom Action Toolbar
+Summary toolbar displaying payment information and batch invoice creation action.
+N/A
+N/A
+Total Payment Info
+Displays selected order count (Selected: X order(s)) and total amount (Total payment: X,XXX,XXX VND).
+N/A
+Automatically updates amount and count immediately upon Checkbox interaction.
+Create Invoice Button
+Primary action button [CREATE INVOICE (X)] (X is the selected order count).
+Tap [CREATE INVOICE (X)]
+Redirects to the detailed Invoice Creation/Export screen for selected orders.
+Bottom Navigation Bar
+Main navigation bar comprising 4 tabs: Overview, Listings, Order Management (active), History.
+Tap any tab
+Redirects to the corresponding feature screen.
+Feature/Component #3: Landlord Invoice Settlement & Transaction Receipt Screen
+User Interfaces
+Landlord Settlement & Commission Deduction: Automatically aggregates total tenant deposits, deducts platform brokerage commissions, and calculates the exact net payout due to the landlord.
+Streamlined QR Payment Processing: Generates dynamic VietQR codes with pre-filled payout amounts and transaction memos to facilitate fast, error-free transfers for admins.
+Detailed Reconciliation & Digital Receipts: Produces comprehensive transaction receipts and line-item reconciliation breakdowns, supporting voucher printing and instant payment confirmations.
+Functional Requirements
+Item
+Description
+User Action
+System Response
+Landlord Settlement Screen
+Main interface for reviewing settlement details, paying landlords via VietQR, and viewing transaction receipts.
+N/A
+N/A
+Header - Navigation & Share
+Top navigation bar containing Back arrow < and Share icon (>).
+Tap < / Tap (>)
+Navigates back / Opens share sheet to export invoice or receipt.
+Landlord Settlement Header
+Displays Landlord Info (Name, Area, Status "Pending Payment"), Bank details, and Reconciliation Period (e.g., Period: 16/09/2026).
+N/A
+N/A
+Room Details Link
+Toggle text link (Room details ).
+Tap link
+Expands/collapses room details included in the settlement.
+Settlement Summary Card
+Card displaying total deposits collected, service/commission fee deductions, and net amount payable to Landlord.
+N/A
+N/A
+Deduction Note Text
+Text note: "Net amount transferred (Brokerage service commission automatically deducted)".
+N/A
+N/A
+Settled Transaction List
+List of orders in the payout batch showing Tenant Name, Room, Contract ID, Deposit Type, Total Amount, and Net Received.
+Scroll list
+Displays itemized deposit orders included in the settlement.
+Income / Expense Breakdown
+Section listing itemized totals: Total deposits, Service commission fee deduction, and Total Net Transfer.
+N/A
+N/A
+Landlord VietQR Section
+Section displaying dynamic VietQR pre-filled with transfer amount (3,750,000 VND) and transfer memo (HT0089 CHU TRO A).
+N/A
+N/A
+QR Action Buttons
+Action buttons [Save QR Image] and [Copy Account No.].
+Tap button
+Saves QR image to device or copies bank account number to clipboard.
+Confirm Transfer Button
+Action button [CONFIRM TRANSFER] at the bottom of the settlement screen.
+Tap [CONFIRM TRANSFER]
+Updates settlement status to "Transferred", generates receipt, and navigates to Transaction Receipt screen.
+Transaction Receipt View
+Screen view showing successful transfer confirmation with green check icon and total amount paid (3,750,000 VND).
+N/A
+N/A
+Receipt Info Grid
+Key-value list: Receipt ID (REC-20260916-SUM), Execution Time, Method (VietQR), Beneficiary, Account, Area, Transfer Memo.
+N/A
+N/A
+Detailed Reconciliation Table
+Breakdown table showing Tenant & Contract ID, Deposit Amount, Commission Fee deduction, and Net Transfer per unit.
+View table
+Displays itemized commission deductions per room transparently.
+Print Receipt Button
+Action button [Print Receipt] (In phiếu).
+Tap [Print Receipt]
+Opens print dialog or exports PDF file for the receipt.
+Confirm Payment Received Button
+Action button [Confirm Payment Received]
+Tap [Confirm Payment Received]
+Locks settlement batch, sends completion notification to Landlord, and updates system history.
+Feature/Component #4: System Audit Log Screen
+User Interfaces
+System Audit & Activity Logging: Tracks and logs all administrative actions performed by Admins and Super Admins to ensure operational transparency and accountability.
+Categorized Action Tracking: Clearly labels and categorizes activities into distinct areas such as Financial (disbursements, deposit refunds), Configuration (commission fee adjustments), and System (bank account/VietQR updates).
+Search & Auditability: Enables fast search and filtering across system logs by Admin name, contract ID, action type, or reconciliation date.
+Functional Requirements
+Item
+Description
+User Action
+System Response
+Activity History Screen
+Main interface for tracking all system activity logs, admin operations, financial transactions, and system configuration history.
+N/A
+N/A
+Header - Back Button
+Left arrow icon < located at the top-left corner.
+Tap < button
+Navigates back to the previous screen.
+Header - Title
+Static header text displaying page title "LỊCH SỬ" (History).
+N/A
+N/A
+Search Bar
+Search input field with placeholder "Tìm theo tên Admin, Mã HĐ, Loại tác vụ...".
+Input keywords (Admin name, Contract ID, or Task type)
+Filters and displays activity log entries matching the search keyword.
+Commission Fee Configuration Card
+Display card showing platform fee updates (e.g., fee change from 4.5% to 5.0%), operator ("Super Admin B"), and execution timestamp.
+N/A
+N/A
+Change Button
+Action button [THAY ĐỔI] (Change) on the top-right of the configuration card.
+Tap [THAY ĐỔI]
+Opens a modal/screen to adjust platform commission fee rate.
+Reconciliation Date Filter
+Date filter selector displaying the selected reconciliation date (e.g., Đối soát: 16/09/2026).
+Tap date filter
+Reloads activity log history for the selected reconciliation date.
+Activity Log List
+Audit log section chronologically grouped by date headers (e.g., "HÔM NAY - 16/09/2026", "HÔM QUA - 15/09/2026").
+Scroll list
+Displays full details of administrative and financial operations.
+Deposit Payout Log Card
+Log entry "Duyệt Giải Ngân Cọc #DHBB21" with green checkmark icon, transfer amount (4,250,000 VND), recipient landlord (Đặng Thu Hà), operator (Admin A), and timestamp.
+N/A
+N/A
+Deposit Refund Log Card
+Log entry "Duyệt Hoàn Cọc #DHBB19 (Hủy phòng)" with refund icon, refund amount (3,000,000 VND), recipient tenant (Nguyễn Văn C), operator (Admin A), and timestamp.
+N/A
+N/A
+System Update Log Card
+Log entry "Cập Nhật STK VietQR Hệ Thống" with bank icon, updated MBBank account details (...889999), operator (Super Admin B), and timestamp.
+N/A
+N/A
+Category Badges
+Color-coded status tags categorizing task types: Financial - Green,  Refund - Red, and  System - Black
+N/A
+N/A
+Bottom Navigation Bar
+Main navigation bar containing 4 tabs: Overview, Listings, Order Management, History (active tab highlighted in blue).
+Tap any tab
+Navigates to the corresponding feature screen.
+Feature/Component #5: Listing Management & Moderation Screen
+User Interfaces
+Listing Moderation & Quality Control: Enables admins to review, approve, or decline new property rental listings submitted by landlords to maintain platform content quality.
+Status-based Filtering & Live Preview: Categorizes listings into clear stages (Pending, Approved, Rejected) and offers real-time preview options along with engagement metrics (views, saves, calls) and action controls like unpublishing or pinning to VIP status.
+Detailed Rejection & Feedback System: Provides structured violation tags (e.g., blurry images, incorrect pricing, spam) along with customizable feedback notes to guide landlords on listing corrections.
+Automated Penalty & Reputation Management: Integrates compliance actions, allowing admins to trigger official warnings and automatically deduct landlord credibility/reputation scores upon rejection
+Functional Requirements
+Item
+Description
+User Action
+System Response
+Listings Management & Review Screen
+Main interface for reviewing, approving, rejecting, live previewing, and managing room listings.
+N/A
+N/A
+Header Navigation
+Top header bar containing screen title "Quản lý bài đăng" and Search icon at the top-right.
+Tap Search icon
+Focuses search bar for quick query input.
+Status Tab Bar
+Switcher tabs for listing statuses: "Tất cả" (All), "Chờ duyệt" (Pending), "Đã duyệt" (Approved), and "Từ chối" (Rejected).
+Tap any status tab
+Filters and loads listings corresponding to the selected status tab.
+Search Bar
+Input field to search listings by Listing ID, title keywords, or Landlord name.
+Input search keywords
+Dynamically filters the list matching search criteria.
+Listing Card - Pending Tab
+Card in "Chờ duyệt" tab displaying thumbnail, Title, Landlord Name, Phone, Rent price, Room specs, and quick review buttons.
+N/A
+N/A
+Quick Approve Button
+Green button [✓ Duyệt Bài Đăng] on the pending card.
+Tap [✓ Duyệt Bài Đăng]
+Updates status to "Published", displays listing publicly on app, and notifies Landlord.
+Quick Reject Button
+Red outlined button [✕ Từ Chối] on the pending card.
+Tap [✕ Từ Chối]
+Opens the Rejection & Violation Reporting modal.
+Listing Card - Approved Tab
+Card in "Đã duyệt" tab displaying published status tag, total view counts, and listing management action buttons.
+N/A
+N/A
+Live Preview Button
+Button [👁 Xem Trực Tiếp] on the approved card.
+Tap [👁 Xem Trực Tiếp]
+Navigates to the Live Preview screen for real-time listing inspection.
+Unpublish Button
+Red text button [🚫 Hạ Bài / Gỡ Bài] on the approved card.
+Tap [🚫 Hạ Bài / Gỡ Bài]
+Unpublishes the listing from public view and updates status notification to Landlord.
+Listing Card - Rejected Tab
+Card in "Từ chối" tab displaying red "Từ chối" tag, summary of violation reasons, and details button.
+N/A
+N/A
+View Violation Reason Button
+Button [Lý Do Vi Phạm] on the rejected card.
+Tap [Lý Do Vi Phạm]
+Displays full rejection report and feedback sent to Landlord.
+Live Preview Screen
+Dedicated screen showing exact public listing layout (Images carousel, stats, price, address, specs, landlord info, amenities).
+N/A
+N/A
+Unpublish Button (Live Preview)
+Bottom action button [🚫 Hạ Bài Đăng].
+Tap [🚫 Hạ Bài Đăng]
+Removes listing from public display and updates status.
+Pin VIP Button
+Bottom action button [⚡ Ghim VIP].
+Tap [⚡ Ghim VIP]
+Sets VIP priority status for the listing to display prominently on app.
+Call Landlord Button
+Bottom action button [📞 Gọi Chủ Trọ].
+Tap [📞 Gọi Chủ Trọ]
+Opens device phone dialer pre-filled with Landlord's phone number.
+Rejection & Violation Reporting Modal
+Modal overlay for specifying violation details, adding feedback, and applying system penalties for non-compliant listings.
+N/A
+N/A
+Violation Reason Checkboxes
+Multi-select checkboxes (Blurry/Logo images, Abnormal price, Wrong address/coordinates, Prohibited/Spam keywords).
+Tap checkboxes
+Automatically populates suggested edit notes into the detailed feedback field.
+Landlord Feedback Notes Field
+Textarea for Admin to provide detailed revision instructions for Landlord (up to 500 characters).
+Input feedback text
+Captures detailed message to attach to the rejection notification.
+Additional Penalty Options
+Radio selection options: "Chỉ từ chối bài" (Reject listing only) or "Cảnh cáo (+1 Lỗi)" (Warning + deduct reputation points).
+Select penalty option
+System records violation severity level and auto-deducts Landlord's trust points if warning is selected.
+Confirm Rejection Button
+Primary red button [XÁC NHẬN TỪ CHỐI & GỬI THÔNG BÁO].
+Tap button
+Moves listing to Rejected tab, logs penalty history, and pushes notification to Landlord.
+Cancel Modal Button
+Text button [Hủy bỏ] or X close icon at top-right.
+Tap [Hủy bỏ] / X
+Closes modal without saving rejection changes.
+Bottom Navigation Bar
+Main app tab bar with 4 sections: Overview, Listings (active), Order Management, History.
+Tap any tab
+Navigates to corresponding screen.
+Feature/Component #6: Dashboard Role Tenant
+User Interfaces
+Functional Requirements
+Item
+Description
+Action
+Response
+Home / Search Screen
+The Home / Search screen contains 16 interactive components/groups:
+- Notification Bell
+- User Avatar
+- Search Bar
+- Clear Search Text ("X")
+- Filter Button
+- Recent Search Item
+- Remove Recent Search ("X")
+- Clear All Searches button
+- Popular Area Card
+- Active Filter Chips
+- Sort Dropdown
+-Room Listing Card
+- Favorite / Wishlist Button (Heart icon)
+- Quick Call Landlord button
+- Quick Message Landlord button
+- Bottom Navigation Bar
+And 4 static component groups (non-interactive):
+- Section Headers ("Recent Searches", "Popular Areas", "Search Results")
+- Empty State / Result Counter label (e.g., "Found 45 results")
+- Room Status Badge (e.g., "Verified", "Available")
+- Landlord Verification Tick / Rating badge
+N/A
+N/A
+Notification Bell
+Notification bell icon located at the top-right corner of the header bar.
+Tap the bell icon.
+Navigates the user to the Notification Center screen to view system and rental announcements.
+User Avatar
+Profile avatar of the currently authenticated tenant located on the header bar.
+Tap the avatar icon.
+Opens the Account Options menu or navigates to the Profile screen.
+Search Bar
+Text input field allowing users to enter search keywords (Districts, Universities, Landmarks).
+Tap into the search field or type keywords.
+Focuses input, displays the search suggestion overlay showing Recent Searches and Popular Zones.
+Clear Search Text
+"X" button located at the right edge of the search bar when text is present.
+Tap the "X" button.
+Clears all entered characters in the search field and resets the input cursor to the initial state.
+Filter Button
+Advanced filter button located adjacent to the search input bar.
+Tap the [Filter] button.
+Opens the Advanced Filter bottom sheet/screen to configure price range, district, area, and amenities.
+Recent Search Item
+List item displaying a previously searched query (e.g., Bach Khoa University, Binh Thanh under 4M...).
+Tap a recent search keyword.
+Automatically populates that keyword into the search bar and loads matching rental results.
+Remove Recent Search
+"X" icon located next to each individual recent search item.
+Tap the "X" icon next to the corresponding query.
+Removes that specific search entry from the local search history.
+Clear All Searches
+"Clear All" text button located at the top-right of the recent searches section.
+Tap [Clear All].
+Deletes the entire recent search history from local storage and clears the list view.
+Popular Area Card
+Curated suggestion cards for high-demand rental clusters (Thu Duc University Village, D2 Binh Thanh...).
+Tap a popular area card.
+Applies the corresponding location filter and navigates to the filtered search result screen for that zone.
+Active Filter Chips
+Horizontal scrollable tags displaying currently applied criteria (Thu Duc, 1M - 3.5M, Single...).
+Tap the "X" on any active filter chip.
+Deselects that specific filter criterion and automatically reloads the room listing results.
+Sort Dropdown
+Dropdown menu to select result sorting criteria (Most Relevant, Price: Low to High, Newest...).
+Tap the [Sort By] dropdown.
+Displays sorting options; re-orders the listing feed immediately upon user selection.
+Room Listing Card
+Summary card displaying room thumbnail, monthly rent, floor area, amenities, and address.
+Tap anywhere on the room card.
+Navigates the user to the Room Detail screen to view complete room information.
+Favorite / Wishlist Button
+Heart icon located on the top-right corner of the room image thumbnail.
+Tap the heart icon.
+Toggles heart icon state (Red = Liked / White = Unliked) and saves or removes the room from Favorites.
+Quick Call Landlord
+Telephone icon button located at the bottom-right corner of each room card.
+Tap the call icon.
+Launches the device's native phone dialer with the Landlord's verified phone number pre-filled.
+Quick Message Landlord
+Solid blue [Message] button next to the call button on each room card.
+Tap the [Message] button.
+Navigates directly to the in-app Chat thread with that Landlord, pre-pinning the selected room card.
+Bottom Navigation Bar
+Global bottom navigation bar containing 5 tabs: Home, Messages, Post (+), Roommates, Profile.
+Tap any of the navigation tab icons.
+Switches the active screen to the corresponding core module of the application.
+Section Headers
+Static title text labels ("Recent Searches", "Popular Areas", "Available Rooms").
+N/A
+N/A
+Result Counter Label
+Static text indicating the number of matching rooms found (e.g., "Showing 45 results").
+N/A
+N/A
+Room Status Badge
+Static badge overlay on room images (e.g., "Verified Listing", "Available Now").
+N/A
+N/A
+Verification & Rating Badge
+Static star icon and numeric review score displayed alongside landlord information.
+N/A
+N/A
+Feature/Component #7: Search
+User Interfaces
+Functional Requirements
+Item
+Description
+Action
+Response
+Search & Filter Screen
+The Search & Filter screen contains 18 interactive components/groups:
+- "Back" button (<)
+- "Notification" button (Bell icon)
+- "Profile" button (Top right avatar)
+- "Province/City" dropdown
+- "Ward/Commune" dropdown
+- "Rental type" button group
+- "+ Advanced" / "+ Add filter" button
+- "Monthly rent" filter
+- "Area" filter
+- "Amenities & Requirements" tag group
+- Input field & "Add" amenity button
+- "Collapse ^" button
+- "Reset" button
+- "Search" button
+- "Newest" sort button
+- Search Result Cards
+- Call/Chat buttons on cards
+- Bottom navigation bar
+And 5 static component groups (non-interactive):
+- "Home" title
+- Section headers (Location, Filter...)
+- Text line "Over 12,400+ rooms..."
+- "Search Results" title & quantity tag
+- Static boundary labels of sliders (0đ, 20,000,000đ...).
+N/A
+N/A
+"Back" button (<)
+Navigation button located at the top-left corner of the Header bar.
+Tap the left-pointing arrow icon.
+The system closes the search screen and returns to the previous screen.
+"Notification" button (Bell icon)
+Notification access button in the top-right corner.
+Tap the bell icon.
+The system navigates to the Notification List screen.
+"Profile" button (Avatar)
+User avatar icon in the top-right corner.
+Tap the small avatar image.
+The system opens the options menu or redirects to the Account Management screen.
+"Province/City" Dropdown
+Administrative selection field at the Province/City level.
+Tap the Province/City dropdown box.
+The system expands the list of available Provinces/Cities on the system for selection.
+"Ward/Commune" Dropdown
+Administrative selection field at the Ward/Commune level.
+Tap the Ward/Commune dropdown box before selecting a Province/City.
+N/A
+Tap the Ward/Commune dropdown box after selecting a Province/City.
+The system expands the list of Wards/Communes belonging to the selected Province/City.
+"Rental Type" Button Group
+Classification options: Single, Shared, Both/Other.
+Tap to select one of the rental type buttons.
+The system changes the border color of the selected button to green, marks a tick (radio), and deselects the remaining buttons.
+"+ Advanced" / "+ Add Filter" Button
+Button to expand the detailed filter screen.
+Tap the "+ Advanced" or "+ Add filter" button.
+The system scrolls down the screen, displaying additional configuration blocks: Rent Price, Area, Amenities & Requirements.
+"Monthly Rent" & "Area" Filters
+Block to set price/area range with sliders and input fields.
+Drag the slider or enter numbers into the "Min"/"Max" input boxes.
+The system updates the value in the corresponding field in real time based on user interaction.
+"Amenities & Requirements" Tag Group
+Additional filter criteria tags (Air conditioner, Mezzanine...).
+Tap a tag with a "+" (unselected) or "green tick" (selected).
+Toggles state: If unselected, turns green with a tick icon; if selected, reverts to unselected status with a "+".
+"Add Amenity..." Field & "Add" Button
+Input field for custom search keywords and an "Add" button.
+Tap "Add" button when input field is empty.
+N/A (System does not respond, "Add" button may be disabled).
+Enter text and tap the adjacent "Add" button.
+The system confirms the keyword and adds a new criteria tag to the filter list.
+"Collapse ^" Button
+Button to hide the detailed filter configuration screen.
+Tap "Collapse ^" button at the bottom of the filter screen.
+The system scrolls and hides the entire "Filter" block, returning to the collapsed search interface.
+"Reset" Button
+Button to clear all selected filter criteria.
+Tap "Reset" button at the bottom-left corner.
+The system resets price and area sliders and unchecks all amenity tags to default states.
+"Search" Button
+Dark green search action button.
+Tap "Search" button.
+The system collapses filters, sends query to server, and loads matching result cards below.
+"Newest" Sort Button
+Sorting order control for results.
+Tap "Newest" text.
+The system expands dropdown menu with sorting options (e.g., Price: Low to High, Newest...).
+Search Result Cards
+Card summarizing a matching boarding room listing.
+Tap directly on the room card area.
+The system navigates to the detailed room listing information screen.
+Call/Chat Buttons on Result Card
+Phone/message icons at the bottom of the card.
+Tap phone or message icon.
+Launches native phone dialer or opens internal chat screen with poster.
+Bottom Navigation Bar
+Main application tabs at the bottom of the screen.
+Tap any other tab icon (e.g., Profile).
+The system exits search workflow and redirects to the corresponding tab screen.
+"Home", "Location", "Filter" Titles
+Static section titles dividing screen layout.
+N/A
+N/A
+Text Line "Over 12,400+ rooms..."
+Static statistics text showing total available listings on platform.
+N/A
+N/A
+"Search Results" Title & Quantity Tag
+Result section header and static badge showing count of found listings (128 rooms).
+N/A
+N/A
+Static Slider Limit Labels
+Static boundary labels (0đ, 20,000,000đ, 10m2, 200m2) on filter sliders.
+N/A
+N/A
+Feature/Component #8: Detail Room
+User Interfaces
+Functional Requirements
+Item
+Description
+Action
+Response
+Room Detail Screen
+The Room Detail Screen has 9 interactive components/areas:
+- "Back" button (<)
+- "Home" button (House icon)
+- "Profile" button (Top right avatar)
+- "Favorite" button (Heart icon)
+- Image Carousel area
+- "+2 photos" button
+- "Address" section
+- Landlord info card
+- "Message" button (Chat icon)
+And 8 static components (non-interactive):
+- Screen title "Room Details"
+- Tag "Direct landlord • Verified"
+- Price block & Tag "1 month deposit"
+- Room title "Studio room..."
+- Room specifications card block (Area, Mezzanine...)
+- Block "Transparent service costs"
+- Block "Available amenities"
+- Landlord activity information.
+N/A
+N/A
+"Back" Button (Arrow Icon)
+Navigation button at the top-left of the header bar.
+Click the left arrow icon.
+System closes current detail screen and returns to previous screen.
+"Home" Button (House Icon)
+Quick navigation button to the main page of the application.
+Click the green house icon.
+System navigates user directly to the Home screen.
+"Profile" Button (User Icon)
+Access button for personal account at top-right corner.
+Click the user icon.
+Opens menu or redirects to Personal Account Management screen.
+"Favorite" Button (Heart Icon)
+Button used to save/unsave room listing.
+Click the heart icon on top right of cover image.
+System toggles icon state (turns red/pink) and adds post to "Favorites" list; click again to cancel.
+Image Carousel
+Area displaying room photo collection, with dot indicators and photo count (e.g., 1/6 photos).
+Swipe left/right on image frame.
+System switches to next/previous photo and updates dot position and displayed count.
+Photo Categorization Tab Group
+Displays all available photos when clicked.
+Click the "+2 photos" button.
+System opens a full-screen gallery containing all photos.
+"Address" Section
+Detailed address text line with location pin icon.
+Click address text or pin icon.
+System opens maps (Google Maps/Internal map) and pins exact room coordinates.
+Landlord Info Card
+Card containing lessor info: Name (Chú Ba Linh Trung), star rating (4.9), verification badge, activity time.
+Click avatar area or landlord name.
+System redirects to Landlord's Profile screen to view other listings.
+"Message" Button (Chat Icon)
+Quick contact button with landlord, beside star rating on info card.
+Click message icon.
+System opens new internal chat thread or resumes existing conversation between user and landlord.
+Screen Title "Room Details"
+Static text on the Header bar identifying the screen name.
+N/A
+N/A
+Tag "Direct landlord • Verified"
+Static info tag floating on the top left of the cover photo showing credibility level.
+N/A
+N/A
+Price Block & Tag "1 month deposit"
+Static text displaying the rental price (2,800,000 VND/month) and deposit requirement.
+N/A
+N/A
+Room Title "Studio room..."
+Large static text line describing the title of the listing.
+N/A
+N/A
+Room Specifications Card Block
+Grid of 4 static cards displaying basic specifications: Area, Mezzanine, Capacity, Arrangement.
+N/A
+N/A
+"Transparent Service Costs" Block
+Static list itemizing living expenses (Electricity, water, internet, parking, trash...).
+N/A
+N/A
+"Available Amenities" Block
+Grid of static icons and text describing facilities (Wifi, Air conditioner, Balcony...).
+N/A
+N/A
+Landlord Activity Information
+Static text at the bottom of the landlord card displaying tenure and response rate (98%).
+N/A
+N/A
+Feature/Component #9: Report Listing Screen
+User Interfaces
+Functional Requirements
+Item
+Description
+Action
+Response
+Report Listing Screen
+The Report screen contains 7 interactive components/groups:
+- "Back" / "Close" Button
+- Violation Reason Radio Group
+- "Other Reason" Option & dynamic input
+- Detailed Description Text Area
+- Attach Proof Photos Button
+- Remove Attached Photo ("X")
+- Action Buttons (Submit Report / Cancel)
+And 3 static component groups (non-interactive):
+- Screen Title ("Báo cáo bài đăng / Report Listing")
+- Reported Room Summary Card (Read-only ID, thumbnail, Landlord name)
+- Character Counter & Upload Limit label (0/300, Max 3 photos)
+N/A
+N/A
+"Back" / "Close" Button
+Arrow or "X" icon located at the top-left of the header bar.
+Tap the back/close icon.
+Dismisses the report screen and returns user to the previous Room Detail view without saving.
+Reported Room Summary Card
+Compact block showing photo, room title, ID (#TN-4089), and Landlord name.
+N/A (Static view)
+Displays read-only context of the property being reported.
+Violation Reason Radio Group
+Radio button options for selecting the primary violation category (Fake listing, Wrong address, Price discrepancy, Already rented...).
+Select a violation reason.
+Highlights the chosen radio option and records the violation category code.
+"Other Reason" Option
+Radio button allowing users to specify a violation not listed in predefined categories.
+Tap "Lý do khác" (Other).
+Enables a supplementary text field for user to specify custom reason.
+Detailed Description Text Area
+Free-text area (with character counter, e.g., 0/300) for providing specific incident details.
+Tap and enter explanation text.
+Captures text input and dynamically updates character count; warns if exceeding limit.
+Attach Proof Photos Button
+Image upload area with "+" icon allowing tenants to attach evidence photos (up to 3 photos).
+Tap the camera/upload icon.
+Opens device camera or photo gallery to upload screenshot/photo proof.
+Remove Attached Photo
+"X" icon on the corner of uploaded evidence thumbnails.
+Tap the "X" on a photo thumbnail.
+Removes the selected image from the evidence submission list.
+Submit Report Button
+Primary call-to-action button labeled "Gửi báo cáo" (Submit Report).
+Tap [Gửi báo cáo] button.
+Validates required fields, sends report payload to Admin moderation queue, shows success toast, and navigates back.
+Cancel Button
+Text or outline button to abort the reporting workflow.
+Tap [Hủy] (Cancel).
+Cancels submission and safely returns to previous screen.
+Screen Title
+Static header text label at the top of the screen ("Báo cáo phòng / Report Listing").
+N/A
+N/A
+Helper & Limit Labels
+Static subtexts indicating constraints (e.g., "Tối đa 3 ảnh", "0/300 ký tự").
+N/A
+N/A
+Feature/Component #10: Chat Screen
+User Interfaces
+Functional Requirements
+Item
+Description
+Action
+Response
+Messaging & Communication with Landlord Screen
+The Messaging screen contains 16 interactive components/blocks:
+- "Notification" button (Bell icon)
+- "Profile" button (Top right avatar)
+- "Back" button (<)
+- Chat partner info area (Avatar/Name)
+- "Call" button
+- "Video call" button
+- Room info card (Code #LT-802)
+- "View room" button
+- "Book room" button
+- Message bubble (Press & hold)
+- "Appointment" card
+- Suggested message buttons
+- "+" button (Add attachment)
+- "Enter message..." box
+- "Record" button (Mic icon)
+- "Send" button (Blue arrow icon)
+- Bottom navigation bar
+And 5 static components (non-interactive):
+- Title "Messages"
+- "Safe Transaction Protection" notice block
+- Timestamp labels and "Read" status
+- Message bubbles (Single tap).
+- Phone number (Blue link "0903 888 xxx")
+N/A
+N/A
+"Notification" button (Bell icon)
+Notification center access button located at the top-right of the screen.
+Tap the bell-shaped icon.
+System closes chat flow and navigates to the Notification List screen.
+"Profile" button (Top right avatar)
+Avatar icon of the currently logged-in user.
+Tap the small avatar image at the top right.
+System navigates to the Personal Account Management screen.
+"Back" button (<)
+Navigation button located at the far left of the Header bar.
+Tap the left arrow icon.
+System closes current chat screen and returns to the Message List screen.
+Chat partner info area
+Display block showing avatar, name (Uncle Ba Linh Trung), verification icon, and online status.
+Tap the name or avatar image.
+System navigates to the landlord's Personal Profile page.
+"Call" / "Video call" buttons
+Phone and camera icons on the title bar.
+Tap the phone or camera icon.
+System initiates an in-app voice or video call directly.
+Room info card (Code #LT-802)
+Pinned top block showing summary of discussed rental room (Image, Title, Price).
+Tap empty space on the card.
+System redirects user back to the Room Listing Detail screen.
+"View room" button
+Secondary action button on room info card.
+Tap "View room" button.
+System navigates to Room Detail screen (same as tapping the card).
+"Book room" button
+Primary dark blue button to quickly hold/deposit for room.
+Tap "Book room" button.
+System shows confirmation popup or proceeds to deposit payment flow.
+Phone number (Blue link)
+Phone number sent in chat automatically recognized as hyperlink (0903 888 xxx).
+Tap directly on blue phone number text.
+System launches default phone dialer pre-filled with number.
+"Appointment" card
+Scheduled viewing info block created within chat (Tomorrow afternoon, 16:00).
+Tap "Appointment" card frame.
+System opens appointment detail popup to view address or add to phone calendar.
+Suggested Message Chips
+Pre-defined quick reply chips above input box (e.g. Thanks uncle!).
+Tap one of the suggestion chips.
+System populates text into input field or sends directly into chat stream.
+"+" button (Add attachment)
+Expandable button for multimedia sharing options.
+Tap plus icon "+".
+System opens bottom sheet drawer allowing user to attach Images, Location, Files...
+"Enter message..." box
+Text input field for composing chat messages.
+Tap "Enter message..." area.
+System shows virtual keyboard for typing.
+"Record" button
+Voice message recording button (Microphone icon).
+Tap microphone icon once and release.
+System records audio; release to send or swipe sideways to cancel.
+"Send" button (Empty input state)
+Blue arrow icon located at bottom right.
+Tap Send button when "Enter message..." box is completely empty.
+N/A
+Tap Send button after typing valid text.
+System posts content to chat stream, saves to database, and clears input field.
+Bottom Navigation Bar
+Main app tabs: Home, Messages, Post...
+Tap any other tab icon.
+System exits chat stream and navigates directly to target tab screen.
+Message bubbles
+Text blocks displaying chat content
+Single tap on message bubble area.
+N/A
+Press and hold (Long press) on a message bubble.
+System displays contextual menu allowing Copy, Reply, Recall, or Delete message.
+Title "Messages"
+Static title text on Header bar identifying screen type.
+N/A
+N/A
+"Safe Transaction Protection" block
+Static info box warning users not to transfer money before viewing room in person.
+N/A
+N/A
+Timestamp & status labels
+Small static text strings displaying timestamps (10:16) and "Read" status.
+N/A
+N/A
+Feature/Component #11:Rental Details
+User Interfaces
+Functional Requirements
+Item
+Description
+Action
+Response
+Booking Details Screen
+The Booking Details screen has 15 interactive components/groups:
+- "Back" button (<)
+- "Home" button (House icon)
+- "Profile" button (Top right avatar)
+- Room information card
+- "Uncle Ba Linh Trung" info card
+- "Move-in date" / "Move-out date" selection fields
+- Counter buttons (-, +) for Lease duration, Occupants, Vehicles
+- "Direct resident" button
+- "Tenant information" input group
+- "Gender" radio group
+- Quick-fill buttons "Self" / "Prefer Zalo/Call"
+- "Contact person information" input group
+- "Message to Uncle Ba Linh Trung" field
+- "Payment method" radio group
+- "Send booking request (Free)" button
+And 9 static (non-interactive) components:
+- Title "Booking Details"
+- "Estimated holding deposit" block
+- Section header "Move-in plan"
+- Section header "Tenant information"
+- Notice "* Information used to create quick residency profiles..."
+- Section header "Contact person information"
+- Section header "Message to Landlord..."
+- Section header "Payment method" & "In-app secure" tag
+- Notice "No immediate fee deducted..." at the bottom.
+N/A
+N/A
+"Back" Button (Arrow Icon)
+Navigation button in the top left corner.
+Tap the left arrow icon.
+System closes current "Room Booking Detail" screen and returns to the previous screen.
+"Home" Button (House Icon)
+Quick navigation button to return to the main page.
+Tap the green house icon on the title bar.
+System cancels room booking flow and navigates user directly to the Home screen.
+"Move-in Date" / "Move-out Date" Fields
+Fields to select start and end rental dates (with calendar icon).
+Tap on the date box (e.g., 01/11/2024).
+System opens a calendar picker popup for user to pick a date; updates field upon selection.
+"Lease Duration", "Occupants", "Vehicles" Counters
+Control widget to adjust quantity or duration using (-) and (+) buttons.
+Tap minus "-" or plus "+" button.
+System increments or decrements value displayed in the middle accordingly (e.g., from 6 months to 7 months, 1 person to 2 people).
+"Tenant Information" & "Contact Person" Fields
+Group of personal text input fields: Full Name, Age, Occupation, Phone Number, Email.
+Tap on respective input box.
+System shows virtual keyboard for entry. If format is valid (e.g., valid phone number), displays green check icon.
+"Gender" Radio Button Group
+Gender options: Male, Female, Other.
+Tap radio circle next to Male, Female, or Other.
+System marks green tick on selected option and unchecks remaining options.
+"Message to Landlord..." Field
+Free text area with a 250 character limit counter.
+Type text into the large input field.
+System displays text and updates character counter at bottom right (e.g., 114/250). Prevents input if over 250 characters.
+"Payment Method" Radio Group
+Options for advance payment: Reservation deposit (1,000,000 VND) or Full payment (3,800,000 VND).
+Tap one of the two payment method cards.
+System turns border of selected card green, shows green dot on radio button, and updates total amount accordingly.
+"Send Booking Request (Free)" Button
+Primary Call-to-Action button at the bottom of the screen to complete process.
+Tap green "Send Booking Request" button.
+System validates required (*) fields. If complete, submits booking data to server and navigates to payment screen. If incomplete, shows red error messages at missing fields.
+Title "Booking Details" & Subtitles
+Static text dividing information sections on the screen.
+N/A
+N/A
+"Estimated holding deposit 1,000,000 VND" block
+Static card showing the estimated deposit amount.
+N/A
+N/A
+Note "* Information used to create profile..."
+Static text line explaining the purpose of collecting user data.
+N/A
+N/A
+Notice "No fee will be deducted immediately..."
+Static text line with a lock icon at the bottom ensuring transaction security.
+N/A
+N/A
+Feature/Component #12: Payment
+User Interfaces
+Functional Requirements
+Item
+Description
+Action
+Response
+Payment Screen (Scan QR Code to Hold Room)
+The Payment Screen has 9 interactive components:
+- "Back" button (<)
+- "QR Code" image
+- "Save QR Image" button
+- "Open Bank App" button
+- "Copy" button (Account Number)
+- "Copy" button (Amount)
+- "Copy" button (Transfer Memo)
+- "Cancel Payment & Back to Room Details" button/link
+- "Listening for 24/7 transfers" banner
+And 5 static components (non-interactive):
+- Title Block "AUTOMATED PAYMENT GATEWAY - Scan code to hold room"
+- "Payment Amount" Block (1,100,000 VND) & Amount Breakdown
+- Logo Tag "VietQR" & "napas 247"
+- Static Bank & Account Holder Info Block (MBBank - SAN GIAO DICH VIETNAM)
+- Notice Block "Please keep the transfer memo unchanged...".
+N/A
+N/A
+"Back" Button (Arrow Icon)
+Navigation back button in the top left of the header bar.
+Tap the left arrow icon.
+System displays transaction cancellation warning (if any) and returns to the room booking details screen.
+"QR Code" Image
+Auto-generated VietQR code containing all pre-filled payment info (bank, account number, amount, description).
+Scan the code using the QR feature on another banking app.
+N/A
+"Save QR Image" Button
+Button to download the QR code image to the device for later payment.
+Tap the "Save QR Image" button with the download icon.
+System saves the QR code image to the photo gallery and displays a toast notification confirming "Saved successfully".
+"Open Bank App" Button
+Deeplink button to quickly switch to banking applications.
+Tap the "Open Bank App" button.
+System calls OS APIs to list or directly open banking apps or e-wallets installed on the device.
+"Listening for 24/7 transfers" Banner
+Display area showing system status waiting for balance changes, with a spinning icon.
+None (Automatic background operation).
+System continuously listens for incoming transactions. Upon receiving payment with exact memo "TRONHANH REQ001", automatically redirects to "Payment Successful" screen.
+"Copy" Buttons (Account Number, Amount)
+Quick action buttons to copy text data under "Manual Transfer".
+Tap the light blue "Copy" button next to account number (9800 1100 2478) or amount (1,100,000 VND).
+System copies corresponding data string to the device clipboard and shows a confirmation toast.
+"Copy" Transfer Description Button
+Dark blue highlighted button to copy the mandatory transaction code.
+Tap dark blue "Copy" button next to "TRONHANH REQ001".
+System copies transaction code to clipboard and displays confirmation toast.
+"Cancel Payment & Back to Room Details" Button
+Text link at bottom of screen allowing user to manually cancel transaction.
+Tap "Cancel Payment & Back to Room Details" text.
+System cancels transaction session, releases reserved room, and navigates user back to previous room details screen.
+Bottom Navigation Bar (Home, Messages, Post...)
+Main app feature tabs at the bottom of the screen.
+Tap any tab icon.
+System exits payment flow (may show cancellation warning popup) and navigates to the corresponding tab screen.
+Header Block "AUTOMATED PAYMENT GATEWAY - Scan code to hold room"
+Static text cluster defining the function of the current screen.
+N/A
+N/A
+"Payment Amount" Block (1,100,000 VND) & Amount Breakdown
+Static numerical cluster showing total amount and explanatory breakdown (Room holding deposit + Platform fee).
+N/A
+N/A
+Logo Tag "VietQR" & "napas 247"
+Static logo image showing supported payment standards.
+N/A
+N/A
+Static Bank & Account Holder Info Block
+Static text line displaying beneficiary bank name (MBBank) and Account Holder Name (SAN GIAO DICH VIETNAM).
+N/A
+N/A
+Notice Block "Please keep the transfer memo unchanged..."
+Dialog containing important static reminder message for the user.
+N/A
+N/A
+Feature/Component #13: Booking confirmation
+User Interfaces
+Functional Requirements
+Item
+Description
+Action
+Response
+Check-in Slip Screen
+The Check-in Slip screen contains 9 interactive components:
+- "Back" button (<)
+-  QR Code "Open room handover card number"
+- "Phone call" button
+- "Message TroNhanh" button
+- "Contract details" link
+- Summary card "Room 204"
+- "Get directions" button/link
+- "Save QR code to Photo Gallery" button
+- "Back to Home" button
+And 7 static (non-interactive) components:
+- Title "Check-in Slip" & Booking ID
+- Banner "Room booked successfully!"
+- "Tenant" & "Check-in appointment" blocks
+- Text block with info below QR (Code Number, Sec-Token)
+- "Deposit paid" block
+- "Uncle Ba Linh Trung" info block
+- Section title "Rented Room Information".
+N/A
+N/A
+"Back" button (<)
+Navigation button located in the top-left corner of the Header bar.
+Tap the left-pointing arrow icon.
+The system closes the current "Check-in Slip" screen and returns to the previous screen.
+QR Code "Open room handover card number"
+Dynamic QR code containing code number, Sec-Token, and validity period used for check-in.
+Present this QR code to the landlord to scan via their application.
+The system authenticates the tenant's identity, records successful check-in status, and (if applicable) triggers smart door lock opening.
+"Phone call" button
+Quick contact button via phone located inside the landlord information block.
+Tap the "Phone call" button with the receiver icon.
+The system opens the default mobile dialer pre-filled with the landlord's phone number to place the call.
+"Message TroNhanh" button
+Contact button via the app's internal messaging system.
+Tap the "Message TroNhanh" button with the message icon.
+The system navigates to the direct chat screen between the tenant and landlord.
+"Contract details" link
+Blue text link located on the right side, aligned with the "Rented Room Information" title.
+Tap the text "Contract details".
+The system opens the view screen for detailed electronic deposit/rental contract terms.
+"Room 204" Card (Room Summary)
+Summary info block displaying image, area, amenities, and price of the booked room.
+Tap the display area of this room card.
+The system navigates the user back to the corresponding Room Detail screen.
+"Get directions" Button/Link
+Blue text on the top right corner of the mini-map showing the boarding house location.
+Tap the text "Get directions".
+The system opens the map application (e.g., Google Maps) and pre-sets the route from current user location to the room address.
+"Save QR code to Photo Gallery" Button
+Primary dark blue Call-to-Action button at the bottom of the screen.
+Tap "Save QR code to Photo Gallery" button.
+The system saves the image containing the QR code to device storage and shows "Saved successfully" toast.
+"Back to Home" Button
+Secondary function button located at the bottom of the screen.
+Tap "Back to Home" button.
+The system closes the transaction workflow and navigates the user back to the app's Main Home screen.
+Title "Check-in Slip" & Booking ID
+Top static text group identifying the screen title and transaction ID (#TN-7829-TPTD).
+N/A
+N/A
+Banner "Room booked successfully!"
+Light blue static graphics block containing a checkmark icon and notification text that contract is activated.
+N/A
+N/A
+"Tenant" & "Check-in appointment" Blocks
+Static info blocks showing tenant name (Đỗ Hoàng Long), phone number, and scheduled check-in time.
+N/A
+N/A
+Text Block with Info Below QR
+Static text line showing Code Number, Sec-Token, and validity period of the QR code.
+N/A
+N/A
+"Deposit Paid" Block
+Static block displaying paid deposit amount (4,800,000 VND) and status "Safely Escrowed".
+N/A
+N/A
+"Uncle Ba Linh Trung" Info Block
+Static area displaying avatar, landlord name, and verification badges (ID Card & Ownership Document).
+N/A
+N/A
+Section Title "Rented Room Information"
+Static text line separating the detailed boarding room information section below.
+N/A
+N/A
+Feature/Component #14: profile Screen
+User Interfaces
+Functional Requirements
+Item
+Description
+Action
+Response
+Profile / Account Screen
+The Profile / Account screen contains 16 interactive components/groups:
+- "Back" Button (<)
+- More Options Menu (⋮)
+- Account Mode Button
+- User Avatar
+- "Edit" Profile Button
+- "Saved Rooms" Card
+-Appointments" Card
+- "View All" Button (Management)
+- Rental Requests & Status item
+- Rented Room (My Home) item
+- Rental History item
+- Report Room Incident item
+- Identity Verification item
+- Help Center & Terms item
+- "Log Out" Button
+- Bottom Navigation Bar
+And 3 static component groups (non-interactive):
+- Section Headers ("Quản lý", "Tiện ích & Cài đặt")
+- User Identity Info (Display name, phone number, joined date)
+- Verification & Status Badges ("Đã xác thực CCCD", "Đang xử lý", "Active")
+N/A
+N/A
+"Back" Button (<)
+Arrow icon located at the top-left corner of the header bar.
+Tap the back arrow icon.
+Navigates the user back to the previous screen.
+More Options Menu (⋮)
+Three-dot icon located at the top-right corner of the header bar.
+Tap the three-dot icon.
+Opens the dropdown menu with additional account management actions.
+Account Mode Button
+Circular account avatar icon with a green background at the top-right corner.
+Tap the icon.
+Toggles user roles/interfaces or navigates to linked account management.
+User Avatar & Verification Badge
+Profile avatar with a green verified badge ("Đã xác thực CCCD").
+Tap the avatar.
+Opens full-screen profile picture preview or triggers avatar upload dialog.
+"Edit" Profile Button
+Pencil icon button next to the user's name ("Nguyễn Văn Nam").
+Tap [Sửa] button.
+Navigates to the Edit Profile screen to update personal details and contact info.
+"Saved Rooms" Card
+Metric card showing the number of bookmarked rental properties ("08 phòng").
+Tap the [Phòng đã lưu] card.
+Opens the user's Saved / Wishlist room collection.
+"Appointments" Card
+Metric card displaying upcoming room-viewing appointments ("02 sắp tới").
+Tap the [Lịch hẹn] card.
+Navigates to the Appointment Schedule Management screen.
+"View All" Button (Management)
+Text button aligned to the right of the "Quản lý" (Management) section header.
+Tap [Xem tất cả].
+Opens the comprehensive rental activities and contract overview screen.
+Rental Requests & Status
+List item tracking application status with an active badge ("3 đang xử lý").
+Tap [Đơn thuê & Trạng thái].
+Navigates to the Rental Application Tracking screen to review pending requests.
+Rented Room (My Home)
+List item showing active leased property with status badge ("1 phòng active").
+Tap [Phòng đang thuê (Nhà của tôi)].
+Opens current tenancy details, recurring fees, and utility billing records.
+Rental History
+Navigation item to review past rental agreements.
+Tap [Lịch sử đã ở].
+Displays the history of previously rented rooms and terminated contracts.
+Report Room Incident
+Service item for maintenance requests (AC, electricity, plumbing, Wi-Fi).
+Tap [Báo sự cố phòng trọ].
+Opens the incident reporting ticket form to notify the landlord or management.
+Identity Verification (CCCD / VNeID)
+Settings row displaying identity verification status badge ("Đã duyệt").
+Tap [Xác thực danh tính (CCCD / VNeID)].
+Opens the KYC identity verification details or submission update screen.
+Help Center & Terms
+Settings item for user guides, FAQs, and service agreements.
+Tap [Trung tâm trợ giúp & Điều khoản].
+Opens the Help Center, FAQ section, and legal policies screen.
+"Log Out" Button
+Red outlined button positioned at the bottom of the content list.
+Tap [Đăng xuất tài khoản].
+Prompts a sign-out confirmation modal and terminates the active session upon confirmation.
+Bottom Navigation Bar
+Fixed navigation bar with 5 tabs: Explore, Messages, Post (+), Roommates, Profile.
+Tap any navigation tab.
+Switches directly to the selected core module of the application.
+Section Headers
+Static category headings dividing list groups ("Quản lý", "Cài đặt tài khoản").
+N/A
+N/A
+User Identity Info
+Static text showing user's legal full name, phone number, and account creation date.
+N/A
+N/A
+Status & Verification Badges
+Static visual chips indicating verification state ("Đã xác thực CCCD") and active item counts.
+N/A
+N/A
+Feature/Component #15: Booking Management
+User Interfaces
+Functional Requirements
+Item
+Description
+Action
+Response
+Rental Management & Status Screen
+The screen contains 13 interactive components/groups:
+- "Back" Button (<)
+- "Refresh" Button (↻)
+- User Profile / Account Mode Button
+- Status Filter Tabs Group ("Chờ thanh toán", "Đã cọc", "Đã trả hết", "Đang xử lý", "Đã chấp nhận", "Nhà đang ở", "Lịch sử đã ở")
+- Room Thumbnail Imag
+- Room Title & Location area
+- "View Sample Contract Terms" Button
+- "Chat with Landlord" Button
+And 4 static component groups (non-interactive):
+- Header Title ("Quản Lý Đơn Thuê & Trạng Thái")
+- Application Status Badge ("Đã chấp nhận hồ sơ")
+- Required Deposit Amount label ("Cọc yêu cầu: 2.500.000đ")
+- Landlord Review Notice Banner ("Chủ trọ đã duyệt / Giữ phòng trong 24h")
+N/A
+N/A
+"Back" Button (<)
+Arrow icon located at the top-left corner of the header bar.
+Tap the back arrow icon.
+Navigates the user back to the previous screen (e.g., Personal Profile / Account Management).
+Header Title
+Screen title text displaying "Quản Lý Đơn Thuê & Trạng Thái".
+N/A (View only)
+Indicates the current page context: Rental Application & Status Management.
+"Refresh" Button (↻)
+Circular arrow icon located on the right side of the header.
+Tap the refresh icon.
+Reloads and updates the real-time status of all rental applications and active leases.
+User Profile / Account Mode Button
+Circular avatar icon with green background at the top-right corner.
+Tap the user icon.
+Navigates to the user profile or account switching settings.
+"Awaiting Payment" Filter Tab
+Filter chip labeled "Chờ thanh toán" with counter badge ("01").
+Tap [Chờ thanh toán 01].
+Filters and displays rental applications awaiting payment confirmation.
+"Deposited" Filter Tab
+Filter chip labeled "Đã cọc" with counter badge ("01").
+Tap [Đã cọc 01].
+Filters and shows applications where deposit payment has been completed.
+"Fully Paid" Filter Tab
+Filter chip labeled "Đã trả hết".
+Tap [Đã trả hết].
+Filters and displays requests with full payment settled.
+"Processing" Filter Tab
+Filter chip labeled "Đang xử lý" with badge count ("02").
+Tap [Đang xử lý 02].
+Filters and displays applications currently under review by landlords.
+"Accepted" Filter Tab (Active)
+Highlighted solid green filter chip labeled "Đã chấp nhận".
+Tap [Đã chấp nhận].
+Displays rental applications that have been accepted/approved by landlords.
+"Current Home" Filter Tab
+Filter chip with a house icon labeled "Nhà đang ở" with badge ("01").
+Tap [Nhà đang ở 01].
+Switches view to active contracts and currently rented properties.
+"Rental History" Filter Tab
+Filter chip with a clock/history icon labeled "Lịch sử đã ở".
+Tap [Lịch sử đã ở].
+Displays past rental records and terminated tenancy agreements.
+Application Status Badge
+Green pill badge with checkmark labeled "Đã chấp nhận hồ sơ".
+N/A (View only)
+Informs user that the rental application profile has been successfully accepted.
+Room Thumbnail Image
+Thumbnail image showcasing the rental room.
+Tap the image thumbnail.
+Opens full-screen image gallery or navigates to the Room Detail view.
+Room Title & Location
+Room name ("Phòng Trọ Tiện Nghi Làng ĐH") and address ("KTX Khu B, TP. Thủ Đức").
+Tap on the title/card area.
+Navigates the user to the full details page of the listing.
+Required Deposit Amount
+Prominent green price label ("Cọc yêu cầu: 2.500.000đ").
+N/A (View only)
+Displays the required deposit amount needed to secure the room.
+Landlord Review Notice Banner
+Light blue container displaying landlord info ("Chủ trọ Nguyễn Văn Nam đã duyệt") and time policy ("Hồ sơ đạt tiêu chuẩn. Giữ phòng trong vòng 24h").
+N/A (View only)
+Alerts the tenant that the profile meets criteria and the room is held for 24 hours.
+"View Sample Contract Terms" Button
+Left action button with document icon labeled "Xem điều khoản HĐ mẫu".
+Tap [Xem điều khoản HĐ mẫu].
+Opens a modal or preview screen displaying the standard lease agreement terms.
+"Chat with Landlord" Button
+Right action button with chat bubble icon labeled "Chat hỏi chủ trọ".
+Tap [Chat hỏi chủ trọ].
+Directs the user to the direct message thread with the landlord, linking this application context.
+Feature/Component #16: Roommate Finder Screen
+User Interfaces
+Functional Requirements
+Item
+Description
+Action
+Response
+Roommate Matching Screen
+The screen contains 11 interactive components/groups:
+- Search Bar
+- Filter Button
+- Location Filter Chip
+- Gender Filter Chip
+- Role Segmented Control
+- Lifestyle Compatibility Banner
+- User Profile Info & Bookmark icon
+- Listing Content / Post Card area
+- Room Thumbnail Gallery
+- "Message" Action Button ("Nhắn tin trao đổi")
+- "View Profile / Details" Button ("Xem
+hồ sơ" / "Xem chi tiết")
+- Call-To-Action (CTA) Banner & "Đăng ngay" button
+And 2 static component groups (non-interactive):
+- Room Status & Time Badges ("Đã có phòng sẵn", "Chưa có phòng", thời gian đăng)
+- Lifestyle Habit Tags ("Không hút thuốc", "Yên tĩnh sau 23h", "Sạch sẽ ngăn nắp")
+N/A
+N/A
+Search Bar
+Text input field with placeholder "Tìm người ghép theo trường học, quận...".
+Tap into the input bar or type keywords.
+Opens the search interface to look up roommates by university, district, or area.
+Filter Button
+Filter tuning icon located at the right edge inside the search bar container.
+Tap the filter icon.
+Opens the advanced filter bottom sheet (price, age, district, amenities, lifestyle).
+Location Filter Chip
+Dropdown pill button showing selected area ("Khu vực: TP. Thủ Đức").
+Tap the location dropdown chip.
+Opens location selection modal to switch districts or cities.
+Gender Filter Chip
+Dropdown pill button showing gender preference ("Giới tính: Nữ").
+Tap the gender dropdown chip.
+Opens selection list to filter by gender (Female, Male, All).
+Role Segmented Control
+Segmented tab switcher: "Đang tìm người ghép (Có phòng)" and "Người cần tìm phòng ghép".
+Tap either segment tab.
+Toggles the listing feed between posts from users who already have a room vs. seekers needing a room.
+Lifestyle Compatibility Banner
+Highlighted banner displaying "Độ tương thích lối sống" and recommendation score.
+Tap the banner card.
+Opens lifestyle matching setup/results matching user preferences by 94%.
+Room Status & Time Badge
+Status tags on post card (e.g., "Đã có phòng sẵn", "Chưa có phòng + Tìm người cùng thuê", posted time).
+N/A (View only)
+Informs tenancy status and post recency.
+User Profile Info & Bookmark
+Poster avatar, name, age, university/job, and bookmark icon (e.g., Minh Trang, Quốc Báo, Thùy Dung).
+Tap avatar/name or bookmark icon.
+Opens user public profile; tapping bookmark saves the post to favorites.
+Listing Content & Price
+Post title, rent per person (e.g., "~1.800.000 đ /người/tháng"), and location address.
+Tap the card body.
+Opens full roommate post details with comprehensive terms and pictures.
+Room Thumbnail Gallery
+Photo preview tiles showing interior spaces (e.g., "Phòng ngủ máy lạnh", "Bếp chung rộng").
+Tap any photo.
+Opens full-screen photo gallery view.
+Lifestyle Habit Tags
+Trait tags indicating living habits (e.g., "Không hút thuốc", "Yên tĩnh sau 23h", "Sạch sẽ ngăn nắp").
+N/A (View only)
+Summarizes house rules and compatibility points.
+"Message" Action Button
+Primary solid blue button labeled "Nhắn tin trao đổi" on each card.
+Tap [Nhắn tin trao đổi].
+Opens a direct chat thread with the poster pre-linked to this roommate request.
+"View Profile / Details" Button
+Secondary outlined button labeled "Xem hồ sơ" or "Xem chi tiết" on each card.
+Tap the secondary button.
+Navigates to detailed post view or user background profile.
+Call-To-Action (CTA) Banner
+Bottom banner "Chưa tìm được bạn ghép ưng ý? Đăng tin ngay".
+Tap the [Đăng ngay] button.
+Navigates to the "Create Roommate Listing" form wizard.
+Feature/Component #17:Filter Screen
+User Interfaces
+Functional Requirements
+Item
+Description
+Action
+Response
+Roommate Filter Bottom Sheet / Screen
+The screen contains 11 interactive components/groups:
+- "Select All" Button (Tất cả)
+- Room Status: "Already have a room"
+- Room Status: "Looking for a room"
+- Target Gender Chips ("Tất cả", "Nữ", "Nam")
+- Occupation / Status Chips ("Sinh viên", "Đã đi làm", "Freelancer / WFH")
+- Budget Range Slider (Dual-thumb)
+- Daily Rhythm & Sleep Habits Checkboxes
+- Hygiene & Living Habits Checkboxes
+- Pets Option (Chó/Mèo)
+- Guest Policy Option
+- Match Rate Threshold Button (≥ 80%)
+And 3 static component groups (non-interactive):
+- Section Headers ("Tình trạng phòng", "Giới tính mong muốn", "Nghề nghiệp", "Ngân sách", "Lối sống & Thói quen")
+- Budget Boundary Labels (< 1M, > 5M VND)
+- Habit Explanatory Notes (e.g., "Không dị ứng, chấp nhận người có nuôi pet")
+N/A
+N/A
+"Select All" Button (Tất cả)
+Text button located at the top-right corner of the section header.
+Tap [Tất cả].
+Resets or selects all room status criteria.
+Room Status: "Already have a room"
+Card option labeled "Đã có phòng sẵn" with a checkmark badge.
+Tap the card.
+Selects posts from users who currently have a room and are looking for flatmates.
+Room Status: "Looking for a room"
+Card option labeled "Chưa có phòng" with an unselected radio indicator.
+Tap the card.
+Selects posts from users who need to find a room and team up with others.
+Target Gender Chips
+Multi-choice buttons: "Tất cả" (All), "Nữ" (Female), "Nam" (Male), "LGBT+".
+Tap a gender option chip (e.g., [Nữ]).
+Highlights the selected gender and filters results accordingly.
+Occupation / Status Chips
+Selectable tag chips: "Sinh viên" (Student), "Đã đi làm (Văn phòng)" (Office worker), "Freelancer / WFH".
+Tap one or more occupation chips.
+Filters listings based on the roommate's professional/occupational status.
+Budget Range Slider
+Dual-thumb slider with values ranging from under 1M to over 5M VND, currently showing "1.2tr - 2.5tr/tháng".
+Drag the left or right slider thumb.
+Adjusts and sets the per-person monthly rental budget range.
+Daily Rhythm & Sleep Habits Checkboxes
+Options for schedules: "Yên tĩnh sau 23h", "Giờ giấc tự do 24/7", "Dậy sớm (Trước 7h)", "Hay thức khuya (Cú đêm)".
+Tap any checkbox option.
+Toggles the living schedule preference on or off.
+Hygiene & Living Habits Checkboxes
+Options for shared living: "Sạch sẽ, ngăn nắp cao", "Tuyệt đối không thuốc lá", "Nấu ăn tại phòng", "Không mở loa to".
+Tap any habit checkbox.
+Selects mandatory hygiene, smoking, and shared space habits.
+Pets Option (Chó/Mèo)
+Option row: "Thú cưng (Chó/Mèo) - Không dị ứng, chấp nhận người có nuôi pet".
+Tap the checkbox.
+Filters for listings and roommates that are pet-friendly.
+Guest Policy Option
+Option row labeled "Quy định dẫn bạn về phòng".
+Tap the checkbox.
+Applies rules/preferences regarding having friends or guests over.
+Match Rate Threshold Button
+Filter bottom tile labeled "Mức độ tương thích (Match rate)" displaying selected criteria "≥ 80%".
+Tap the tile or percentage pill.
+Opens the match rate configuration to display only profiles with an 80% habit overlap or higher.
+Section Headers
+Static title text labels dividing filter categories ("Tình trạng phòng", "Lối sống & Thói quen").
+N/A
+N/A
+Budget Boundary Labels
+Static range indicator labels displayed along the slider track (e.g., "< 1M", "> 5M VND").
+N/A
+N/A
+Habit Explanatory Notes
+Static descriptive subtext clarifying rule conditions and pet acceptance criteria.
+N/A
+N/A
+Feature/Component #18: MyMobile Valuation Screen
+User Interfaces
+Functional Requirements
+Item
+Description
+Action
+Response
+Edit Personal Profile Screen
+The Edit Profile screen has 20 interactive components/groups:
+- "Back" button (<)
+- "Change profile picture" button/link
+- "Full name" input field
+- "Birth year / Age" selection field
+- "Gender" button group
+- "Change number" button/link (Phone number)
+- "Hometown / Province" dropdown field
+- "University" dropdown field
+- "Major & Academic Class" dropdown field
+- "Short bio" input field
+- Delete Tag buttons (x icon)
+- "+ Add tag" button
+- "Wake up" / "Lights out" time selection fields
+- "Cleaning & hygiene standards" dropdown
+- "Cooking & kitchen usage" dropdown
+- "Personality & communication style" dropdown
+- "Guest/friends policy" dropdown
+- "Mandatory" toggle buttons (No smoking & pets)
+- "Cancel" button
+- "Save changes" button
+And 4 non-interactive static component groups:
+- Title "Edit Personal Profile"
+- User ID & "VNeID / ID Card Verified" tag
+- "FTU2 Student Email" field (Locked state)
+- Section headings explaining details.
+N/A
+N/A
+"Back" button (<)
+Navigation button located at the top-left corner of the header bar.
+Tap the left-pointing arrow icon.
+The system displays a warning popup "Do you want to exit without saving?" (if there are unsaved changes) or closes the screen and returns to the previous page.
+"Change profile picture" button/link
+Large avatar section with a camera icon and the text "Change profile picture".
+Tap the large avatar area or the "Change profile picture" text.
+The system opens an options tray (bottom sheet) requesting permission to access the photo library or camera to upload a new image.
+"Full name" & "Short bio" input fields
+Freeform text entry fields.
+Tap inside the corresponding input field.
+The system displays the virtual keyboard. Specifically, the "Short bio" field updates the character counter (e.g., 248/500) and prevents further input once the limit is reached.
+"Birth year / Age" selection field
+Input field with a calendar icon.
+Tap the "Birth year / Age" box.
+The system displays a scrollable date picker for the user to set their date of birth.
+"Gender" button group
+Segmented control bar with 3 options: Female, Male, Other.
+Tap one of the 3 options.
+The system changes the background color of the selected button to dark blue, updates the text color to white, and deselects the other options.
+"Change number" button/link
+Action button located inside the Phone number field.
+Tap the blue "Change number" text.
+The system opens a popup or OTP verification flow to change the linked phone number.
+"FTU2 Student Email" field (Locked)
+Input field with a light background color and a lock icon.
+Tap the Student Email field.
+N/A
+Input fields: Hometown, University, Major, Personality, Guest
+Descriptions of corresponding data input fields (No input entered)
+Tap inside one of these input fields without entering any data
+N/A
+Tap inside one of these input fields and enter data
+The system records the data and replaces current data with newly entered data
+Delete Tag buttons ("x" icon)
+Small "x" icon inside lifestyle hashtag chips (e.g., #Reading).
+Tap the "x" icon on any tag.
+The system immediately removes that tag from the on-screen display list.
+"+ Add tag" button
+Action button to add new hobbies/interests.
+Tap the light blue "+ Add tag" button.
+The system opens a popup or shows an input field with suggestions allowing the user to type and add a new hashtag.
+"Wake up" / "Lights out" selection fields
+Daily routine schedule setting fields.
+Tap the time field (e.g., 06:30 or 23:30).
+The system displays a scrollable time picker (hours/minutes).
+"Cleaning & hygiene standards" dropdown
+Field to select user's preferred cleanliness requirement level.
+Tap the "Cleaning & hygiene standards" dropdown field.
+The system expands a list of 4 options:
+1. Very high (Currently selected): Daily cleaning, fixed deep clean on weekends, no unwashed dishes overnight.
+2. Standard (Fairly high): Clean 2–3 times/week, keep shared spaces neat.
+3. Basic / Flexible: Duty once a week, as long as it is not messy.
+4. Free / Negotiable: Depending on both parties' free time.
+"Cooking & kitchen usage" dropdown
+Field to select kitchen usage frequency.
+Tap the "Cooking & kitchen usage" dropdown field.
+The system expands a list of 4 options:
+1. Cook frequently (Currently selected): Cook 4–5 days/week (Healthy menu, private/shared kitchen).
+2. Cook daily: Prefer cooking at home for both lunch and dinner.
+3. Rarely / Weekends only: Occasionally cook instant noodles or simple meals on weekends, eat out on weekdays.
+4. No cooking: Only use fridge/kettle, no pungent cooking.
+"Mandatory" toggle button
+Toggle button to set strict rules regarding smoking and pets.
+Tap the bordered "Mandatory" text button.
+The system toggles the button state (e.g., changes to blue background, changes icon) to confirm this criterion is non-negotiable.
+"Cancel" button
+Button to discard newly entered changes.
+Tap the light gray "Cancel" button.
+The system discards all modified data (if any), closes the screen, and returns to the previous interface.
+"Save changes" button
+Primary dark blue Call-to-Action button.
+Tap the "Save changes" button.
+The system validates all fields. If successful, it updates the database, displays a "Profile updated successfully" message, and closes the screen.
+Feature/Component #19: MyMobile Valuation Screen
+User Interfaces
+Functional Requirements
+Item
+Description
+Action
+Response
+Roommate Details Screen
+The Roommate Details screen has 11 interactive elements:
+- "Back" button (<)
+- "Profile" button (Avatar top right)
+- "Save" button (Bookmark)
+- Image slider block (Gallery)
+- Avatar/Name of poster (Minh Trang)
+- "View profile" button
+- "Match request" button
+- "Message Trang now" button
+- "94% Compatibility" block
+- "Address" text line (with pin icon)
+- "Location map"
+And 9 static components (non-interactive):
+- Screen titles & Status tags
+- Post title "Looking for 1 female roommate..."
+- Rent, Deposit & Time info block
+- "Additional expenses split equally" block
+- Room specification cards (Area, Scale...)
+- "Lifestyle criteria & Habits" list
+- "Message from Minh Trang" text block
+- "Sunview Town apartment amenities" grid
+- Bottom bar price text block.
+N/A
+N/A
+"Back" button (<)
+Navigation button located at the top-left corner of the Header bar.
+Tap the left-pointing arrow icon.
+The system closes the current detail screen and returns to the previous screen.
+"Profile" button (Avatar top right)
+User profile avatar icon at the top right.
+Tap the small avatar image.
+The system opens the options menu or redirects to the Account Management screen.
+"Save" button (Bookmark)
+Function button at the top right to save the post.
+Tap the ribbon icon.
+The system changes the icon state (fills color/shadow) and saves the post to the "Saved" list.
+Image slider block (Gallery)
+Area displaying 1 large image and a strip of 4 thumbnails below.
+Swipe horizontally on the large image or tap the thumbnails.
+The system switches the main displayed image accordingly. Tapping the large image opens full-screen view.
+Avatar/Name of poster (Minh Trang)
+Block containing avatar, name, age, university, and verification status.
+Tap the avatar or the name "Minh Trang".
+The system navigates to Minh Trang's Personal Profile screen.
+"View profile" button
+Secondary action button next to the poster info.
+Tap the "View profile" button.
+The system navigates to the Personal Profile screen (Same as tapping the Avatar).
+"94% Compatibility" block
+Card showing compatibility % and match level bar.
+Tap anywhere on this light green card block.
+The system opens a popup or modal showing detailed matching criteria between the 2 users.
+"Address" text line
+Text line showing apartment address with location pin icon.
+Tap the address text line or location pin icon.
+The system opens map application (e.g., Google Maps) with pinned location.
+"Location map"
+Mini map image showing location and distance.
+Tap directly on the map area.
+The system opens full-screen map application to view detailed directions.
+"Match request" button
+Secondary action button on the left of Bottom Bar.
+(Awaiting roommate confirmation)
+(Chờ người xác chủ ghép xác nhận)
+Tap "Match request" button.
+The system sends match request to the person looking for roommate.
+Secondary action button on the left of Bottom Bar.
+(When host accepted match request)
+(Khi chủ đã chấp nhận yêu cầu ở ghép)
+The system redirects user to "Roommate Request" screen (to confirm terms and send notification).
+"Message Trang now" button
+Primary Call-to-Action button (dark blue) on Bottom Bar.
+Tap "Message Trang now" button.
+The system initializes and opens direct chat screen between user and Minh Trang.
+Screen titles & Status tags
+Static text "Room Details", "Roommate Details", tag "Urgently looking for 1 female".
+N/A
+N/A
+Post title
+Large static text "Looking for 1 female roommate...".
+N/A
+N/A
+Rent, Deposit & Time info block
+Static text cluster displaying financial figures and dates.
+N/A
+N/A
+"Additional expenses split equally" block
+Static text block listing estimated electricity, water, wifi costs.
+N/A
+N/A
+Room specification cards
+Static square blocks displaying Area, Your Room, Scale.
+N/A
+N/A
+"Lifestyle criteria & Habits" list
+Static list containing 7 living rules (users can only scroll to read).
+N/A
+N/A
+"Message from Minh Trang" text block
+Static introduction paragraph written by poster.
+N/A
+N/A
+"Sunview Town apartment amenities" grid
+Static list of internal amenity icons and text (Swimming pool, WinMart...).
+N/A
+N/A
+Bottom bar price text block
+Static display section "Roommate cost 1.8M /month" at bottom left.
+N/A
+N/A
+Feature/Component #20: MyMobile Valuation Screen
+User Interfaces
+Functional Requirements
+Item
+Description
+Action
+Response
+Roommate Details Screen
+The Roommate Details screen contains 8 interactive elements:
+There are 6 buttons:
+- "Back" button (<)
+- "Save" button (Bookmark)
+- "Write a review" button
+- "Match" button
+- "Message to discuss room" button
+There are 3 cards
+- "Star rating" area (4.9)
+- "Lifestyle compatibility" block
+- "Apartment looking for roommates" card
+And there are 10 static (non-interactive) components:
+- Screen title "Roommate Details"
+- Status tag "Looking for female roommate"
+- Basic personal info block (Avatar, Name, University, Hometown)
+- Verification tag group (ID card, Student ID...)
+- "About me" text block
+- List of "Daily Living & Lifestyle Metrics" cards
+- List of "Reviews from former roommates" cards
+- Security notice line at the bottom.
+- Interest tags (#Reading, #Yoga...)
+- "100% Transparency (i)" button
+N/A
+N/A
+"Back" button (<)
+Navigation button located at the top-left corner of the screen.
+Tap the left-pointing arrow icon.
+The system closes the current user profile screen and returns to the previous list screen.
+"Save" button (Bookmark)
+Action button at top right to save profile to favorites list.
+Tap the ribbon icon.
+The system changes the icon state (filled color) and saves this profile to the user's "Saved" category.
+"Star rating" area (4.9)
+Displays the average score and number of reviews from former roommates.
+Tap the area with the star icon and rating text.
+The system automatically scrolls down to the "Reviews from former roommates" section below.
+"Lifestyle compatibility" block
+Green block showing compatibility %, progress bar, and harmony summary line.
+Tap this green card block.
+The system displays a detail popup/modal explaining comparison results based on 18 survey criteria.
+Interest Tags
+Interest keyword chips in the About section (e.g., #Reading, #Yoga...).
+N/A
+N/A
+"100% Transparency (i)" button
+Additional information button next to the "Daily Living & Lifestyle Metrics" header.
+N/A
+N/A
+"Apartment looking for roommates" card
+Card block displaying a summary of the room listing linked to this profile.
+Tap the apartment card area or "View post" button.
+The system navigates the user to the "Room Details" screen to view full room information.
+"Write a review" button
+Action button located next to the "Reviews from former roommates" header.
+Tap the "Write a review" button.
+The system opens a form (or popup) allowing users to enter text and select star ratings to submit a new review.
+"Match" button
+Secondary action button at the bottom-left corner of the Bottom Bar.
+Tap the "Match" button.
+The system sends a match invitation to the other user. Button status may update to "Request sent".
+"Message to discuss room" button
+Primary Call-to-Action button (dark blue) located at the bottom-right corner of the Bottom Bar.
+Tap the "Message to discuss room" button.
+The system initializes and opens the in-app chat screen directly so the user can start messaging.
+Title "Roommate Details"
+Static text indicating the name of the current screen in the Header bar.
+N/A
+N/A
+Tag "Looking for female roommate"
+Static tag displaying current user preference status.
+N/A
+N/A
+Basic personal info block
+Static area displaying avatar, name, age, university, major, and hometown.
+N/A
+N/A
+Verification tag group
+Static list showing verified statuses (ID card, FTU2 Student, Community compliance).
+N/A
+N/A
+"About me" text block
+Static self-introduction text written by the user.
+N/A
+N/A
+"Daily Living & Lifestyle Metrics" card
+Static detail blocks about habits (Schedule, Cleanliness, Cooking, Personality...).
+N/A
+N/A
+"Reviews from former roommates" card
+Static text blocks displaying comments from other users (Hoang Yen, Mai Anh).
+N/A
+N/A
+Bottom security notice
+Small text line with shield icon indicating "TroNhanh protects phone numbers...".
+N/A
+N/A
+Feature/Component #21: MyMobile Valuation Screen
+User Interfaces
+Functional Requirements
+Item
+Description
+Action
+Response
+Roommate Messaging Screen
+Roommate messaging screen has 8 buttons:
+Back (<)
+Call
+Video call
+View room
+Request roommate,
+Attachment (+)
+Record (mic)
+Send (blue arrow).
+Has 1 Name/Avatar area,
+1 Room summary card,
+1 Message input box.
+N/A
+N/A
+"Back" Button (<)
+Navigation button located at the top-left corner.
+Tap the '<' icon.
+The system closes the current chat thread and returns to the Message List screen.
+Chat Partner Info Area (Avatar/Name)
+Section containing the profile avatar, user name "Minh Trang", and activity status.
+Tap the avatar or user name.
+The system redirects to the Roommate Profile Details screen of "Minh Trang".
+"Call" / "Video Call" Buttons
+Phone and camera icons on the header bar.
+Tap the phone or camera icon.
+The system initiates an in-app voice or video call.
+Room Info Card (Pinned at top)
+Summary card block containing room details (Image, price, address).
+Tap an empty area of the card (excluding the 2 buttons below).
+The system redirects to open the corresponding Room Posting Details screen.
+"View Room" Button
+Secondary action button on the room summary card.
+Tap the "View room" button.
+The system redirects to open the Room Posting Details screen (same as tapping the card).
+"Request Roommate" Button
+Primary dark blue Call-to-Action button on the room summary card.
+Tap the "Request roommate" button.
+The system displays a confirmation popup or directly sends a roommate request to the other user. Button status may change to "Request Sent".
+Message Bubbles (Sent/Received messages)
+Text blocks displaying chat messages between the two parties.
+Single tap on a message bubble.
+N/A
+Message Bubbles (Advanced actions)
+Text blocks displaying chat messages between the two parties.
+Long press on a message bubble.
+The system displays a context menu allowing actions: Copy, Reply, Delete, Recall message.
+"+" Button (Attachment)
+Plus icon located at the bottom-left of the input box.
+Tap the "+" button.
+The system opens the media options drawer from the bottom (Send photo, video, document, location).
+"Enter message..." Box
+Text field for typing chat content.
+Tap the text area with "Enter message...".
+The system slides up the screen and displays the device's virtual keyboard to start typing.
+Emoji Icon (Smiley face)
+Smiley face icon inside the right corner of the text input box.
+Tap the smiley face icon.
+The system opens the built-in Sticker or Emoji picker panel.
+"Record" Button (Microphone Icon)
+Voice recording button next to the input box.
+Single tap on the microphone icon.
+N/A (Usually requires holding to record; single tap may show no response or a tooltip "Press and hold to record").
+"Send" Button
+Blue arrow button for sending messages (when no text is typed).
+Tap the blue arrow button when the "Enter message..." box is empty.
+N/A
+"Send" Button (With text)
+Blue arrow button for sending messages (when valid text is entered).
+Tap the blue arrow button after entering valid text.
+The system posts the typed message to the main chat feed (creates a blue message bubble) and clears the input field.
+Feature/Component #22: MyMobile Valuation Screen
+User Interfaces
+Functional Requirements
+Item
+Description
+Action
+Response
+Roommate Request Screen
+The Roommate Request screen has 9 interactive components:
+There are 3 buttons:
+- Back (<)
+- Profile
+(Avatar at top right)
+- Send to landlord for confirmation
+There are 2 avatars:
+- Avatar/Name Le Minh Trang
+- Avatar/Name Nguyen P. Thao
+There are 3 Checkboxes:
+- Checkbox "Comply with general rules..."
+- Checkbox "Financial transparency..."
+- Checkbox "Respect shared space..."
+- There is 1 "Rented Apartment" Card
+And 5 static components (non-interactive):
+- Title "Roommate Request"
+- Heart Icon & 94% Compatibility Tag block
+- "100% Agreed Lifestyle" block
+- "Preview letter to Landlord" text block
+- "Digitized ID Card & Student Card" attachment block
+N/A
+N/A
+"Back" Button (<)
+Navigation button located at the top-left corner of the Header bar.
+Click on the left arrow icon.
+The system closes the current confirmation screen and returns to the previous screen.
+"Profile" Button (Avatar top right)
+Profile icon of the currently logged-in user at the top-right corner.
+Click on the small avatar image at the top right.
+The system opens the account options menu or redirects to the Personal Profile Management screen.
+"Roommate Request" Header Block
+Static text specifying the name of the current screen.
+N/A
+N/A
+"Rented Apartment" Card
+Block containing summary information about the room (Image, name, contract code, area).
+Click on an empty area of the apartment info card.
+The system navigates to open the Post/Contract Details screen for this room.
+"Heart" Icon & "94% Compatibility" Tag
+Graphical icon showing the connection and compatibility level between the two users.
+N/A
+N/A
+Avatar/Name Le Minh Trang & Nguyen P. Thao
+Block displaying avatars, names, student info, and roles of the 2 room-sharing users.
+Click on the avatar image or name of either person.
+The system navigates to the Personal Profile Details screen of the corresponding user to review information.
+"100% Agreed Lifestyle" Block
+List of chips displaying static living criteria (Sleep schedule, No smoking...).
+N/A
+N/A
+"Preview letter to Landlord" Text Block
+Text area displaying the text (static text) automatically generated by the system based on both parties' info to send to the landlord.
+N/A
+N/A
+"Digitized ID Card & Student Card" Attachment Block
+Rectangular block with a paperclip icon and blue checkmark, attaching authorization/identification documents.
+N/A
+N/A
+3 Checkbox Buttons "Mutual Commitments"
+Green square boxes with white checkmarks next to 3 shared living commitment terms.
+Click on one of the green checkbox boxes.
+Button status changes to unchecked (white). Since this is a mandatory procedure, unchecking any box will disable the "Send to landlord for confirmation" button below.
+"Send to landlord for confirmation >" Button
+Primary Call-to-Action button (dark blue) fixed at the bottom of the screen to complete the process.
+Click on the "Send to landlord for confirmation" button when all 3 checkboxes are checked.
+The system packages the profile data, sends a notification to the Landlord's app, and redirects the user to the "Pending Approval" screen.
+Primary Call-to-Action button at the bottom of the screen. (Missing condition)
+Click on this button in case the user has unchecked 1 of the 3 commitments.
+N/A
+Feature/Component #23: Home Screen And Post Listing
+User Interfaces
+The screen displays an overview of room rental posts available on the system. Users can view post information, images, rental prices, and post locations, as well as search for and filter posts. The main navigation bar is displayed at the bottom of the screen.
+Functional Requirements
+Item
+Description
+Action
+Response
+Home screen and post listing
+HomeShare app logo, notification icon, search bar, advanced filter, area filter, area search bar, area selection checkbox, area list, area filter confirmation button, poster avatar, poster status, poster name, message button, post list, post title, post description, post image, post location information, navigation bar.
+N/a
+N/a
+HomeShare app logo
+Displays the HomeShare application logo.
+N/a
+N/a
+Notification icon
+Allows users to access account notifications.
+Tap [Notification icon].
+The system navigates to the Notifications screen.
+Search bar
+Allows users to search for room rental posts by keyword.
+Tap [Search bar] and enter a keyword.
+The system displays the search interface and results matching the keyword.
+Advanced filter
+Allows users to configure detailed filtering criteria for posts.
+Tap [Advanced filter].
+The system displays the Advanced Filter interface.
+Area filter
+Allows users to select the areas where they want to search for posts.
+Tap [Area filter].
+The system displays a list of areas for users to select.
+Area search bar
+Allows users to quickly search for an area within the area list.
+Tap [Area search bar] and enter a keyword.
+The system displays areas matching the keyword.
+Area selection checkbox
+Allows users to select one or more areas to filter posts.
+Tap [Area checkbox].
+The system selects or deselects the selected area.
+Area list
+Displays a list of areas available for selection when searching for posts.
+N/a
+N/a
+Area filter confirmation button
+Allows users to confirm the selected areas.
+Tap [Apply].
+The system closes the area list and applies the selected areas to the search results.
+Poster avatar
+Displays the profile picture of the person who posted the listing.
+N/a
+N/a
+Poster status
+Displays the status or verification information of the person who posted the listing.
+N/a
+N/a
+Poster name
+Displays the name of the person who posted the listing.
+N/a
+N/a
+Message button
+Allows users to contact the poster when they are interested in the room/house.
+Tap [Message].
+The system navigates to the Messages screen and opens a conversation with the poster.
+Post list
+Displays a list of rental posts available on the system.
+N/a
+N/a
+Post title
+Displays the title or main content of the rental post.
+Tap [Post title].
+The system navigates to the Post Details screen.
+Post description
+Displays the description and key information about the room/house.
+N/a
+N/a
+Post image
+Displays images of the room/house available for rent.
+Tap [Post image].
+The system navigates to the Post Details screen or an image viewing interface.
+Location information
+Displays the area or location of the room/house.
+N/a
+N/a
+Navigation bar
+Provides quick access to the main functions of the application.
+Tap [Navigation bar tab].
+The system navigates to the screen corresponding to the selected tab.
+Feature/Component #24: Search, Filter, and Result Listing
+User Interfaces
+The screen allows users to search for and filter room rental posts based on various criteria such as area, price range, rental type, amenities, and other criteria. After setting the desired conditions, the system displays a list of posts that match the user's search requirements.
+Functional Requirements
+Item
+Description
+Action
+Response
+Search, filter, and result listing screen
+HomeShare app logo, notification icon, back button, search bar, search button, area filter, area search bar, area selection checkbox, area list, area confirmation button, rental price information, minimum price field, maximum price field, price range slider, amenities list, amenity checkbox, filter criteria, clear filter button, apply filter button, post list, poster avatar, poster status, poster name, post title, post description, post image, message button, navigation bar.
+N/a
+N/a
+HomeShare app logo
+Displays the HomeShare logo and brand identity.
+N/a
+N/a
+Notification icon
+Allows users to access account notifications.
+Tap [Notification icon].
+The system navigates to the Notifications screen.
+Back button
+Allows users to return to the previous screen.
+Tap [Back].
+The system returns to the previous screen.
+Search bar
+Allows users to enter keywords to search for rental posts.
+Tap [Search bar] and enter a keyword.
+The system displays the entered search keyword and matching results.
+Search button
+Performs a search for posts based on the entered keyword and configured conditions.
+Tap [Search].
+The system performs the search and updates the result list.
+Area filter
+Allows users to select the areas where they want to search for posts.
+Tap [Area filter].
+The system displays the area list.
+Area search bar
+Allows users to quickly search for an area.
+Tap [Area search bar] and enter an area name.
+The system displays areas matching the keyword.
+Area selection checkbox
+Allows users to select the areas where they want to search.
+Tap [Area checkbox].
+The system selects or deselects the selected area.
+Area list
+Displays a list of available areas for selection.
+N/a
+N/a
+Rental price information
+Displays and allows users to set the desired rental price range.
+N/a
+N/a
+Minimum price field
+Allows users to enter the minimum desired rental price.
+Tap [Minimum price] and enter a price.
+The system updates the minimum price.
+Maximum price field
+Allows users to enter the maximum desired rental price.
+Tap [Maximum price] and enter a price.
+The system updates the maximum price.
+Price range slider
+Allows users to adjust the desired rental price range.
+Tap and drag [Price range slider].
+The system updates the minimum and maximum prices according to the selected positions.
+Amenities list
+Displays amenities that can be used as filtering criteria.
+N/a
+N/a
+Amenity checkbox
+Allows users to select their desired amenities.
+Tap [Amenity checkbox].
+The system selects or deselects the selected amenity.
+Filter criteria
+Displays additional criteria for filtering posts.
+N/a
+N/a
+Filter criteria item
+Allows users to select additional search conditions.
+Tap [Criteria].
+The system displays the corresponding options.
+Clear filter button
+Allows users to clear the configured filter conditions.
+Tap [Clear filters].
+The system resets the filter conditions to their default state.
+Apply filter button
+Allows users to confirm and apply the configured filter conditions.
+Tap [Apply filters].
+The system applies the filter conditions and updates the post list.
+Post list
+Displays posts matching the search keyword and filter conditions.
+N/a
+N/a
+Poster avatar
+Displays the profile picture of the person who posted the listing.
+N/a
+N/a
+Poster status
+Displays the status or verification information of the poster.
+N/a
+N/a
+Poster name
+Displays the name of the person who posted the listing.
+N/a
+N/a
+Post title
+Displays the title or main content of the post.
+Tap [Post title].
+The system navigates to the Post Details screen.
+Post description
+Displays the description and key information about the room/house.
+N/a
+N/a
+Post image
+Displays images of the room/house available for rent.
+Tap [Post image].
+The system navigates to the Post Details screen or an image viewing interface.
+Message button
+Allows users to contact the person who posted the listing.
+Tap [Message].
+The system navigates to the Messages screen and opens a conversation with the poster.
+Navigation bar
+Provides quick access to the main functions of the application.
+Tap [Navigation bar tab].
+The system navigates to the corresponding screen.
+Feature/Component #25: Message List
+User Interfaces
+The screen displays a list of conversations between the user and other users on the system. Users can search for conversations, view information about the person they are chatting with, the latest message content, and the message time. Users can select a conversation to view its details.
+Functional Requirements
+Item
+Description
+Action
+Response
+Messages screen
+Messages title, message search bar, conversation list, user avatar, user name, latest message content, message time, message status, navigation bar.
+N/a
+N/a
+Message search bar
+Allows users to search for conversations by username or message content.
+Tap [Search bar] and enter a keyword.
+The system displays matching conversations.
+Conversation list
+Displays the user's list of conversations.
+N/a
+N/a
+User avatar
+Displays the profile picture of a participant in the conversation.
+N/a
+N/a
+User name
+Displays the name of the participant in the conversation.
+N/a
+N/a
+Latest message
+Displays the latest message content in the conversation.
+N/a
+N/a
+Message time
+Displays the time of the latest message.
+N/a
+N/a
+Message status
+Displays the status of the message or conversation.
+N/a
+N/a
+Conversation
+Allows users to open a conversation from the list.
+Tap [Conversation].
+The system navigates to the Message Details screen.
+Navigation bar
+Provides access to the main functions of the application.
+Tap [Navigation bar tab].
+The system navigates to the corresponding screen.
+Feature/Component #26: Conversation Details
+User Interfaces
+The screen displays the conversation between the user and the other participant. Users can view sent and received messages, images shared in the conversation, enter new messages, and send messages.
+Functional Requirements
+Item
+Description
+Action
+Response
+Message Details screen
+Back button, conversation participant avatar, conversation participant name, user status, message list, sent messages, received messages, attached images, message time, message input field, attachment button, image selection button, send message button.
+N/a
+N/a
+Back button
+Allows users to return to the message list.
+Tap [Back button].
+The system navigates to the Messages screen.
+Conversation participant avatar
+Displays the profile picture of the person the user is chatting with.
+N/a
+N/a
+Conversation participant name
+Displays the name of the person participating in the conversation.
+N/a
+N/a
+User status
+Displays the activity status of the person the user is chatting with.
+N/a
+N/a
+Message list
+Displays the conversation between the two users in chronological order.
+N/a
+N/a
+Sent messages
+Displays messages sent by the current user.
+N/a
+N/a
+Received messages
+Displays messages sent by the conversation participant.
+N/a
+N/a
+Attached image
+Displays images sent in the conversation.
+Tap [Image].
+The system displays the image in detail.
+Message time
+Displays the time when a message was sent or received.
+N/a
+N/a
+Message input field
+Allows users to enter message content.
+Tap [Message input field] and enter content.
+The system displays the entered content.
+Attachment button
+Allows users to select content to attach to the message.
+Tap [Attachment button].
+The system displays attachment options.
+Image selection button
+Allows users to select an image to send.
+Tap [Image button].
+The system opens the image selection interface.
+Send message button
+Allows users to send the entered content.
+Tap [Send button].
+The system sends and displays the new message in the conversation.
+Feature/Component #27: Create Post Screen
+User Interfaces
+The screen allows landlords to create a room rental post by adding images, entering basic information, selecting amenities and requirements, entering location information, and providing contact information.
+Functional Requirements
+Item
+Description
+Action
+Response
+Create Post screen
+Back button, Create Post title, Reset button, Room Images & Videos title, number of selected images, Add Image button, room images, image note, Basic Information title, room description, rental price, room status, Amenities & Requirements title, number of selected amenities, add amenity/requirement field, Add button, amenity list, Delete button, amenity list, Collapse button, Location & Contact title, address, rental price, phone number, description, Post Now button.
+N/a
+N/a
+Back button
+Allows users to return to the previous screen.
+Tap [Back button].
+The system returns to the previous screen.
+Create Post title
+Displays the name of the post creation screen.
+N/a
+N/a
+Reset button
+Allows users to reset the entered information.
+Tap [Reset].
+The system resets the information to its initial state.
+Room Images & Videos title
+Displays the section for adding room images and videos.
+N/a
+N/a
+Number of selected images
+Displays the number of images added out of the maximum number of allowed images.
+N/a
+N/a
+Add Image button
+Allows users to add room images.
+Tap [Add Image].
+The system opens the image selection interface.
+Room images
+Displays the room images added by the user to the post.
+N/a
+N/a
+Image note
+Displays a note about using actual images of the room.
+N/a
+N/a
+Basic Information title
+Displays the section for entering basic room information.
+N/a
+N/a
+Room description
+Allows users to enter a description of the room for rent.
+Enter [Description].
+The system displays the entered content.
+Rental price
+Allows users to enter the monthly rental price of the room.
+Enter [Rental price].
+The system displays the entered rental price.
+Room status
+Allows users to select the current status of the room.
+Tap [Room status].
+The system displays the selected status.
+Amenities & Requirements title
+Displays the section for selecting room amenities and requirements.
+N/a
+N/a
+Number of selected amenities
+Displays the number of selected amenities and requirements.
+N/a
+N/a
+Add amenity/requirement field
+Allows users to enter or search for custom amenities or requirements.
+Enter [Amenity/Requirement].
+The system displays the entered content.
+Add button
+Allows users to add a custom amenity or requirement.
+Tap [Add].
+The system adds the amenity or requirement to the list.
+Amenity list
+Displays the selected amenities and requirements such as Air Conditioning, Mezzanine, Free Parking, Flexible Hours, and Near University/Bus Station.
+Tap any [Amenity].
+The system marks the selected amenity.
+Delete button
+Allows users to remove a selected amenity.
+Tap [X].
+The system removes the amenity from the selected list.
+Collapse button
+Allows users to collapse the list of amenities and requirements.
+Tap [Collapse].
+The system collapses the list.
+Location & Contact title
+Displays the section for entering location and contact information.
+N/a
+N/a
+Address
+Displays the address of the rental room.
+Enter/select an address.
+The system displays the selected address.
+Rental price
+Displays the room rental price in the contact information section.
+N/a
+N/a
+Phone number
+Allows users to enter a contact phone number.
+Enter [Phone number].
+The system displays the entered phone number.
+Description
+Allows users to enter a detailed description of the room and related information.
+Enter [Description].
+The system displays the entered content.
+Post Now button
+Allows users to publish the post after completing the required information.
+Tap [Post Now].
+The system publishes the post to the system.
+Feature/Component #28: Pending Requests List
+User Interfaces
+The screen displays a list of room booking requests that are currently pending. Users can search for requests by booking code and filter the list by status.
+Functional Requirements
+Item
+Description
+Action
+Response
+Notifications screen
+Back button, Notifications title, booking code search bar, Pending filter, Deposited filter, Paid filter, request count display, booking request list.
+N/a
+N/a
+Back button
+Allows users to return to the previous screen.
+Tap [Back button].
+The system returns to the previous screen.
+Notifications title
+Displays the name of the notifications screen.
+N/a
+N/a
+Booking code search bar
+Allows users to search for booking requests by booking code.
+Enter a booking code.
+The system displays requests matching the booking code.
+Pending filter
+Allows users to view requests that are currently being processed.
+Tap [Pending].
+The system displays requests that are currently being processed.
+Deposited filter
+Allows users to view requests for which a deposit has been paid.
+Tap [Deposited].
+The system displays requests with a deposit.
+Paid filter
+Allows users to view requests that have been fully paid.
+Tap [Paid].
+The system displays fully paid requests.
+Request count display
+Displays the number of pending requests in the system.
+N/a
+N/a
+Booking request list
+Displays booking requests, including room number, room name, booking code, floor/room information, tenant, room reservation deposit, expected move-in date, request submission time, and deposit confirmation pending status.
+N/a
+N/a
+Feature/Component #29: Deposited Request List
+User Interfaces
+The screen displays booking requests for which the tenant has paid a deposit. The landlord can view room information, tenant information, deposit amount, and expected move-in date, as well as edit the booking information or approve check-in.
+Functional Requirements
+Item
+Description
+Action
+Response
+Notifications screen
+Back button, Notifications title, booking code search bar, Pending filter, Deposited filter, Paid filter, deposited request count display, deposited request list.
+N/a
+N/a
+Back button
+Allows users to return to the previous screen.
+Tap [Back button].
+The system returns to the previous screen.
+Notifications title
+Displays the name of the notifications screen.
+N/a
+N/a
+Booking code search bar
+Allows users to search for requests by booking code.
+Enter a booking code.
+The system displays requests matching the booking code.
+Pending filter
+Allows users to view requests that are currently being processed.
+Tap [Pending].
+The system displays requests that are currently being processed.
+Deposited filter
+Allows users to view requests for which a deposit has been paid.
+Tap [Deposited].
+The system displays the list of deposited requests.
+Paid filter
+Allows users to view requests that have been fully paid.
+Tap [Paid].
+The system displays the list of fully paid requests.
+Deposited, check-in pending count display
+Displays the number of deposited requests in the system.
+N/a
+N/a
+Deposited, check-in pending list
+Displays deposited requests, including room number, room name, booking code, floor/room information, tenant, room reservation deposit, and expected move-in date.
+N/a
+N/a
+Edit button
+Allows the landlord to edit the booking information.
+Tap [Edit].
+The system displays the Update Deposit Information screen.
+Approve Check-in button
+Allows the landlord to approve the tenant's check-in.
+Tap [Approve Check-in].
+The system performs the check-in approval action.
+Feature/Component #30: Update Deposit Information
+User Interfaces
+The screen displays a window for updating deposit information for a specific booking request. The landlord can change the room, change the check-in date, enter the reason for the adjustment, and send the updated information to the tenant for confirmation.
+Functional Requirements
+Item
+Description
+Action
+Response
+Update Deposited Customer Information Screen
+Displays the pull-up window, Landlord Actions title, booking code, close button, deposited tenant information, previous deposit amount, Change Room section, current room information, room occupancy information, Change Check-in Date section, check-in date, month and quick-select dates, adjustment reason, change warning, Save & Send Confirmation to Tenant button, and Cancel Changes button.
+N/a
+N/a
+Pull-up Window
+Displays an indicator showing that this is a pull-up action window.
+N/a
+N/a
+Landlord Actions Title
+Displays the title of the landlord action area.
+N/a
+N/a
+Booking Code
+Displays the booking code of the request being updated.
+N/a
+N/a
+Close Button
+Allows the landlord to close the update window.
+Tap [X]
+The system closes the update window.
+Deposited Tenant Information
+Displays the name of the tenant who paid the deposit.
+N/a
+N/a
+Previous Deposit Amount
+Displays the amount previously deposited by the tenant.
+N/a
+N/a
+Change Room Section
+Allows the landlord to change the tenant's room.
+Tap [Change Room]
+The system allows the landlord to select a room.
+Current Room Information
+Displays the current room, floor, area, and rental price.
+N/a
+N/a
+Current Room Occupancy Information
+Displays the current room occupancy status and the date on which the room has a tenant.
+N/a
+N/a
+Change Check-in Date Section
+Allows the landlord to change the tenant's check-in date.
+Tap [Change Check-in Date]
+The system displays the date selection interface.
+Check-in Date
+Displays the selected check-in date.
+Tap [Check-in Date]
+The system allows the landlord to change the date.
+Month and Quick-Select Dates
+Displays the current month and quick-select dates for check-in.
+Tap [Date]
+The system updates the selected check-in date.
+Adjustment Reason
+Allows the landlord to enter the reason for changing the booking information to send to the tenant.
+Enter [Adjustment Reason]
+The system displays the entered reason.
+Change Warning
+Displays a warning that the tenant will receive a notification about the changes and must reconfirm them.
+N/a
+N/a
+Save & Send Confirmation to Tenant Button
+Allows the landlord to save the changes and send a confirmation request to the tenant.
+Tap [Save & Send Confirmation to Tenant]
+The system saves the updated information and sends the confirmation request.
+Cancel Changes Button
+Allows the landlord to cancel the recent changes.
+Tap [Cancel Changes]
+The system cancels the changes.
+Feature/Component #31: Confirm Booking Changes
+User Interfaces
+The screen allows the tenant to view a notification about booking information changes from the landlord, review the changes to the room, check-in date, and deposit, and then choose to reject or confirm the changes.
+Functional Requirements
+Item
+Description
+Action
+Response
+Confirm Information Changes Screen
+Displays the Back button, Confirm Changes title, booking order code, Pending Confirmation status, notification from the Landlord, landlord information, Message button, Booking Change Details title, update time, Registered Room section, previous room information, new room information, Check-in Date section, previous check-in date, new check-in date, deposit information, deposit remains unchanged status, security notice, Reject button, and Confirm button.
+N/a
+N/a
+Back Button
+Allows the tenant to return to the previous screen.
+Tap [Back]
+The system returns to the previous screen.
+Confirm Changes Title
+Displays the title of the screen.
+N/a
+N/a
+Booking Order Code
+Displays the booking order code to be confirmed.
+N/a
+N/a
+Pending Confirmation Status
+Displays the status indicating that the booking changes are waiting for tenant confirmation.
+N/a
+N/a
+Notification from Landlord
+Displays the notification and changes sent by the landlord.
+N/a
+N/a
+Landlord Information
+Displays the landlord's name and information.
+N/a
+N/a
+Message Button
+Allows the tenant to contact the landlord.
+Tap [Message]
+The system navigates to the Message Details screen.
+Booking Change Details Title
+Displays the section containing the changed booking information.
+N/a
+N/a
+Update Time
+Displays the time when the booking information was updated.
+N/a
+N/a
+Registered Room Section
+Displays the room information before and after the change.
+N/a
+N/a
+Previous Room Information
+Displays the room information before the change.
+N/a
+N/a
+New Room Information
+Displays the room information after the change.
+N/a
+N/a
+Check-in Date Section
+Displays the check-in date information before and after the change.
+N/a
+N/a
+Previous Check-in Date Information
+Displays the previous check-in date.
+N/a
+N/a
+New Check-in Date Information
+Displays the new check-in date.
+N/a
+N/a
+Deposit Information
+Displays the deposit amount.
+N/a
+N/a
+Deposit Remains Unchanged Status
+Indicates that the deposit amount remains unchanged after the booking information is changed.
+N/a
+N/a
+Security Notice
+Displays a notice about the deposit and processing time after confirmation.
+N/a
+N/a
+Reject Button
+Allows the tenant to reject the booking information changes.
+Tap [Reject]
+The system updates the request status to Rejected.
+Confirm Button
+Allows the tenant to confirm and accept the booking information changes.
+Tap [Confirm]
+The system updates the request status to Confirmed.
+Feature/Component #32: Profile
+User Interfaces
+The screen displays the user's personal information, activity statistics, and account management functions. Users can view their personal information, manage posts, manage favorites, and access other functions through the navigation bar.
+Functional Requirements
+Item
+Description
+Action
+Response
+Profile Screen
+Displays the user's avatar, username, verification status, notification icon, settings icon, Edit Profile button, Financial Information, Management & Utilities information, and navigation bar.
+N/a
+N/a
+User Avatar
+Displays the user's avatar.
+N/a
+N/a
+Username
+Displays the user's name.
+N/a
+N/a
+Verification Status
+Displays the account verification status.
+N/a
+N/a
+Notification Icon
+Allows the user to access account notifications.
+Tap [Notification Icon]
+The system navigates to Notifications.
+Settings Icon
+Allows the user to access account settings.
+Tap [Settings Icon]
+The system navigates to Account Settings.
+Edit Profile Button
+Allows the user to edit personal information.
+Tap [Edit Profile]
+The system navigates to Edit Profile.
+Financial Information
+Displays financial information related to the account and user.
+N/a
+N/a
+Management & Utilities Information
+Displays account management functions and utilities.
+N/a
+N/a
+Navigation Bar
+Provides quick access to the main functions of the application.
+Tap [Navigation Bar Tab]
+The system navigates to the corresponding screen.
+Feature/Component #33: Edit Profile Information
+User Interfaces
+The screen allows users to update their personal information and profile-related information. Users can change their avatar, full name, phone number, email, address, identification document information, and additional information before saving the profile.
+Functional Requirements
+Item
+Description
+Action
+Response
+Edit Profile Screen
+Displays the Back button, Edit Profile title, Save button, user avatar, Change Avatar button, verification status, full name, phone number, email, address, identification document information, date of birth information, gender, contact information, bank account information, verification documents, document verification status, additional information, and information visibility toggle.
+N/a
+N/a
+Back Button
+Allows the user to return to the previous screen.
+Tap [Back]
+The system navigates to the Profile screen.
+Edit Profile Title
+Displays the title of the screen.
+N/a
+N/a
+Save Button
+Allows the user to save the edited profile information.
+Tap [Save]
+The system saves the updated profile information.
+User Avatar
+Displays the current user avatar.
+N/a
+N/a
+Change Avatar Button
+Allows the user to change the avatar.
+Tap [Change Avatar]
+The system displays the image picker.
+Verification Status
+Displays the profile verification status.
+N/a
+N/a
+Full Name
+Allows the user to view and update their full name.
+Enter [Full Name]
+The system displays the updated name.
+Phone Number
+Allows the user to view and update their phone number.
+Enter [Phone Number]
+The system displays the updated phone number.
+Email
+Allows the user to view and update their email address.
+Enter [Email]
+The system displays the updated email address.
+Address
+Allows the user to enter and update their address.
+Enter [Address]
+The system displays the updated address.
+Identification Document Information
+Displays the user's identification document information for verification.
+N/a
+N/a
+Date of Birth Information
+Allows the user to view and update their date of birth.
+Tap [Date of Birth]
+The system displays the date of birth update interface.
+Gender
+Allows the user to view and update their gender.
+Tap [Gender]
+The system displays the available gender options.
+Contact Information
+Displays the user's contact information.
+N/a
+N/a
+Bank Account Information
+Displays the user's bank account information for transactions.
+Tap [Bank Account Information]
+The system displays the bank account information and allows it to be updated.
+Verification Documents
+Allows the user to view and update verification documents.
+Tap [Documents]
+The system displays the verification information and document images.
+Document Verification Status
+Displays the verification status of the submitted documents.
+N/a
+N/a
+Additional Information
+Displays additional profile information.
+N/a
+N/a
+Information Visibility Toggle
+Allows the user to control the visibility of profile information.
+Tap [Toggle]
+The system toggles the information visibility setting.
+Feature/Component #34: Account Settings
+User Interfaces
+The screen provides account management, security, notification, privacy, and other user settings. Users can access each settings group and log out of the account.
+Functional Requirements
+Item
+Description
+Action
+Response
+Account Settings Screen
+Displays the Back button, Account Settings title, Account & Personal Information section, Account Information, Phone Number/Email, User Security Code, Security section, Change Password, General Settings & Support section, Language, Help Center & FAQ, Contact Support, Terms & Policies, and Log Out button.
+N/a
+N/a
+Back Button
+Allows the user to return to the previous screen.
+Tap [Back]
+The system navigates to the Profile screen.
+Account Settings Title
+Displays the title of the screen.
+N/a
+N/a
+Account & Personal Information Section
+Displays account and personal information management functions.
+N/a
+N/a
+Account Information
+Allows the user to view and manage account information.
+Tap [Account Information]
+The system displays the account information interface.
+Phone Number/Email
+Allows the user to view and manage the linked phone number and email address.
+Tap [Phone Number/Email]
+The system displays the account contact information.
+User Security Code
+Allows the user to manage security information.
+Tap [Security Code]
+The system displays the security code management interface.
+Security Section
+Displays security-related functions.
+N/a
+N/a
+Change Password
+Allows the user to change their account password.
+Tap [Change Password]
+The system displays the Change Password interface.
+General Settings & Support Section
+Displays general settings and support functions.
+N/a
+N/a
+Language
+Allows the user to select the application language.
+Tap [Language]
+The system displays the language list.
+Help Center & FAQ
+Allows the user to access frequently asked questions and guidance.
+Tap [Help Center & FAQ]
+The system navigates to the Help Center.
+Contact Support
+Allows the user to contact customer support.
+Tap [Contact Support]
+The system displays available support contact methods.
+Terms & Policies
+Allows the user to view the terms and policies of the application.
+Tap [Terms & Policies]
+The system displays the terms and policy content.
+Log Out Button
+Allows the user to log out of the account.
+Tap [Log Out]
+The system logs the user out and returns to the Login screen.
+Feature/Component #35: Boarding House Management
+User Interfaces
+Functional Requirements
+Item
+Description
+Action
+Response
+Boarding House Management Screen
+Main interface containing:
+Notification icon
+System overview cards (Total, Occupied, Vacant)
+Facility Card List
+"Manage Rooms >" button
+Bottom Navigation Bar
+N/A
+N/A
+Notification Icon
+Displays a bell icon with a red dot indicating that the system has new notifications.
+Click on the notification icon
+Opens a screen or dropdown list displaying system notifications.
+System Overview Cards
+Displays non-interactive overview metrics, including:
+Gray card: Total 32 rooms
+Green card: Occupied 28 rooms
+Orange card: Vacant 4 rooms
+N/A
+N/A
+Facility Card List
+Displays a list of 4 facilities with detailed information (Image, name, occupancy %, address, room status, revenue).
+N/A
+N/A
+"Manage Rooms" Button
+Each card includes a blue "Manage Rooms >" action button.
+Click the "Manage Rooms >" button on a specific facility card
+Redirects the user to the detailed view screen for the selected boarding house facility.
+Bottom Navigation Bar
+Main navigation bar for Landlord.
+Tap a tab (General Info, Tenant Management, Add House/Room button, Finance Management, Back button).
+Redirects to the corresponding feature screen.
+Feature/Component #36: Rooms Management
+User Interfaces
+Functional Requirements
+Item
+Description
+Action
+Response
+Rooms Management
+Main interface includes:
+Notification icon
+Back button and Options menu
+Facility information (Address, occupancy status)
+Room status filter bar
+Room card list
+Bottom Navigation Bar
+N/A
+N/A
+Notification Icon
+Displays a bell icon with a red dot in the top right corner.
+Click on the notification icon
+Opens a screen or dropdown list displaying system notifications.
+Back Button
+Left arrow button located at the bottom left of the Header bar.
+Click on the back button
+Navigates the user back to the previous screen (Overview screen).
+Facility Information
+Displays non-interactive information including: Facility address and green statistical badge "11/12 rooms rented".
+N/A
+N/A
+Room Status Filter Bar
+Includes 3 tabs to filter the list: "All 12", "Occupied 11" and "Vacant 1". The selected tab has a blue background.
+Click on any tab
+The list of room cards below updates immediately to show only rooms matching the selected filter status.
+Room Card List
+Displays a list of room information under the facility, including: Room number, Status (Vacant, Tenant name, Room debt), Rent price/month, and Area.
+N/A
+N/A
+Room Card (Interactive Button)
+Each room card in the list features a right arrow icon ">" on the right indicating it is actionable.
+Click on a specific room card
+Redirects the user to the detailed view/management screen of the selected room.
+Bottom Navigation Bar
+Main navigation bar for Landlord management, including tabs: General Info, Tenant Management, Action Button (+), Financial Management, Back.
+Click on any tab on the navigation bar
+Redirects the user to the corresponding feature screen.
+Feature/Component #37: Room Detail
+User Interfaces
+Functional Requirements
+Room Detail Screen
+Main interface includes:
+- Back button
+- Property location info
+- Room overview card (Status, Price, Images)
+- Room info card (Area, Services, Amenities)
+- Tenant info card
+- Management action buttons (Edit, Delete)
+N/A
+N/A
+Back Button
+Left arrow button located at top-left, next to the "Room Detail" title.
+Click on the Back button
+Navigates the user back to the previous screen (Room list screen).
+Property Location Info
+Displays building name and floor position (e.g., "Dang Van Bi Boarding House • Floor 1"). Non-interactive.
+N/A
+N/A
+Room Overview Card
+Displays non-interactive overview information, including: status badge "Rented" and Rent price "2,800,000 VND/month".
+N/A
+N/A
+Image Gallery
+Representative room photo with a floating count badge (e.g., camera icon with "4 photos").
+Click on the image or "4 photos" button
+Opens fullscreen Image Viewer to swipe through all photos of this room.
+Room Info Card
+Displays fixed, non-interactive parameters including:
+- Room title, area, and floor ("Info Room 101", "24 m² • Floor 1")
+- Unit rates for services (Electricity, Water, Wifi & Trash)
+- Room amenity tags (Air Conditioner, Mezzanine, Water Heater, Kitchen Shelf, Fingerprint Lock)
+N/A
+N/A
+Tenant Info Card
+Displays tenant overview details: Contract duration, Avatar, Name, Phone number, and Deposit amount.
+N/A
+N/A
+Call Button
+Blue circular button with a phone icon located on the right side of the Tenant card.
+Click on the Call button
+System redirects to the default phone dialer app with tenant's phone number pre-filled ("0988 123 456").
+"Edit Room" Button
+Primary blue action button with a pencil icon located at the bottom-left of the screen.
+Click on "Edit Room" button
+Redirects user to the edit form screen to update room information.
+Delete Button
+Secondary square action button with light red background and trash bin icon, located at bottom-right.
+Click on Delete button
+Displays a Confirmation Popup warning the user about deleting the room and requesting confirmation before executing.
+Feature/Component #38: Tenant & Resident Management
+User Interfaces
+The Tenant & Resident Management Screen serves as a central interface for property managers and landlords to monitor, search, and quickly communicate with active tenants residing across various properties
+Functional Requirements
+Item
+Description
+User Action
+System Response
+Tenant & Resident Management Screen
+Main interface for managing active tenant profiles, room contracts, resident counts, and quick communications across properties.
+N/A
+N/A
+Header - Side Menu Button
+Top-left hamburger icon ☰.
+Tap ☰ icon
+Opens side navigation drawer menu.
+Header Title & Subtitle
+Header text displaying "Resident & Tenant Management" and subtitle "Tenant profiles & contracts".
+N/A
+N/A
+Resident Summary Bar
+Metrics bar displaying real-time counts: total active residents (e.g., 45 active) and managed properties (e.g., 4 properties).
+N/A
+N/A
+Search Bar
+Input field with placeholder "Search by name, phone or room number...".
+Input tenant name, phone number, or room number
+Dynamically filters and displays matching tenant cards in real time.
+Tenant Card List
+Container displaying active tenant cards with avatar, tenant name, occupant count badge (e.g., 2 occupants), phone number, room, and property name.
+Tap on a tenant card
+Navigates to detailed Tenant Profile & Contract Details screen.
+Quick Call Button
+Phone icon 📞 / [Call now] button on tenant card.
+Tap Call button
+Triggers device dialer pre-filled with the tenant's phone number.
+Quick SMS / Message Button
+SMS icon 💬 SMS / Message icon button on tenant card.
+Tap SMS button
+Opens default messaging app pre-filled with tenant's phone number.
+Add New Tenant Button
+Full-width button [+ Add new tenant] at the bottom of the tenant list.
+Tap [+ Add new tenant]
+Redirects to the New Tenant Onboarding & Contract Creation screen.
+Bottom Navigation Bar
+Bottom navigation bar comprising 5 options: "Overview", "Tenants" (Active), Central Floating Add (+), "Finance", "Back".
+Tap any tab
+Navigates to the corresponding module or executes the central action.
+Feature/Component #39: Check-in & Check-out Management
+User Interfaces
+The Check-in & Check-out Management Screen enables landlords and property managers to process tenant room handovers (check-in) and contract terminations (check-out) seamlessly.
+Functional Requirements
+Item
+Description
+User Action
+System Response
+Check-in & Check-out Management Screen
+Main interface for managing tenant room check-in handovers and check-out processing.
+N/A
+N/A
+Header - Side Menu Button
+Top-left hamburger menu icon ☰.
+Tap ☰ icon
+Opens side navigation drawer menu.
+Header Title
+Static title displaying "Check-in & Check-out Management".
+N/A
+N/A
+Express QR Check-in Banner
+Feature banner encouraging quick check-in via QR code scanning.
+N/A
+N/A
+Scan QR Button
+Action button [Scan code >] on express banner.
+Tap [Scan code >]
+Opens camera QR scanner interface to scan tenant's check-in QR code.
+Status Segment Tabs
+Filter tabs to switch between "Check-in" and "Check-out" lists with count badges.
+Tap a tab ("Check-in" or "Check-out")
+Reloads and displays corresponding check-in or check-out request cards.
+Check-in Card Item
+Card displaying room badge (e.g., 204), tenant name, floor details, deposit amount, and current status.
+Tap card area
+Opens detailed check-in / room handover inspection screen.
+Status & Deposit Info Box
+Inner status container showing current state (🔒 Pending key handover) and deposit amount (Deposit: 4,800,000 VND).
+N/A
+N/A
+Cancel Check-in Button
+Red action button [Cancel] inside status container.
+Tap [Cancel]
+Displays confirmation dialog to cancel/revoke the pending check-in request.
+Handover Action Button
+Primary blue button [🔑 Start room handover] / [🔑 Room handed over].
+Tap handover button
+Launches room handover/key transfer workflow or updates status to completed.
+Bottom Navigation Bar
+Main 5-option navigation bar: "Overview", "Tenants" (Active), Central (+), "Finance", "Back".
+Tap any tab
+Navigates to the corresponding module screen.
+Express QR Check-out Banner
+Dynamic scanner banner showing "Express QR Check-out - Instant room handover & inspection" with button [Scan code >].
+Tap [Scan code >]
+Opens camera scanner to scan tenant's check-out QR code.
+Check-out Segment Tab
+Tab option "Check-out" with badge counter indicating pending check-out count.
+Tap "Check-out" tab
+Filters and displays the list of rooms pending check-out processing.
+Section Title - List to Process
+Header text "LIST TO PROCESS" displaying related room count (e.g., 2 related rooms).
+N/A
+N/A
+Pending Check-out Card
+Card showing room badge (e.g., ROOM 204), tenant name, • Occupied status, expected move-out date (Expected move-out), and deposit amount.
+Tap card area
+Opens room inspection and deposit settlement screen.
+Check-out Action Button
+Red action button [🚪↳ Check-out] on the pending card.
+Tap [🚪↳ Check-out]
+Launches check-out workflow, room condition assessment, and deposit refund calculation.
+Completed Check-out Card
+Card displaying finished check-out record with room badge (ROOM 105), tenant name, CANCELLED tag, completion timestamp (Check-out completed), and refunded deposit (Deposit refunded).
+N/A
+N/A
+Completed Check-out Status Button
+Disabled grey button [Checked out].
+Tap button
+Disabled / Displays view-only check-out summary receipt.
+Feature/Component #40: Room Handover
+User Interfaces
+The Room Handover screen within the Check-in process enables landlords and property managers to record initial utility meter readings, inspect amenity conditions, and finalize direct room handovers to tenants.
+Functional Requirements
+Item
+Description
+User Action
+System Response
+Room Handover Screen
+Interface for recording initial utility meters, inspecting equipment condition, and completing the check-in process.
+N/A
+N/A
+Header - Back Button
+Top-left back arrow icon <.
+Tap < icon
+Navigates back to the Check-in & Check-out Management screen.
+Header Title & Status Badge
+Title "Room Handover - R.204" and method tag • In-person.
+N/A
+N/A
+Tenant & Deposit Info Card
+Summary card showing tenant name (Đỗ Hoàng Long), room address, holding deposit (4,800,000 VND - Held via Escrow), and lease duration (12 months).
+N/A
+N/A
+Step 1: Record Initial Readings
+Section for logging starting utility meter numbers (mandatory).
+N/A
+N/A
+Initial Electricity Meter (kWh)
+Input field for initial electricity reading (unit price: 3,500 VND/kWh).
+Input reading value (e.g., 1428)
+Saves starting electricity index as baseline for monthly utility billing.
+Initial Water Meter (m³)
+Input field for initial water reading (unit price: 20,000 VND/m³).
+Input reading value (e.g., 84)
+Saves starting water index as baseline for monthly utility billing.
+Step 2: Equipment Condition
+Inventory inspection list (with overview badge 4/4 Standard compliant) covering AC, Water Heater, Furniture, and Locks/Keys.
+N/A
+N/A
+Equipment Verification Toggle
+Toggle switch for each amenity item.
+Tap to toggle ON/OFF
+Updates operational/standard status for the corresponding amenity.
+Step 3: Confirm Handover
+Mutual consent agreement section (featuring ✔ Mutual agreement badge).
+N/A
+N/A
+Key Handover Checkbox
+Checkbox acknowledging keys handed over & all equipment inspected.
+Tap checkbox
+Marks physical site inspection as confirmed.
+Additional Notes Field
+Text field for entering extra notes or additional agreements.
+Input text
+Saves additional notes attached to the room handover record.
+Confirm Room Handover Button
+Primary blue button [✓ Confirm room handover].
+Tap [✓ Confirm room handover]
+Completes check-in process, activates the official rental contract, and changes tenant status to "Staying".
+Feature/Component #41: Room Handover & Check-out
+User Interfaces
+The Room Handover & Check-out screen facilitates the move-out workflow, allowing property managers to settle final utility bills, record asset damages or cleaning deductions, and automatically calculate the final refundable deposit for the tenant.
+Functional Requirements
+Item
+Description
+User Action
+System Response
+Room Handover & Check-out Screen
+Interface for final utility meter settlement, asset inspection, penalty/cleaning fee deduction, and security deposit refund calculation.
+N/A
+N/A
+Header - Back Button
+Top-left back arrow icon <.
+Tap < button
+Navigates back to Check-in & Check-out Management screen.
+Header Title & Process Tag
+Title "Room Handover - R.204" and process tag "CHECK-OUT PROCESS".
+N/A
+N/A
+Check-out & Deposit Info Card
+Summary card showing tenant details (Đỗ Hoàng Long), move-out time, move-out date, and initial deposit amount (2,800,000 VND).
+N/A
+N/A
+Final Utility Index Settlement
+Section for entering final electricity and water readings at lease termination.
+N/A
+N/A
+New Electricity Meter (kWh)
+Input field for new electricity reading (unit price: 3,500 VND/kWh, previous reading: 1,420).
+Input new electricity reading (e.g., 1485)
+Automatically calculates usage (65 kWh) and final electricity fee (227,500 VND).
+New Water Meter (m³)
+Input field for new water reading (unit price: 20,000 VND/m³, previous reading: 88).
+Input new water reading (e.g., 93)
+Automatically calculates usage (5 m³) and final water fee (100,000 VND).
+Asset Inspection & Depreciation
+Section for amenity inspection and itemized deductions list (with total penalty badge: -250,000 VND).
+N/A
+N/A
+Asset Status Card
+Status cards evaluating room amenities (Air Conditioner, Water Heater).
+Tap to switch status
+Updates asset status badge (✔ Good or records damage).
+Deduction / Penalty Item
+Itemized breakdown of deductions (e.g., Lost elevator keycard: -100,000 VND, Room cleaning: -150,000 VND).
+Tap delete/edit icon on penalty item
+Updates corresponding deduction amount.
+Add Deduction Button
+Button [⊕ Add deduction / Compensation].
+Tap button
+Opens modal/popup to add a new deduction reason and amount.
+Actual Deposit Refund Calculation Sheet
+Financial breakdown sheet showing Initial Deposit, Final Utilities Fee, Asset & Cleaning Deductions, and Net Refund Amount (2,222,500 VND).
+N/A
+Automatically recalculates the net refund whenever utility readings or deductions are modified.
+Complete Check-out & Refund Button
+Primary blue button [✔ Complete check-out & Transfer deposit] at the bottom.
+Tap button
+Completes check-out workflow, terminates contract, releases net deposit refund to tenant, and sets room status to "Vacant".
+Feature/Component #42: Violation & Penalty Fee Management
+User Interfaces
+The Violation & Penalty Fee Management Screen allows landlords and property managers to log, track, and process building rule violations, asset damage fees, and penalty payment collections from tenants.
+Functional Requirements
+Item
+Description
+User Action
+System Response
+Violation & Penalty Management Screen
+Interface for logging tenant rule violations, tracking fine statuses, and collecting penalty payments.
+N/A
+N/A
+Header - Side Menu Icon
+Top-left hamburger menu icon ☰.
+Tap ☰ icon
+Opens side navigation drawer menu.
+Header Title
+Screen title "Violation Management".
+N/A
+N/A
+Create Violation Record Button
+Blue action button [+ Issue violation report] in top-right header.
+Tap [+ Issue violation report]
+Opens form modal to log a new rule violation, select room/tenant, set fine amount, and attach notes/images.
+Monthly Summary Card
+Metrics box showing total penalties recorded in the current month with total count and status breakdown (Paid vs Pending).
+N/A
+N/A
+Paid Total Box
+Box displaying paid fine total (e.g., 500.000 đ).
+Tap box
+Filters violation list to display only paid records.
+Pending Total Box
+Box displaying pending fine total (e.g., 350.000 đ).
+Tap box
+Filters violation list to display only unpaid/pending records.
+Pending Violation Card (Actionable)
+Card displaying room number, tenant, date, violation type, description, fine amount, and action buttons.
+Tap card area
+Opens full violation record details screen.
+Deduct from Bill Button
+Button [Deduct from bill] on pending card.
+Tap [Deduct from bill]
+Appends penalty fee directly to tenant's next upcoming monthly rental invoice.
+Cash Collect Button
+Blue button [💵 Collect cash] on pending card.
+Tap [💵 Collect cash]
+Records immediate cash payment, marks status as paid, and issues digital receipt.
+Send Reminder Button
+Light blue button [✈ Send payment reminder] on pending card.
+Tap [✈ Send payment reminder]
+Sends push notification and SMS reminder to tenant regarding outstanding fine.
+Paid Violation Card (Historical)
+Card displaying resolved violation record with green ✔ Paid badge and payment method tag.
+Tap card area
+Opens view-only violation history & payment confirmation details.
+Feature/Component #43: Financial Management
+User Interfaces
+The Financial Management module offers property managers full visibility into cash flows, revenue settlement reports, escrowed security deposits, and fully paid service invoices.
+Functional Requirements
+Item
+Description
+User Action
+System Response
+Financial Management Screen
+Dashboard aggregating cash flow, revenue reports, deposit management, and service invoices.
+N/A
+N/A
+View Switcher Tab Bar
+Switcher bar between 3 tabs: Statistics, Deposit Contracts (3), Fully Paid Invoices (18).
+Tap any tab
+Switch displayed data corresponding to the selected tab.
+Property Dropdown
+Filter to select rental property (e.g., Linh Trung Boarding House - 18 rooms).
+Tap to open Dropdown & select property
+Filter and update all financial metrics according to the selected property.
+Settlement Report Card (Statistics Tab)
+Displays total amount collected by Admin (84,500,000 VND) and breaks down Room/Service Fees & Deposit.
+N/A
+N/A
+Weekly Statistics Chart (Statistics Tab)
+Bar chart displaying revenue across 4 weeks of the month.
+Tap any weekly bar
+Display detailed revenue and transaction list for that week.
+Total Net Received Card (Fully Paid Invoices Tab)
+Displays net amount received by landlord (65,075,000 VND) after deducting platform commission fee (5%).
+N/A
+N/A
+Fully Paid Invoice List (Fully Paid Invoices Tab)
+List of room invoices with successful payment settlement.
+N/A
+N/A
+"View Details" Button (Fully Paid Invoices Tab)
+[View details] button on each room invoice card.
+Tap [View Details]
+Open the Room & Service Payment Invoice Details screen.
+"Confirm" Button (Fully Paid Invoices Tab)
+Green [Confirm] button on each invoice card.
+Tap [Confirm]
+Confirm reconciliation / receipt of settlement funds from system.
+Total Deposit Card (Deposit Contracts Tab)
+Displays total deposit paid by tenant, platform commission fee (10%), and net deposit received after disbursement (14,400,000 VND).
+N/A
+N/A
+Date Filter Dropdown (Deposit Contracts Tab)
+Filter for deposit list by time period.
+Tap to select time period
+Filter deposit contract list based on selected date criteria.
+Held Deposit List (Deposit Contracts Tab)
+List of deposit contracts with "Pending Check-in" status.
+N/A
+N/A
+"Invoice Details" Button (Deposit Contracts Tab)
+[Invoice details] button on each deposit card.
+Tap [Invoice Details]
+Open tenant's detailed deposit receipt/invoice.
+"Confirm Deposit" Button (Deposit Contracts Tab)
+Green [Confirm] button on each deposit card.
+Tap [Confirm]
+Disburse deposit funds to landlord's wallet/account when tenant completes check-in.
+Bottom Navigation Bar
+Main navigation bar of application (Overview, Tenant Mgmt, +, Financial Mgmt, Back).
+Tap feature icon
+Navigate to corresponding module in the application.
+Feature/Component #44: Transaction Receipt
+User Interfaces
+The Transaction Receipt screen displays an electronic statement of automated deposit payouts from the rental management platform to the landlord's bank account
+Functional Requirements
+Item
+Description
+User Action
+System Response
+Transaction Receipt Screen
+Interface displaying electronic payout documents and deposit settlements for landlords.
+N/A
+N/A
+Header - Navigation Buttons
+Back arrow < and forward arrow > in top corners.
+Tap < button
+Navigates back to Financial Management / Transaction History.
+Net Disbursement Card
+Displays successful transfer status, total net payout (3,750,000 VND), and settled count (4 orders).
+N/A
+N/A
+Receipt Metadata Details
+Information block detailing receipt ID, execution timestamp, VietQR method, beneficiary, account number, property, and remarks.
+N/A
+N/A
+Detailed Reconciliation Table
+Breakdown of each deposit contract detailing tenant/room, gross deposit, commission fee deduction, and net payout.
+Tap any contract row
+Opens detailed deposit invoice/contract for the selected tenant.
+Total Net Transferred Line
+Highlighted row indicating total funds received after platform fee deductions.
+N/A
+N/A
+Print Receipt Button
+Outlined [± Print receipt] button.
+Tap [± Print receipt]
+Opens print view or downloads PDF transaction receipt.
+Confirm Payment Button
+Primary action button [Confirm payment receipt].
+Tap [Confirm payment receipt]
+Updates transaction status to "Reconciled & Received" and logs audit record.
+Dành riêng cho anh Tiến ANh
+4. Màn hình Chi tiết tin nhắn
+Feature/Component #1: Chi tiết cuộc trò chuyện
+User Interfaces
+Màn hình hiển thị nội dung trao đổi giữa người dùng và người tham gia cuộc trò chuyện. Người dùng có thể xem các tin nhắn đã gửi và đã nhận, hình ảnh được gửi trong cuộc trò chuyện, nhập nội dung mới và gửi tin nhắn.
+Functional Requirements
+Hạng mục
+Mô tả
+Thao tác
+Phản hồi
+Màn hình Chi tiết tin nhắn
+Nút quay lại, avatar người trò chuyện, tên người trò chuyện, trạng thái người dùng, danh sách tin nhắn, tin nhắn đã gửi, tin nhắn đã nhận, hình ảnh đính kèm, thời gian tin nhắn, ô nhập tin nhắn, nút đính kèm, nút chọn hình ảnh, nút gửi tin nhắn.
+N/a
+N/a
+Nút quay lại
+Cho phép người dùng quay lại danh sách tin nhắn.
+Chạm [Nút quay lại]
+Hệ thống chuyển về màn hình Tin nhắn.
+Avatar người trò chuyện
+Hiển thị hình đại diện của người đang trò chuyện.
+N/a
+N/a
+Tên người trò chuyện
+Hiển thị tên của người đang tham gia cuộc trò chuyện.
+N/a
+N/a
+Trạng thái người dùng
+Hiển thị trạng thái hoạt động của người đang trò chuyện.
+N/a
+N/a
+Danh sách tin nhắn
+Hiển thị nội dung trao đổi giữa hai người theo thứ tự thời gian.
+N/a
+N/a
+Tin nhắn đã gửi
+Hiển thị các tin nhắn do người dùng hiện tại gửi.
+N/a
+N/a
+Tin nhắn đã nhận
+Hiển thị các tin nhắn do người tham gia cuộc trò chuyện gửi.
+N/a
+N/a
+Hình ảnh đính kèm
+Hiển thị hình ảnh được gửi trong cuộc trò chuyện.
+Chạm [Hình ảnh]
+Hệ thống hiển thị hình ảnh chi tiết.
+Thời gian tin nhắn
+Hiển thị thời gian gửi hoặc nhận tin nhắn.
+N/a
+N/a
+Ô nhập tin nhắn
+Cho phép người dùng nhập nội dung tin nhắn.
+Chạm [Ô nhập tin nhắn], nhập nội dung.
+Hệ thống hiển thị nội dung đang nhập.
+Nút đính kèm
+Cho phép người dùng lựa chọn nội dung muốn đính kèm.
+Chạm [Nút đính kèm]
+Hệ thống hiển thị các tùy chọn đính kèm.
+Nút chọn hình ảnh
+Cho phép người dùng chọn hình ảnh để gửi.
+Chạm [Nút hình ảnh]
+Hệ thống mở giao diện chọn hình ảnh.
+Nút gửi tin nhắn
+Cho phép người dùng gửi nội dung đã nhập.
+Chạm [Nút gửi]
+Hệ thống gửi và hiển thị tin nhắn mới trong cuộc trò chuyện.
+5. Màn hình Tạo bài đăng
+Feature/Component #1: Màn hình Tạo bài đăng
+User Interfaces
+Màn hình cho phép chủ nhà tạo bài đăng cho thuê phòng bằng cách thêm hình ảnh, nhập thông tin cơ bản, lựa chọn tiện ích và yêu cầu, nhập vị trí và thông tin liên hệ.
+Functional Requirements
+Hạng mục
+Mô tả
+Thao tác
+Phản hồi
+Màn hình Tạo bài đăng
+Nút quay lại, tiêu đề Tạo bài đăng, nút Đặt lại, tiêu đề Hình ảnh & Video phòng, số lượng hình ảnh đã chọn, nút Thêm ảnh, hình ảnh phòng, ghi chú hình ảnh, tiêu đề Thông tin cơ bản, nội dung mô tả phòng, giá thuê, tình trạng phòng, tiêu đề Tiện ích & Yêu cầu, số lượng tiện ích đang chọn, ô thêm tiện ích/yêu cầu, nút Thêm, danh sách tiện ích, nút Xóa, danh sách tiện ích , nút Thu gọn, tiêu đề Vị trí & Liên hệ,  địa chỉ, giá thuê, số điện thoại, nội dung mô tả, nút Đăng bài ngay.
+N/a
+N/a
+Nút quay lại
+Cho phép người dùng quay lại màn hình trước đó.
+Chạm [Nút quay lại]
+Hệ thống chuyển về màn hình trước đó.
+Tiêu đề Tạo bài đăng
+Hiển thị tên màn hình tạo bài đăng.
+N/a
+N/a
+Nút Đặt lại
+Cho phép người dùng đặt lại thông tin đã nhập.
+Chạm [Đặt lại]
+Hệ thống đặt lại các thông tin về trạng thái ban đầu.
+Tiêu đề Hình ảnh & Video phòng
+Hiển thị khu vực thêm hình ảnh và video của phòng.
+N/a
+N/a
+Số lượng hình ảnh đã chọn
+Hiển thị số lượng hình ảnh đã thêm trên tổng số hình ảnh cho phép.
+N/a
+N/a
+Nút Thêm ảnh
+Cho phép người dùng thêm hình ảnh phòng.
+Chạm [Thêm ảnh]
+Hệ thống mở giao diện chọn hình ảnh.
+Hình ảnh phòng
+Hiển thị các hình ảnh phòng đã được người dùng thêm vào bài đăng.
+N/a
+N/a
+Ghi chú hình ảnh
+Hiển thị lưu ý về việc sử dụng hình ảnh thực tế của phòng.
+N/a
+N/a
+Tiêu đề Thông tin cơ bản
+Hiển thị khu vực nhập thông tin cơ bản của phòng.
+N/a
+N/a
+Nội dung mô tả phòng
+Cho phép người dùng nhập nội dung mô tả phòng cho thuê.
+Nhập [Nội dung mô tả]
+Hệ thống hiển thị nội dung đã nhập.
+Giá thuê
+Cho phép người dùng nhập giá thuê phòng theo tháng.
+Nhập [Giá thuê]
+Hệ thống hiển thị giá thuê đã nhập.
+Tình trạng phòng
+Cho phép người dùng lựa chọn tình trạng hiện tại của phòng.
+Chạm [Tình trạng phòng]
+Hệ thống hiển thị tình trạng được lựa chọn.
+Tiêu đề Tiện ích & Yêu cầu
+Hiển thị khu vực lựa chọn tiện ích và yêu cầu của phòng.
+N/a
+N/a
+Số lượng tiện ích đang chọn
+Hiển thị số lượng tiện ích và yêu cầu đã được lựa chọn.
+N/a
+N/a
+Ô thêm tiện ích/yêu cầu
+Cho phép người dùng nhập hoặc tìm kiếm tiện ích, yêu cầu riêng.
+Nhập [Tiện ích/Yêu cầu]
+Hệ thống hiển thị nội dung đã nhập.
+Nút Thêm
+Cho phép người dùng thêm tiện ích hoặc yêu cầu riêng.
+Chạm [Thêm]
+Hệ thống thêm tiện ích hoặc yêu cầu vào danh sách.
+Danh sách tiện ích
+Hiển thị các tiện ích và yêu cầu đã được lựa chọn như Máy lạnh, Có gác lửng, Chỗ để xe miễn phí, Giờ giấc tự do và Gần trường ĐH/Bến xe.
+Chạm [Tiện ích] bất kì
+Hệ thống đánh dấu tiện ích.
+Nút Xóa
+Cho phép người dùng bỏ tiện ích đã lựa chọn.
+Chạm [X]
+Hệ thống bỏ tiện ích khỏi danh sách đã chọn.
+Nút Thu gọn
+Cho phép người dùng thu gọn danh sách tiện ích và yêu cầu.
+Chạm [Thu gọn]
+Hệ thống thu gọn danh sách.
+Tiêu đề Vị trí & Liên hệ
+Hiển thị khu vực nhập thông tin vị trí và liên hệ.
+N/a
+N/a
+Địa chỉ
+Hiển thị địa chỉ của phòng cho thuê.
+Nhập/chọn địa chỉ.
+Hệ thống hiển thị địa chỉ đã chọn.
+Giá thuê
+Hiển thị giá thuê phòng trong phần thông tin liên hệ.
+N/a
+N/a
+Số điện thoại
+Cho phép người dùng nhập số điện thoại liên hệ.
+Nhập [Số điện thoại]
+Hệ thống hiển thị số điện thoại đã nhập.
+Nội dung mô tả
+Cho phép người dùng nhập mô tả chi tiết về phòng và các thông tin liên quan.
+Nhập [Nội dung mô tả]
+Hệ thống hiển thị nội dung đã nhập.
+Nút Đăng bài ngay
+Cho phép người dùng đăng bài sau khi hoàn tất thông tin.
+Chạm [Đăng bài ngay]
+Hệ thống thực hiện đăng bài lên hệ thống.
+6. Màn hình Thông báo
+Feature/Component #1: Danh sách yêu cầu đang xử lý
+User Interfaces
+Màn hình hiển thị danh sách các yêu cầu đặt phòng đang chờ xử lý. Người dùng có thể tìm kiếm yêu cầu theo mã booking và lọc danh sách theo trạng thái.
+Functional Requirements
+Hạng mục
+Mô tả
+Thao tác
+Phản hồi
+Màn hình Thông báo
+Nút quay lại, tiêu đề Thông báo, thanh tìm kiếm theo mã booking, bộ lọc Đang xử lý, bộ lọc Đã cọc, bộ lọc Đã thanh toán, dòng hiển thị số lượng yêu cầu, danh sách yêu cầu đặt phòng.
+N/a
+N/a
+Nút quay lại
+Cho phép người dùng quay lại màn hình trước đó.
+Chạm [Nút quay lại]
+Hệ thống chuyển về màn hình trước đó.
+Tiêu đề Thông báo
+Hiển thị tên màn hình thông báo.
+N/a
+N/a
+Thanh tìm kiếm theo mã booking
+Cho phép người dùng tìm kiếm yêu cầu đặt phòng theo mã booking.
+Nhập mã booking.
+Hệ thống hiển thị yêu cầu phù hợp với mã booking.
+Bộ lọc Đang xử lý
+Cho phép người dùng xem các yêu cầu đang trong quá trình xử lý.
+Chạm [Đang xử lý]
+Hệ thống hiển thị các yêu cầu đang xử lý.
+Bộ lọc Đã cọc
+Cho phép người dùng xem các yêu cầu đã đặt cọc.
+Chạm [Đã cọc]
+Hệ thống hiển thị các yêu cầu đã cọc.
+Bộ lọc Đã thanh toán
+Cho phép người dùng xem các yêu cầu đã thanh toán.
+Chạm [Đã thanh toán]
+Hệ thống hiển thị các yêu cầu đã thanh toán.
+Dòng hiển thị số lượng yêu cầu
+Hiển thị số lượng yêu cầu đang chờ xử lý trên hệ thống.
+N/a
+N/a
+Danh sách yêu cầu đặt phòng
+Hiển thị các yêu cầu đặt phòng, bao gồm số phòng, tên phòng, mã booking, thông tin tầng/phòng, khách thuê, tiền cọc giữ phòng, ngày dự kiến nhận phòng, thời gian gửi yêu cầu và trạng thái chờ xác nhận cọc.
+N/a
+N/a
+7. Màn hình Thông báo – Đã cọc
+Feature/Component #1: Danh sách yêu cầu đã cọc
+User Interfaces
+Màn hình hiển thị các yêu cầu đặt phòng đã được khách thuê đặt cọc. Chủ nhà có thể xem thông tin phòng, khách thuê, tiền cọc và ngày dự kiến nhận phòng, đồng thời thực hiện chỉnh sửa hoặc duyệt check-in.
+Functional Requirements
+Hạng mục
+Mô tả
+Thao tác
+Phản hồi
+Màn hình Thông báo
+Nút quay lại, tiêu đề Thông báo, thanh tìm kiếm theo mã booking, bộ lọc Đang xử lý, bộ lọc Đã cọc, bộ lọc Đã thanh toán, dòng hiển thị số lượng yêu cầu đã đặt cọc, danh sách yêu cầu đã cọc.
+N/a
+N/a
+Nút quay lại
+Cho phép người dùng quay lại màn hình trước đó.
+Chạm [Nút quay lại]
+Hệ thống chuyển về màn hình trước đó.
+Tiêu đề Thông báo
+Hiển thị tên màn hình thông báo.
+N/a
+N/a
+Thanh tìm kiếm theo mã booking
+Cho phép người dùng tìm kiếm yêu cầu theo mã booking.
+Nhập mã booking.
+Hệ thống hiển thị yêu cầu phù hợp.
+Bộ lọc Đang xử lý
+Cho phép người dùng xem các yêu cầu đang xử lý.
+Chạm [Đang xử lý]
+Hệ thống hiển thị các yêu cầu đang xử lý.
+Bộ lọc Đã cọc
+Cho phép người dùng xem các yêu cầu đã đặt cọc.
+Chạm [Đã cọc]
+Hệ thống hiển thị danh sách yêu cầu đã cọc.
+Bộ lọc Đã thanh toán
+Cho phép người dùng xem các yêu cầu đã thanh toán.
+Chạm [Đã thanh toán]
+Hệ thống hiển thị danh sách yêu cầu đã thanh toán.
+Dòng hiển thị số lượng đã cọc, chờ duyệt check-in
+Hiển thị số lượng yêu cầu đã đặt cọc trên hệ thống.
+N/a
+N/a
+Danh sách đã cọc, chờ duyệt check-in
+Hiển thị các yêu cầu đã cọc, bao gồm số phòng, tên phòng, mã booking, thông tin tầng/phòng, khách thuê, tiền cọc giữ phòng và ngày dự kiến nhận phòng.
+N/a
+N/a
+Nút Chỉnh sửa
+Cho phép chủ nhà chỉnh sửa thông tin đặt phòng.
+Chạm [Chỉnh sửa]
+Hệ thống hiển thị màn hình Cập nhật thông tin cọc.
+Nút Duyệt check-in
+Cho phép chủ nhà duyệt check-in cho khách thuê.
+Chạm [Duyệt check-in]
+Hệ thống thực hiện thao tác duyệt check-in.
+8. Màn hình Cập nhật thông tin khách hàng đã cọc
+Feature/Component #1: Cập nhật thông tin cọc
+User Interfaces
+Màn hình hiển thị cửa sổ cập nhật thông tin cọc cho một yêu cầu đặt phòng cụ thể. Chủ nhà có thể đổi phòng, đổi ngày check-in, nhập lý do điều chỉnh và gửi thông tin xác nhận cho khách.
+Functional Requirements
+Hạng mục
+Mô tả
+Thao tác
+Phản hồi
+Màn hình Cập nhật thông tin khách hàng
+Thanh kéo cửa sổ, tiêu đề Thao tác chủ nhà, mã booking, nút đóng, thông tin khách đặt cọc, số tiền đã cọc trước, mục Đổi phòng, thông tin phòng hiện tại, thông tin ngày phòng đang có khách, mục Đổi ngày Check-in, ngày check-in, tháng và các ngày lựa chọn nhanh, lý do điều chỉnh, cảnh báo thay đổi, nút Lưu & Gửi xác nhận cho khách, nút Hủy bỏ thay đổi.
+N/a
+N/a
+Thanh kéo cửa sổ
+Hiển thị dấu hiệu cho biết đây là cửa sổ thao tác dạng kéo lên.
+N/a
+N/a
+Tiêu đề Thao tác chủ nhà
+Hiển thị tiêu đề khu vực thao tác dành cho chủ nhà.
+N/a
+N/a
+Mã booking
+Hiển thị mã booking của yêu cầu đang được cập nhật.
+N/a
+N/a
+Nút đóng
+Cho phép đóng cửa sổ cập nhật thông tin.
+Chạm [X]
+Hệ thống đóng cửa sổ cập nhật.
+Thông tin khách đặt cọc
+Hiển thị tên khách thuê đã đặt cọc.
+N/a
+N/a
+Số tiền đã cọc trước
+Hiển thị số tiền khách thuê đã đặt cọc trước đó.
+N/a
+N/a
+Mục Đổi phòng
+Cho phép chủ nhà thực hiện thay đổi phòng cho khách thuê.
+Chạm [Đổi phòng]
+Hệ thống cho phép lựa chọn phòng.
+Thông tin phòng hiện tại
+Hiển thị phòng hiện tại, tầng, diện tích và giá thuê của phòng.
+N/a
+N/a
+Thông tin ngày phòng đang có khách
+Hiển thị thông tin về tình trạng phòng hiện tại và ngày phòng đang có khách.
+N/a
+N/a
+Mục Đổi ngày Check-in
+Cho phép chủ nhà thay đổi ngày khách thuê nhận phòng.
+Chạm [Đổi ngày Check-in]
+Hệ thống hiển thị giao diện lựa chọn ngày.
+Ngày check-in
+Hiển thị ngày check-in được lựa chọn.
+Chạm [Ngày check-in]
+Hệ thống cho phép thay đổi ngày.
+Tháng và các ngày lựa chọn nhanh
+Hiển thị tháng hiện tại và các ngày có thể lựa chọn nhanh cho ngày check-in.
+Chạm [Ngày]
+Hệ thống cập nhật ngày check-in được chọn.
+Lý do điều chỉnh
+Cho phép chủ nhà nhập lý do thay đổi thông tin đặt phòng để gửi cho khách.
+Nhập [Lý do điều chỉnh]
+Hệ thống hiển thị lý do đã nhập.
+Cảnh báo thay đổi
+Hiển thị cảnh báo về việc khách thuê sẽ nhận được thông báo thay đổi và cần xác nhận lại.
+N/a
+N/a
+Nút Lưu & Gửi xác nhận cho khách
+Cho phép chủ nhà lưu thay đổi và gửi yêu cầu xác nhận đến khách thuê.
+Chạm [Lưu & Gửi xác nhận cho khách]
+Hệ thống lưu thông tin và gửi xác nhận cho khách thuê.
+Nút Hủy bỏ thay đổi
+Cho phép chủ nhà hủy các thay đổi vừa thực hiện.
+Chạm [Hủy bỏ thay đổi]
+Hệ thống hủy thay đổi.
+9. Màn hình Xác nhận thay đổi thông tin
+Feature/Component #1: Xác nhận thay đổi đặt chỗ
+User Interfaces
+Màn hình cho phép khách thuê xem thông báo thay đổi thông tin đặt chỗ từ chủ nhà, kiểm tra các thông tin thay đổi về phòng, ngày nhận phòng và tiền cọc, sau đó lựa chọn từ chối hoặc xác nhận đồng ý.
+Functional Requirements
+Hạng mục
+Mô tả
+Thao tác
+Phản hồi
+Màn hình Xác nhận thay đổi thông tin
+Nút quay lại, tiêu đề Xác nhận thay đổi, mã đơn đặt chỗ, trạng thái Chờ duyệt, thông báo từ Chủ nhà, thông tin chủ nhà, nút Nhắn tin, tiêu đề Chi tiết thay đổi đặt chỗ, thời gian cập nhật, mục Căn phòng đăng ký, thông tin cũ của phòng, thông tin mới của phòng, mục Ngày nhận phòng (Check-in), thông tin cũ về ngày nhận phòng, thông tin mới về ngày nhận phòng, thông tin tiền cọc, trạng thái giữ nguyên tiền cọc, thông báo bảo mật, nút Từ chối, nút Xác nhận đồng ý.
+N/a
+N/a
+Nút quay lại
+Cho phép khách thuê quay lại màn hình trước đó.
+Chạm [Nút quay lại]
+Hệ thống chuyển về màn hình trước đó.
+Tiêu đề Xác nhận thay đổi
+Hiển thị tên màn hình xác nhận thay đổi thông tin.
+N/a
+N/a
+Mã đơn đặt chỗ
+Hiển thị mã của đơn đặt chỗ cần xác nhận.
+N/a
+N/a
+Trạng thái Chờ duyệt
+Hiển thị trạng thái yêu cầu đang chờ khách thuê xác nhận.
+N/a
+N/a
+Thông báo từ Chủ nhà
+Hiển thị thông báo và nội dung thay đổi do chủ nhà gửi đến khách thuê.
+N/a
+N/a
+Thông tin chủ nhà
+Hiển thị tên và thông tin của chủ nhà.
+N/a
+N/a
+Nút Nhắn tin
+Cho phép khách thuê liên hệ với chủ nhà.
+Chạm [Nhắn tin]
+Hệ thống chuyển đến màn hình Chi tiết tin nhắn.
+Tiêu đề Chi tiết thay đổi đặt chỗ
+Hiển thị khu vực các thông tin đã được thay đổi trong đơn đặt chỗ.
+N/a
+N/a
+Thời gian cập nhật
+Hiển thị thời gian thông tin đặt chỗ được cập nhật.
+N/a
+N/a
+Mục Căn phòng đăng ký
+Hiển thị thông tin phòng trước và sau khi thay đổi.
+N/a
+N/a
+Thông tin cũ của phòng
+Hiển thị thông tin căn phòng trước khi thay đổi.
+N/a
+N/a
+Thông tin mới của phòng
+Hiển thị thông tin căn phòng sau khi thay đổi.
+N/a
+N/a
+Mục Ngày nhận phòng (Check-in)
+Hiển thị thông tin ngày nhận phòng trước và sau khi thay đổi.
+N/a
+N/a
+Thông tin cũ về ngày nhận phòng
+Hiển thị ngày nhận phòng trước khi thay đổi.
+N/a
+N/a
+Thông tin mới về ngày nhận phòng
+Hiển thị ngày nhận phòng sau khi thay đổi.
+N/a
+N/a
+Thông tin tiền cọc
+Hiển thị số tiền cọc của đơn đặt chỗ.
+N/a
+N/a
+Trạng thái giữ nguyên tiền cọc
+Hiển thị thông tin cho biết số tiền cọc được giữ nguyên sau khi thay đổi.
+N/a
+N/a
+Thông báo bảo mật
+Hiển thị lưu ý về tiền cọc và thời gian xử lý sau khi khách thuê xác nhận.
+N/a
+N/a
+Nút Từ chối
+Cho phép khách thuê từ chối thay đổi thông tin đặt chỗ.
+Chạm [Từ chối]
+Hệ thống cập nhật yêu cầu thành trạng thái từ chối.
+Nút Xác nhận đồng ý
+Cho phép khách thuê xác nhận đồng ý với thay đổi của chủ nhà.
+Chạm [Xác nhận đồng ý]
+Hệ thống cập nhật yêu cầu thành trạng thái đã xác nhận.
+10. Màn hình Trang cá nhân
+Feature/Component #1: Trang cá nhân
+User Interfaces
+Màn hình hiển thị thông tin cá nhân, thống kê hoạt động, quản lý tài khoản của người dùng. Người dùng có thể xem thông tin cá nhân, quản lý bài đăng, quản lý yêu thích và truy cập các chức năng khác thông qua thanh điều hướng.
+Functional Requirements
+Hạng mục
+Mô tả
+Thao tác
+Phản hồi
+Màn hình Trang cá nhân
+Avatar người dùng, tên người dùng, trạng thái xác thực, icon thông báo, icon cài đặt, nút Chỉnh sửa hồ sơ, thông tin Tài chính, thông tin Quản lý & Tiện ích, thanh điều hướng.
+N/a
+N/a
+Avatar người dùng
+Hiển thị hình đại diện của người dùng.
+N/a
+N/a
+Tên người dùng
+Hiển thị tên của người dùng trên hệ thống.
+N/a
+N/a
+Trạng thái xác thực
+Hiển thị trạng thái xác thực tài khoản của người dùng.
+N/a
+N/a
+Icon thông báo
+Cho phép người dùng truy cập các thông báo của tài khoản.
+Chạm [Icon thông báo]
+Hệ thống chuyển đến màn hình Thông báo.
+Icon cài đặt
+Cho phép người dùng truy cập phần cài đặt tài khoản.
+Chạm [Icon cài đặt]
+Hệ thống chuyển đến màn hình Cài đặt tài khoản.
+Nút Chỉnh sửa hồ sơ
+Cho phép người dùng chỉnh sửa thông tin cá nhân.
+Chạm [Chỉnh sửa hồ sơ]
+Hệ thống chuyển đến màn hình Chỉnh sửa hồ sơ.
+Thông tin Tài chính
+Hiển thị thông tin tài chính liên quan đến tài khoản/người dùng.
+N/a
+N/a
+Thông tin Quản lý & Tiện ích
+Hiển thị các chức năng quản lý và tiện ích của tài khoản.
+N/a
+N/a
+Thanh điều hướng
+Cung cấp quyền truy cập nhanh đến các chức năng chính của ứng dụng.
+Chạm [Tab trên thanh điều hướng]
+Hệ thống chuyển đến màn hình tương ứng với tab được chọn.
+11. Màn hình Chỉnh sửa hồ sơ
+Feature/Component #1: Chỉnh sửa thông tin hồ sơ
+User Interfaces
+Màn hình cho phép người dùng cập nhật thông tin cá nhân và thông tin liên quan đến hồ sơ. Người dùng có thể thay đổi ảnh đại diện, họ tên, số điện thoại, email, địa chỉ, thông tin giấy tờ và các thông tin bổ sung trước khi lưu hồ sơ.
+Functional Requirements
+Hạng mục
+Mô tả
+Thao tác
+Phản hồi
+Màn hình Chỉnh sửa hồ sơ
+Nút quay lại, tiêu đề Chỉnh sửa hồ sơ, nút Lưu, avatar người dùng, nút thay đổi avatar, trạng thái xác thực, họ tên, số điện thoại, email, địa chỉ, thông tin giấy tờ tùy thân, thông tin ngày sinh, giới tính, thông tin liên hệ, thông tin tài khoản ngân hàng, giấy tờ xác thực, trạng thái xác thực giấy tờ, thông tin bổ sung, công tắc hiển thị thông tin.
+N/a
+N/a
+Nút quay lại
+Cho phép người dùng quay lại màn hình trước đó.
+Chạm [Nút quay lại]
+Hệ thống chuyển về màn hình Trang cá nhân.
+Tiêu đề Chỉnh sửa hồ sơ
+Hiển thị tên màn hình chỉnh sửa hồ sơ.
+N/a
+N/a
+Nút Lưu
+Cho phép người dùng lưu các thông tin hồ sơ đã chỉnh sửa.
+Chạm [Lưu]
+Hệ thống lưu thông tin hồ sơ mới.
+Avatar người dùng
+Hiển thị hình đại diện hiện tại của người dùng.
+N/a
+N/a
+Nút thay đổi avatar
+Cho phép người dùng thay đổi hình đại diện.
+Chạm [Nút thay đổi avatar]
+Hệ thống mở giao diện chọn ảnh.
+Trạng thái xác thực
+Hiển thị trạng thái xác thực của hồ sơ người dùng.
+N/a
+N/a
+Họ tên
+Cho phép người dùng xem và cập nhật họ tên.
+Nhập [Họ tên]
+Hệ thống hiển thị họ tên mới.
+Số điện thoại
+Cho phép người dùng xem và cập nhật số điện thoại.
+Nhập [Số điện thoại]
+Hệ thống hiển thị số điện thoại mới.
+Email
+Cho phép người dùng xem và cập nhật địa chỉ email.
+Nhập [Email]
+Hệ thống hiển thị email mới.
+Địa chỉ
+Cho phép người dùng nhập hoặc cập nhật địa chỉ.
+Nhập [Địa chỉ]
+Hệ thống hiển thị địa chỉ mới.
+Thông tin giấy tờ tùy thân
+Hiển thị thông tin giấy tờ xác thực của người dùng.
+N/a
+N/a
+Thông tin ngày sinh
+Cho phép người dùng xem hoặc cập nhật ngày sinh.
+Chạm [Ngày sinh]
+Hệ thống hiển thị giao diện cập nhật ngày sinh.
+Giới tính
+Cho phép người dùng xem hoặc cập nhật giới tính.
+Chạm [Giới tính]
+Hệ thống hiển thị lựa chọn giới tính.
+Thông tin liên hệ
+Hiển thị các thông tin liên hệ của người dùng.
+N/a
+N/a
+Thông tin tài khoản ngân hàng
+Hiển thị thông tin tài khoản ngân hàng phục vụ giao dịch.
+Chạm [Thông tin ngân hàng]
+Hệ thống hiển thị hoặc cho phép cập nhật thông tin ngân hàng.
+Giấy tờ xác thực
+Cho phép người dùng xem hoặc cập nhật giấy tờ xác thực.
+Chạm [Giấy tờ]
+Hệ thống hiển thị thông tin/ảnh giấy tờ xác thực.
+Trạng thái xác thực giấy tờ
+Hiển thị trạng thái xác thực của giấy tờ đã cung cấp.
+N/a
+N/a
+Thông tin bổ sung
+Hiển thị các thông tin bổ sung của hồ sơ người dùng.
+N/a
+N/a
+Công tắc hiển thị thông tin
+Cho phép người dùng bật hoặc tắt việc hiển thị thông tin trên hồ sơ.
+Chạm [Công tắc]
+Hệ thống bật hoặc tắt trạng thái hiển thị thông tin.
+12. Màn hình Cài đặt tài khoản
+Feature/Component #1: Cài đặt tài khoản
+User Interfaces
+Màn hình cung cấp các chức năng quản lý tài khoản, bảo mật, thông báo, quyền riêng tư và các thiết lập khác của người dùng. Người dùng có thể truy cập từng nhóm cài đặt và thực hiện đăng xuất tài khoản.
+Functional Requirements
+Hạng mục
+Mô tả
+Thao tác
+Phản hồi
+Màn hình Cài đặt tài khoản
+Nút quay lại, tiêu đề Cài đặt tài khoản, mục Tài khoản & Thông tin cá nhân, Thông tin tài khoản, Số điện thoại/Email, Mã bảo mật người dùng, mục Bảo mật, Đổi mật khẩu, mục Cài đặt chung & Hỗ trợ, Ngôn ngữ, Trung tâm trợ giúp & FAQ, Liên hệ hỗ trợ, Điều khoản & Chính sách, nút Đăng xuất.
+N/a
+N/a
+Nút quay lại
+Cho phép người dùng quay lại màn hình trước đó.
+Chạm [Nút quay lại]
+Hệ thống chuyển về màn hình Trang cá nhân.
+Tiêu đề Cài đặt tài khoản
+Hiển thị tên màn hình cài đặt tài khoản.
+N/a
+N/a
+Mục Tài khoản & Thông tin cá nhân
+Hiển thị nhóm các chức năng liên quan đến tài khoản và thông tin cá nhân.
+N/a
+N/a
+Thông tin tài khoản
+Cho phép người dùng xem và quản lý thông tin tài khoản.
+Chạm [Thông tin tài khoản]
+Hệ thống hiển thị thông tin tài khoản.
+Số điện thoại/Email
+Cho phép người dùng xem và quản lý số điện thoại hoặc email liên kết với tài khoản.
+Chạm [Số điện thoại/Email]
+Hệ thống hiển thị thông tin liên hệ tài khoản.
+Mã bảo mật người dùng
+Cho phép người dùng quản lý thông tin bảo mật của tài khoản.
+Chạm [Mã bảo mật]
+Hệ thống hiển thị giao diện quản lý mã bảo mật.
+Mục Bảo mật
+Hiển thị nhóm các chức năng liên quan đến bảo mật tài khoản.
+N/a
+N/a
+Đổi mật khẩu
+Cho phép người dùng thay đổi mật khẩu tài khoản.
+Chạm [Đổi mật khẩu]
+Hệ thống chuyển đến giao diện đổi mật khẩu.
+Mục Cài đặt chung & Hỗ trợ
+Hiển thị nhóm các chức năng cài đặt chung và hỗ trợ người dùng.
+N/a
+N/a
+Ngôn ngữ
+Cho phép người dùng lựa chọn ngôn ngữ sử dụng trong ứng dụng.
+Chạm [Ngôn ngữ]
+Hệ thống hiển thị danh sách ngôn ngữ.
+Trung tâm trợ giúp & FAQ
+Cho phép người dùng truy cập các câu hỏi thường gặp và nội dung hướng dẫn.
+Chạm [Trung tâm trợ giúp & FAQ]
+Hệ thống chuyển đến trung tâm trợ giúp.
+Liên hệ hỗ trợ
+Cho phép người dùng liên hệ bộ phận hỗ trợ.
+Chạm [Liên hệ hỗ trợ]
+Hệ thống hiển thị phương thức liên hệ hỗ trợ.
+Điều khoản & Chính sách
+Cho phép người dùng xem điều khoản sử dụng và chính sách của ứng dụng.
+Chạm [Điều khoản & Chính sách]
+Hệ thống hiển thị nội dung điều khoản và chính sách.
+Nút Đăng xuất
+Cho phép người dùng đăng xuất khỏi tài khoản hiện tại.
+Chạm [Đăng xuất]
+Hệ thống đăng xuất tài khoản và chuyển về màn hình đăng nhập.
