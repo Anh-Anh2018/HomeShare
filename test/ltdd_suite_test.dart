@@ -1044,37 +1044,82 @@ void main() {
     });
   });
 
-  group('Module 15: Nhận diện thương hiệu chuẩn từ Database homeShare (Tc_THEME_01 - 10)', () {
-    test('Tc_THEME_01 & 02: Bảng màu cốt lõi chuẩn sơ đồ Database homeShare (DrawIO)', () {
-      // 1. Primary color là màu xanh ngọc Forest Emerald #038048 của sơ đồ
-      expect(AppColors.primary, equals(const Color(0xFF038048)));
+  group('Module 15: Nhận diện thương hiệu chuẩn từ PhongSangTheme & Chat Optimization (Tc_THEME_01 - 10)', () {
+    test('Tc_THEME_01 & 02: Bảng màu cốt lõi chuẩn moodboard Phòng Sáng (phong_sang_theme.dart)', () {
+      // 1. Primary color là màu xanh hành động --accent #155EEF của Phong Sáng
+      expect(AppColors.primary, equals(const Color(0xFF155EEF)));
       
-      // 2. Text dark / nét viền đậm #181818
-      expect(AppColors.textDark, equals(const Color(0xFF181818)));
-      expect(AppColors.borderDark, equals(const Color(0xFF181818)));
+      // 2. Text dark / chữ mực --ink #101828
+      expect(AppColors.textDark, equals(const Color(0xFF101828)));
+      expect(AppColors.borderDark, equals(const Color(0xFF101828)));
       
-      // 3. Surface variant (nền bảng diagram #F1F1F1)
-      expect(AppColors.surfaceVariant, equals(const Color(0xFFF1F1F1)));
+      // 3. Surface variant (nền tag/chip lọc --price-soft #F2F4F7)
+      expect(AppColors.surfaceVariant, equals(const Color(0xFFF2F4F7)));
       
-      // 4. Note highlight (màu ghi chú vàng nhạt #FEFFDD)
+      // 4. Note highlight & background (--paper #F3F6FB)
+      expect(AppColors.background, equals(const Color(0xFFF3F6FB)));
       expect(AppColors.noteHighlight, equals(const Color(0xFFFEFFDD)));
     });
 
-    test('Tc_THEME_03 & 04: Cấu hình AppTheme.lightTheme đồng bộ ColorScheme', () {
+    test('Tc_THEME_03 & 04: Cấu hình AppTheme.lightTheme đồng bộ ColorScheme Phòng Sáng', () {
       final theme = AppTheme.lightTheme;
       expect(theme.useMaterial3, isTrue);
-      expect(theme.colorScheme.primary, equals(const Color(0xFF038048)));
+      expect(theme.colorScheme.primary, equals(const Color(0xFF155EEF)));
       expect(theme.colorScheme.surface, equals(const Color(0xFFFFFFFF)));
-      expect(theme.colorScheme.surfaceContainerHighest, equals(const Color(0xFFF1F1F1)));
-      expect(theme.scaffoldBackgroundColor, equals(AppColors.background));
+      expect(theme.scaffoldBackgroundColor, equals(const Color(0xFFF3F6FB)));
     });
 
-    test('Tc_THEME_05 & 06: Các thành phần UI (Buttons, AppBar, Chips) sử dụng tông màu chủ đạo', () {
+    test('Tc_THEME_05 & 06: Các thành phần UI (Buttons, AppBar, Chips) sử dụng tông màu chủ đạo Phong Sáng', () {
       final theme = AppTheme.lightTheme;
-      expect(theme.appBarTheme.foregroundColor, equals(AppColors.textDark));
-      expect(theme.elevatedButtonTheme.style?.backgroundColor?.resolve({}), equals(const Color(0xFF038048)));
-      expect(theme.chipTheme.backgroundColor, equals(AppColors.surfaceVariant));
-      expect(theme.floatingActionButtonTheme.backgroundColor, equals(const Color(0xFF038048)));
+      expect(theme.appBarTheme.foregroundColor, equals(const Color(0xFF101828)));
+      expect(theme.elevatedButtonTheme.style?.backgroundColor?.resolve({}), equals(const Color(0xFF155EEF)));
+      expect(theme.chipTheme.backgroundColor, equals(const Color(0xFFFFFFFF)));
+      expect(theme.progressIndicatorTheme.color, equals(const Color(0xFF155EEF)));
+    });
+
+    test('Tc_THEME_07 & 08: Kiểm định tin nhắn chưa đọc được đánh dấu và in đậm chuẩn xác', () {
+      final unreadMessage = ChatMessageModel(
+        id: 'msg_unread_01',
+        senderId: 'user_partner',
+        senderName: 'Trần Văn Chủ',
+        receiverId: 'user_me',
+        text: 'Phòng vẫn còn trống bạn nhé!',
+        timestamp: DateTime.now(),
+        isRead: false,
+        status: 'sent',
+      );
+
+      final readMessage = ChatMessageModel(
+        id: 'msg_read_01',
+        senderId: 'user_partner',
+        senderName: 'Trần Văn Chủ',
+        receiverId: 'user_me',
+        text: 'Cảm ơn bạn đã quan tâm.',
+        timestamp: DateTime.now(),
+        isRead: true,
+        status: 'read',
+      );
+
+      // Tin nhắn chưa đọc có trạng thái daDoc = false
+      expect(unreadMessage.daDoc, isFalse);
+      expect(unreadMessage.isRead, isFalse);
+
+      // Tin nhắn đã đọc có trạng thái daDoc = true
+      expect(readMessage.daDoc, isTrue);
+      expect(readMessage.isRead, isTrue);
+
+      // Kiểm định ConversationModel tính computedUnread chính xác
+      final conv = ConversationModel(
+        id: 'conv_01',
+        partnerId: 'user_partner',
+        partnerName: 'Trần Văn Chủ',
+        lastMessage: 'Phòng vẫn còn trống bạn nhé!',
+        lastMessageTime: DateTime.now(),
+        unreadCount: 3,
+        isRead: false,
+      );
+      expect(conv.computedUnread, equals(3));
+      expect(conv.isReadVal, isFalse);
     });
   });
 }

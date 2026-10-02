@@ -1,36 +1,45 @@
 import 'package:flutter/material.dart';
+import '../theme/phong_sang_theme.dart';
 
 class AppColors {
-  // Bảng màu nhận diện thương hiệu chuẩn từ sơ đồ Database homeShare
-  static const Color primary = Color(0xFF038048);         // Xanh ngọc Emerald Green thương hiệu (#038048)
-  static const Color primaryLight = Color(0xFF0EA363);    // Xanh sáng phụ trợ
-  static const Color primaryDark = Color(0xFF025831);     // Xanh đậm tương phản
-  static const Color primaryContainer = Color(0xFFE6F4EA);// Nền nhẹ nhàng cho badge, container
+  // Bảng màu chuẩn theo moodboard Phòng Sáng (phong_sang_theme.dart)
+  static const Color primary = PhongSangColors.accent;         // Nút chính, xanh hành động (--accent #155EEF)
+  static const Color primaryLight = Color(0xFF2E90FA);        // Xanh sáng phụ trợ
+  static const Color primaryDark = Color(0xFF175CD3);         // Xanh đậm
+  static const Color primaryContainer = PhongSangColors.accentSoft; // Nền chip/badge nhấn (--accent-soft #E8F0FE)
   
-  static const Color textDark = Color(0xFF181818);        // Đen đậm kỹ thuật Database homeShare (#181818)
-  static const Color textPrimary = Color(0xFF181818);     // Màu chữ chính
-  static const Color textSecondary = Color(0xFF3D4A42);   // Chữ phụ
-  static const Color textMuted = Color(0xFF6D7A72);       // Chữ mờ / placeholder
+  static const Color textDark = PhongSangColors.ink;          // Chữ tiêu đề, giá (--ink #101828)
+  static const Color textPrimary = PhongSangColors.ink;       // Màu chữ chính
+  static const Color textSecondary = PhongSangColors.muted;   // Chữ phụ (--muted #667085)
+  static const Color textMuted = PhongSangColors.muted;       // Chữ mờ / placeholder
   
-  static const Color background = Color(0xFFF8FAF9);      // Nền tổng thể Scaffold
-  static const Color surface = Color(0xFFFFFFFF);         // Nền bề mặt chính (Card, Dialog)
-  static const Color surfaceVariant = Color(0xFFF1F1F1);  // Nền phụ bảng dữ liệu Database homeShare (#F1F1F1)
-  static const Color border = Color(0xFFE5E7EB);          // Viền mặc định
-  static const Color borderDark = Color(0xFF181818);      // Viền sắc nét chuẩn diagram (#181818)
+  static const Color background = PhongSangColors.paper;      // Nền app (--paper #F3F6FB)
+  static const Color surface = PhongSangColors.card;          // Thẻ card (--card #FFFFFF)
+  static const Color surfaceVariant = PhongSangColors.priceSoft; // Nền tag/chip lọc (--price-soft #F2F4F7)
+  static const Color border = PhongSangColors.line;           // Viền (--line #E4E7EC)
+  static const Color borderDark = PhongSangColors.ink;        // Viền đậm nét
+  static const Color noteHighlight = Color(0xFFFEFFDD);       // Màu ghi chú vàng nhạt
 
-  // Màu ghi chú / highlight nổi bật từ Database homeShare (#FEFFDD)
-  static const Color noteHighlight = Color(0xFFFEFFDD);
+  // Màu trạng thái phòng chuẩn Phòng Sáng
+  static const Color hold = PhongSangColors.hold;             // Giữ chỗ (--hold #B54708)
+  static const Color live = PhongSangColors.live;             // Đang ở (--live #067647)
+  static const Color empty = PhongSangColors.empty;           // Trống (--empty #667085)
+  static const Color price = PhongSangColors.price;           // Giá (#101828)
 
-  // Màu cảnh báo / Trạng thái chuẩn Figma & Material
-  static const Color danger = Color(0xFFBA1A1A);
-  static const Color dangerContainer = Color(0xFFFFDAD6);
+  // Màu cảnh báo / Trạng thái hệ thống
+  static const Color danger = Color(0xFFD92D20);
+  static const Color dangerContainer = Color(0xFFFEE4E2);
 
-  static const Color warning = Color(0xFF825100);
-  static const Color warningContainer = Color(0xFFFFDDB8);
+  static const Color warning = PhongSangColors.hold;
+  static const Color warningContainer = Color(0xFFFEF0C7);
 
-  static const Color info = Color(0xFF006591);
-  static const Color infoContainer = Color(0xFFE2E7FF);
+  static const Color info = PhongSangColors.accent;
+  static const Color infoContainer = PhongSangColors.accentSoft;
 
-  static const Color success = Color(0xFF16A34A);
-  static const Color successContainer = Color(0xFFDCFCE7);
+  static const Color success = PhongSangColors.live;
+  static const Color successContainer = Color(0xFFD1FADF);
+
+  // Gradient ảnh phòng đặc trưng Phòng Sáng
+  static const LinearGradient photoA = PhongSangColors.photoA;
+  static const LinearGradient photoB = PhongSangColors.photoB;
 }

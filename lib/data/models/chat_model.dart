@@ -140,10 +140,14 @@ class ConversationModel {
   final String lastMessage;
   final DateTime lastMessageTime;
   final int unreadCount;
+  final bool isRead;
   final String? roomCode;
   final String? roomTitle;
   final double? roomPrice;
   final String? roomImage;
+
+  int get computedUnread => unreadCount;
+  bool get isReadVal => isRead;
 
   ConversationModel({
     required this.id,
@@ -155,6 +159,7 @@ class ConversationModel {
     required this.lastMessage,
     required this.lastMessageTime,
     this.unreadCount = 0,
+    this.isRead = true,
     this.roomCode,
     this.roomTitle,
     this.roomPrice,
@@ -194,6 +199,23 @@ class ConversationModel {
     String resolvedAvatar = userAvatars[partnerId]?.toString() ?? data['partnerAvatar'] ?? '';
     String resolvedPhone = userPhones[partnerId]?.toString() ?? data['partnerPhone'] ?? '';
 
+    int computedUnread = 0;
+    if (data['unreadFor_$currentUserId'] is num) {
+      computedUnread = (data['unreadFor_$currentUserId'] as num).toInt();
+    } else if (data['unreadCount'] is num) {
+      computedUnread = (data['unreadCount'] as num).toInt();
+    }
+
+    final lastSenderId = data['lastSenderId']?.toString() ?? '';
+    final isReadVal = data['isRead'] == true ||
+        (data['readBy'] is Map && data['readBy'][currentUserId] == true);
+
+    if (lastSenderId.isNotEmpty && lastSenderId != currentUserId && !isReadVal) {
+      if (computedUnread <= 0) computedUnread = 1;
+    } else if (lastSenderId == currentUserId) {
+      computedUnread = 0;
+    }
+
     return ConversationModel(
       id: doc.id,
       partnerId: partnerId,
@@ -203,7 +225,8 @@ class ConversationModel {
       isLandlord: data['isLandlord'] ?? false,
       lastMessage: data['lastMessage'] ?? data['noiDungCuoi'] ?? '',
       lastMessageTime: timestamp,
-      unreadCount: data['unreadCount'] ?? 0,
+      unreadCount: computedUnread,
+      isRead: isReadVal,
       roomCode: data['roomCode'],
       roomTitle: data['roomTitle'],
       roomPrice: (data['roomPrice'] is num) ? (data['roomPrice'] as num).toDouble() : null,

@@ -38,6 +38,7 @@ class ChatDetailScreen extends ConsumerStatefulWidget {
 class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
+  static final _phoneRegex = RegExp(r'\b(0\d{9,10})\b');
 
   bool _isBlocked = false;
   bool _showPinnedRoom = true;
@@ -49,6 +50,12 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    // Tự động đánh dấu đã đọc khi mở chi tiết cuộc trò chuyện
+    Future.microtask(() {
+      if (mounted) {
+        ref.read(chatServiceProvider).markAsRead(widget.currentUserId, widget.receiverId);
+      }
+    });
   }
 
   void _onScroll() {
@@ -1023,11 +1030,17 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                       controller: _scrollController,
                       reverse: true,
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      addAutomaticKeepAlives: true,
+                      addRepaintBoundaries: true,
+                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                       itemCount: messages.length,
                       itemBuilder: (context, index) {
                         final msg = messages[index];
                         final isMe = msg.senderId == widget.currentUserId;
-                        return _buildMessageItem(msg, isMe);
+                        return RepaintBoundary(
+                          key: ValueKey(msg.id),
+                          child: _buildMessageItem(msg, isMe),
+                        );
                       },
                     );
                   },
@@ -1334,6 +1347,23 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                       size: 13,
                       color: msg.isRead ? Colors.blue : AppColors.textMuted,
                     ),
+                  ] else if (!msg.isRead && msg.status != 'read') ...[
+                    const SizedBox(width: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        'Chưa đọc',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -1628,7 +1658,8 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
     }
 
     // 6. Bong bóng tin nhắn văn bản thông thường (Tc_CHAT_25 & SRS 2.10 link detect)
-    final containsPhone = RegExp(r'\b(0\d{9,10})\b').hasMatch(msg.text);
+    final containsPhone = _phoneRegex.hasMatch(msg.text);
+    final isUnread = !isMe && (!msg.isRead || msg.status != 'read');
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -1640,6 +1671,9 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
           bottomLeft: Radius.circular(isMe ? 16 : 4),
           bottomRight: Radius.circular(isMe ? 4 : 16),
         ),
+        border: isUnread
+            ? Border.all(color: AppColors.primary.withValues(alpha: 0.6), width: 1.5)
+            : null,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -1651,11 +1685,31 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
       child: Column(
         crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
+          if (isUnread) ...[
+            Container(
+              margin: const EdgeInsets.only(bottom: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Text(
+                'TIN NHẮN CHƯA ĐỌC',
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ),
+          ],
           Text(
             msg.text,
             style: TextStyle(
               color: isMe ? Colors.white : AppColors.textDark,
               fontSize: 14,
+              fontWeight: isUnread ? FontWeight.w800 : FontWeight.w400,
               height: 1.35,
             ),
           ),

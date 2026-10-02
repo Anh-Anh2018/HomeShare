@@ -1017,3 +1017,36 @@ Thực hiện yêu cầu của người dùng: *"làm phần chi tiết ở ghé
        + `Tc_THEME_05 & 06`: Các thành phần UI (Buttons, AppBar, Chips) sử dụng đúng tông màu chủ đạo.
      - Toàn bộ **51/51 test cases PASSED 100%**.
      - `flutter analyze`: 0 errors.
+
+---
+
+### Phase 2.20: Áp Dụng Theme "Phòng Sáng" (phong_sang_theme.dart) & Tối Ưu Hiệu Năng Tin Nhắn, In Đậm Tin Nhắn Chưa Đọc
+* **Ngày hoàn thành:** 02/10/2026
+* **Yêu cầu người dùng:** "lam theme theo file phong_sang_theme va tối phần nhắn tin nhấn bàn phím vào khi chat nhiều tin bị lag và khi tin nhắn chưa đọc thì in đâm lên phần tin chưa đọc" & "Database homeShare làm theme của app và chỉ cập nhật brain homeshare k cập nhật main" & "cap nhat vao dt"
+* **Phân tích yêu cầu & Định hướng triển khai:**
+  1. **Áp dụng Theme "Phòng sáng":**
+     - Nguồn: Tệp cấu hình giao diện C:\Users\PC\Downloads\phong_sang_theme.dart (moodboard Phòng sáng - sàn tìm phòng trọ hiện đại, tinh gọn).
+     - Bảng màu: Nền app --paper (#F3F6FB), chữ mực tiêu đề và giá --ink (#101828), chữ phụ --muted (#667085), nút hành động chính --accent (#155EEF), nền badge nhấn --accent-soft (#E8F0FE), nền chip tag --price-soft (#F2F4F7), thẻ --card (#FFFFFF), đường kẻ viền --line (#E4E7EC).
+     - Tích hợp vào lib/core/theme/phong_sang_theme.dart và đồng bộ AppColors cùng AppTheme.lightTheme.
+  2. **Khắc phục triệt để hiện tượng giật lag khi mở bàn phím và khi danh sách nhiều tin nhắn:**
+     - Tối ưu hóa RegExp: Đưa bộ lọc số điện thoại thành static final _phoneRegex = RegExp(r'\b(0\d{9,10})\b');, tránh tái biên dịch RegExp trên mọi item trong mỗi lần re-render khi bàn phím trồi lên.
+     - Tối ưu ListView.builder: Kích hoạt ddAutomaticKeepAlives: true, ddRepaintBoundaries: true, keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag.
+     - Bao bọc từng phần tử tin nhắn trong RepaintBoundary(key: ValueKey(msg.id)) để cô lập hoàn toàn việc repaint khi widget resize.
+     - Tự động đánh dấu đã đọc markAsRead thông qua Future.microtask trong initState của ChatDetailScreen.
+  3. **In đậm phần tin nhắn chưa đọc:**
+     - Màn hình Danh sách cuộc trò chuyện (ChatListScreen):
+       + Tên người gửi (partnerName) in đậm rõ rệt (FontWeight.w800, 15sp).
+       + Tin nhắn cuối cùng (lastMessage) in đậm nổi bật (FontWeight.w800, 13.5sp, màu mực AppColors.textDark).
+       + Nền mục hội thoại chưa đọc được phủ nhẹ màu AppColors.primaryContainer.withValues(alpha: 0.15).
+       + Badge số đếm tin chưa đọc nổi bật với hiệu ứng đổ bóng.
+     - Màn hình Chi tiết cuộc trò chuyện (ChatDetailScreen):
+       + Nội dung tin nhắn nhận chưa đọc được in đậm (FontWeight.w800).
+       + Hiển thị nhãn tag "TIN NHẮN CHƯA ĐỌC" cùng đường viền highlight màu xanh hành động --accent bao quanh bong bóng tin nhắn.
+       + Nhãn trạng thái thời gian hiển thị badge tag "Chưa đọc" nhỏ gọn kế bên.
+  4. **Kiểm thử tự động:**
+     - Bộ kiểm thử [	est/ltdd_suite_test.dart](file:///D:/app/HomeShare/test/ltdd_suite_test.dart): Toàn bộ **52/52 test cases PASSED 100%**.
+     - lutter analyze: **0 errors**.
+  5. **Cập nhật lên thiết bị điện thoại:**
+     - Biên dịch APK Debug và cài đặt trực tiếp lên điện thoại thật Android 16 25100RA69G.
+  6. **Quy tắc phân nhánh Git:**
+     - Toàn bộ commit và push được thực hiện **CHỈ TRÊN BRANCH homeshare**, tuyệt đối **KHÔNG CẬP NHẬT NHÁNH main**.

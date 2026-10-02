@@ -245,123 +245,146 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                       final item = filteredConversations[index];
                       final isUnread = item.unreadCount > 0;
 
-                      return ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        leading: Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 26,
-                              backgroundColor: AppColors.primaryContainer,
-                              child: Text(
-                                item.partnerName.isNotEmpty ? item.partnerName[0] : 'U',
-                                style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 18),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                width: 12,
-                                height: 12,
-                                decoration: BoxDecoration(
-                                  color: Colors.green,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 2),
+                      return Material(
+                        color: isUnread ? AppColors.primaryContainer.withValues(alpha: 0.15) : Colors.transparent,
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          leading: Stack(
+                            children: [
+                              CircleAvatar(
+                                radius: 26,
+                                backgroundColor: isUnread ? AppColors.primary : AppColors.primaryContainer,
+                                child: Text(
+                                  item.partnerName.isNotEmpty ? item.partnerName[0] : 'U',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: isUnread ? Colors.white : AppColors.primary,
+                                    fontSize: 18,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Row(
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  width: 12,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.white, width: 2),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        item.partnerName,
+                                        style: TextStyle(
+                                          fontWeight: isUnread ? FontWeight.w800 : FontWeight.w600,
+                                          fontSize: isUnread ? 15 : 14,
+                                          color: AppColors.textDark,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    if (item.isLandlord) ...[
+                                      const SizedBox(width: 4),
+                                      const Icon(Icons.verified, color: AppColors.primary, size: 14),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                _formatTime(item.lastMessageTime),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: isUnread ? AppColors.primary : AppColors.textMuted,
+                                  fontWeight: isUnread ? FontWeight.bold : FontWeight.normal,
+                                ),
+                              ),
+                            ],
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (item.roomCode != null || item.roomTitle != null) ...[
+                                const SizedBox(height: 3),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    '${item.roomCode ?? ''} ${item.roomTitle ?? ''}'.trim(),
+                                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                              const SizedBox(height: 4),
+                              Row(
                                 children: [
-                                  Flexible(
+                                  Expanded(
                                     child: Text(
-                                      item.partnerName,
+                                      item.lastMessage,
                                       style: TextStyle(
-                                        fontWeight: isUnread ? FontWeight.bold : FontWeight.w600,
-                                        fontSize: 14,
+                                        fontSize: isUnread ? 13.5 : 13,
+                                        color: isUnread ? AppColors.textDark : AppColors.textMuted,
+                                        fontWeight: isUnread ? FontWeight.w800 : FontWeight.normal,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                  if (item.isLandlord) ...[
-                                    const SizedBox(width: 4),
-                                    const Icon(Icons.verified, color: AppColors.primary, size: 14),
-                                  ],
+                                  if (isUnread)
+                                    Container(
+                                      margin: const EdgeInsets.only(left: 8),
+                                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primary,
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: AppColors.primary.withValues(alpha: 0.3),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 1),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Text(
+                                        item.unreadCount > 9 ? '9+' : '${item.unreadCount}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
                                 ],
                               ),
-                            ),
-                            Text(
-                              _formatTime(item.lastMessageTime),
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: isUnread ? AppColors.primary : AppColors.textMuted,
-                                fontWeight: isUnread ? FontWeight.bold : FontWeight.normal,
-                              ),
-                            ),
-                          ],
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (item.roomCode != null || item.roomTitle != null) ...[
-                              const SizedBox(height: 3),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade100,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  '${item.roomCode ?? ''} ${item.roomTitle ?? ''}'.trim(),
-                                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
                             ],
-                            const SizedBox(height: 3),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    item.lastMessage,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: isUnread ? AppColors.textDark : AppColors.textMuted,
-                                      fontWeight: isUnread ? FontWeight.bold : FontWeight.normal,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                if (isUnread)
-                                  Container(
-                                    margin: const EdgeInsets.only(left: 6),
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.primary,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Text(
-                                      '${item.unreadCount}',
-                                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        onTap: () {
-                          final currentUserId = user?.uid ?? 'guest_uid';
-                          final currentUserName = profile?.displayName ?? user?.displayName ?? 'Khách thuê';
+                          ),
+                          onTap: () {
+                            final currentUserId = user?.uid ?? 'guest_uid';
+                            final currentUserName = profile?.displayName ?? user?.displayName ?? 'Khách thuê';
 
-                          // Khởi tạo RoomModel nếu cuộc trò chuyện liên kết với phòng
+                            // Đánh dấu đã đọc cuộc trò chuyện
+                            if (isUnread && user != null) {
+                              ref.read(chatServiceProvider).markAsRead(currentUserId, item.partnerId);
+                            }
+
+                            // Khởi tạo RoomModel nếu cuộc trò chuyện liên kết với phòng
                           RoomModel? pinnedRoom;
                           if (item.roomTitle != null && item.roomPrice != null) {
                             pinnedRoom = RoomModel(
@@ -403,9 +426,10 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                             ),
                           );
                         },
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
+                ),
           ),
         ],
       ),

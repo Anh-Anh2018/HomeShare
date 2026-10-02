@@ -112,6 +112,9 @@ class ChatService {
       'ngayGuiCuoi': FieldValue.serverTimestamp(),
       'userNames': userNames,
       'partnerNames': partnerNames,
+      'isRead': false,
+      'unreadCount': FieldValue.increment(1),
+      'unreadFor_${message.receiverId}': FieldValue.increment(1),
     };
 
     if (receiverAvatar != null && receiverAvatar.isNotEmpty) {
@@ -128,6 +131,46 @@ class ChatService {
     batch.set(chatDoc, convData, SetOptions(merge: true));
 
     await batch.commit();
+  }
+
+  // Đánh dấu đã đọc toàn bộ tin nhắn trong hội thoại
+  Future<void> markAsRead(String currentUserId, String partnerId) async {
+    final cleanA = currentUserId.trim();
+    final cleanB = partnerId.trim();
+    if (cleanA.isEmpty || cleanB.isEmpty) return;
+
+    final chatId = getChatId(cleanA, cleanB);
+    final chatDoc = _firestore.collection('chats').doc(chatId);
+
+    try {
+      await chatDoc.set({
+        'isRead': true,
+        'unreadCount': 0,
+        'unreadFor_$cleanA': 0,
+        'readBy': {cleanA: true},
+      }, SetOptions(merge: true));
+
+      final unreadMsgs = await chatDoc
+          .collection('messages')
+          .where('receiverId', isEqualTo: cleanA)
+          .where('isRead', isEqualTo: false)
+          .limit(30)
+          .get();
+
+      if (unreadMsgs.docs.isNotEmpty) {
+        final batch = _firestore.batch();
+        for (final doc in unreadMsgs.docs) {
+          batch.update(doc.reference, {
+            'isRead': true,
+            'status': 'read',
+            'trangThaiTinNhan_id': 'read',
+          });
+        }
+        await batch.commit();
+      }
+    } catch (e) {
+      debugPrint('Error marking as read: $e');
+    }
   }
 
   // Cập nhật trạng thái tin nhắn (đã đọc / phản hồi lời mời...)
