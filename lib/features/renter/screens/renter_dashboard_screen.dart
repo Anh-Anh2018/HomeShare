@@ -186,7 +186,7 @@ class _RenterDashboardScreenState extends ConsumerState<RenterDashboardScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const SearchFilterScreen(),
+                          builder: (_) => const SearchFilterScreen(initialAdvanced: true),
                         ),
                       );
                     },

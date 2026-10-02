@@ -12,8 +12,13 @@ import '../../auth/providers/user_provider.dart';
 
 class SearchFilterScreen extends ConsumerStatefulWidget {
   final String initialCategory;
+  final bool initialAdvanced;
 
-  const SearchFilterScreen({super.key, this.initialCategory = 'Tất cả'});
+  const SearchFilterScreen({
+    super.key,
+    this.initialCategory = 'Tất cả',
+    this.initialAdvanced = false,
+  });
 
   @override
   ConsumerState<SearchFilterScreen> createState() => _SearchFilterScreenState();
@@ -153,9 +158,14 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.initialCategory != 'Tất cả' && widget.initialCategory.isNotEmpty) {
+    _isAdvancedExpanded = widget.initialAdvanced;
+    if (widget.initialCategory.isNotEmpty && widget.initialCategory != 'Tất cả') {
       if (widget.initialCategory == 'Tìm ở ghép') {
         _rentalType = 'shared';
+      } else if (widget.initialCategory == 'Phòng trọ') {
+        _rentalType = 'single';
+      } else if (widget.initialCategory == 'Gần trường ĐH') {
+        _selectedAmenities.add('Gần trường ĐH / Bến xe');
       } else {
         _rentalType = 'single';
       }
@@ -275,16 +285,16 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
         ? _selectedWard
         : (_selectedDistrict != 'Tất cả' ? _selectedDistrict : 'Tất cả');
 
-    // Filter Params for Stream (Chỉ áp dụng bộ lọc nâng cao khi người dùng mở rộng)
+    // Filter Params for Stream: Áp dụng các tiêu chí lọc đã chọn
     final filterParams = RoomFilterParams(
       city: _selectedCity,
       district: filterDistrict,
       rentalType: _rentalType,
-      minPrice: _isAdvancedExpanded && _priceRange.start > 0 ? _priceRange.start : null,
-      maxPrice: _isAdvancedExpanded && _priceRange.end < 20000000 ? _priceRange.end : null,
-      minArea: _isAdvancedExpanded && _areaRange.start > 10 ? _areaRange.start : null,
-      maxArea: _isAdvancedExpanded && _areaRange.end < 200 ? _areaRange.end : null,
-      amenities: _isAdvancedExpanded ? _selectedAmenities.toList() : const [],
+      minPrice: _priceRange.start > 0 ? _priceRange.start : null,
+      maxPrice: _priceRange.end < 20000000 ? _priceRange.end : null,
+      minArea: _areaRange.start > 10 ? _areaRange.start : null,
+      maxArea: _areaRange.end < 200 ? _areaRange.end : null,
+      amenities: _selectedAmenities.isNotEmpty ? _selectedAmenities.toList() : const [],
       sortBy: _selectedSort,
     );
 
@@ -297,6 +307,14 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: false,
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: AppColors.textDark),
+                onPressed: () => Navigator.pop(context),
+                tooltip: 'Quay lại',
+              )
+            : null,
+        titleSpacing: Navigator.canPop(context) ? 0 : null,
         title: Row(
           children: [
             Container(
@@ -624,36 +642,43 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
           ),
           const SizedBox(height: 14),
 
-          // Nút + Nâng cao / + Thêm bộ lọc
-          if (!_isAdvancedExpanded)
-            InkWell(
-              onTap: () => setState(() => _isAdvancedExpanded = true),
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 11),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0F4FF),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFD6E2FF)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.add, size: 18, color: Color(0xFF1E5BB0)),
-                    const SizedBox(width: 6),
-                    Text(
-                      _hasSearched ? 'Thêm bộ lọc' : 'Nâng cao',
-                      style: const TextStyle(
-                        color: Color(0xFF1E5BB0),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
+          // Nút + Nâng cao / + Thêm bộ lọc / Thu gọn bộ lọc nâng cao
+          InkWell(
+            onTap: () => setState(() => _isAdvancedExpanded = !_isAdvancedExpanded),
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 11),
+              decoration: BoxDecoration(
+                color: _isAdvancedExpanded ? const Color(0xFFF3F4F6) : const Color(0xFFF0F4FF),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: _isAdvancedExpanded ? const Color(0xFFE5E7EB) : const Color(0xFFD6E2FF),
                 ),
               ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    _isAdvancedExpanded ? Icons.keyboard_arrow_up : Icons.add,
+                    size: 18,
+                    color: _isAdvancedExpanded ? AppColors.textMuted : const Color(0xFF1E5BB0),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    _isAdvancedExpanded
+                        ? 'Thu gọn bộ lọc nâng cao'
+                        : (_hasSearched ? 'Thêm bộ lọc' : 'Nâng cao'),
+                    style: TextStyle(
+                      color: _isAdvancedExpanded ? AppColors.textMuted : const Color(0xFF1E5BB0),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
             ),
+          ),
         ],
       ),
     );

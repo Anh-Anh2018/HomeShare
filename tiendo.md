@@ -1122,3 +1122,31 @@ huquynh: https://github.com/23211tt0240-NhuQuynh/homeshare.git.
   - Đã biên dịch APK và cài đặt trực tiếp lên điện thoại thật Android 16 (`25100RA69G` / `lj6hwwwgauugwkci`).
 * **Quy tắc phân nhánh Git:**
   - Toàn bộ commit và push được thực hiện **CHỈ TRÊN BRANCH homeshare** của `origin`, tuyệt đối **KHÔNG CẬP NHẬT NHÁNH main** và **KHÔNG PUSH VÀO REPO NHUQUYNH**.
+
+---
+
+### Phase 2.23: Khắc Phục Lỗi Tìm Kiếm Nâng Cao Từ Trang Chủ & Đồng Bộ 3 Trạng Thái Figma (Mục 4)
+* **Ngày hoàn thành:** 02/10/2026
+* **Yêu cầu người dùng:** "fix từng cái phần trang chủ khi tìm kiếm nhấn nhấn nâng cao thì k ra phần lọc nâng cao đọc lại tiendo để có thể hiểu rõ project hơn" và "m vào đt t và hảy test trên màn hình t xem còn lỗi k".
+* **Phân tích nguyên nhân gốc rễ:**
+  1. **Nút Filter (Tune) trên Trang chủ không mở bộ lọc nâng cao:**
+     - Nút `Icons.tune` bên cạnh ô tìm kiếm trên `RenterDashboardScreen` điều hướng đến `SearchFilterScreen` nhưng không truyền cờ kích hoạt bộ lọc nâng cao, trong khi `SearchFilterScreen` chưa hỗ trợ tham số `initialAdvanced`.
+  2. **Bộ lọc nâng cao bị đóng mất và làm mất tiêu chí lọc khi tìm kiếm:**
+     - Trong `SearchFilterScreen`, nút `+ Nâng cao` biến mất khi mở rộng, thiếu nút thu gọn ở card khu vực;
+     - Biến `filterParams` của stream `roomsStreamProvider` áp dụng các điều kiện lọc nâng cao phụ thuộc vào điều kiện `_isAdvancedExpanded`. Khi nhấn "Tìm kiếm" (`_isAdvancedExpanded = false` theo thiết kế Trạng thái 3), toàn bộ giá trị lọc (giá, diện tích, tiện ích) bị gán về null/rỗng khiến kết quả lọc bị mất.
+  3. **Thiếu nút Quay lại trên AppBar:**
+     - `SearchFilterScreen` có `automaticallyImplyLeading: false` và không có nút quay lại, khiến người dùng điều hướng từ Trang chủ khó quay về màn hình trước.
+* **Chi tiết giải pháp đã triển khai:**
+  1. **Cập nhật `SearchFilterScreen`:**
+     - Thêm tham số `final bool initialAdvanced;` (mặc định `false`). Trong `initState()`, khởi tạo `_isAdvancedExpanded = widget.initialAdvanced;`.
+     - Thêm nút quay lại trên AppBar khi `Navigator.canPop(context)` (`Icons.arrow_back_ios_new`), canh chỉnh `titleSpacing` hài hòa.
+     - Đồng bộ nút trên Card khu vực theo chuẩn 3 trạng thái Figma: Chuyển đổi linh hoạt giữa `+ Nâng cao` (hoặc `+ Thêm bộ lọc`) khi đang đóng và `Thu gọn bộ lọc nâng cao ˄` khi đang mở.
+     - Khắc phục triệt để `filterParams`: Áp dụng liên tục khoảng giá, diện tích và danh sách tiện ích đã chọn mà không bị mất khi thu gọn bộ lọc sang Trạng thái 3.
+  2. **Cập nhật `RenterDashboardScreen`:**
+     - Nút `Icons.tune` trên thanh tìm kiếm Trang chủ điều hướng chính xác với `SearchFilterScreen(initialAdvanced: true)`.
+  3. **Kiểm thử & Triển khai thực tế:**
+     - `flutter test`: Toàn bộ unit và widget tests passed 100%.
+     - Biên dịch APK debug mới nhất (`flutter build apk --debug`).
+     - Cài đặt trực tiếp lên thiết bị Android thật (`lj6hwwwgauugwkci`, package `com.homeshare.app.home_share` cập nhật thành công lúc `20:49:54`).
+* **Quy tắc phân nhánh Git:**
+  - Commit và push CHỈ TRÊN NHÁNH `homeshare` của `origin` (HomeShare repo chính). Tuyệt đối KHÔNG đụng đến nhánh `main` và KHÔNG push vào repo NhuQuynh.
