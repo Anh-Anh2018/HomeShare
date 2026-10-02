@@ -932,15 +932,15 @@ Thực hiện yêu cầu của người dùng: *"làm phần chi tiết ở ghé
 
 ---
 
-### Phase 2.17: Đồng Bộ & Đẩy Toàn Bộ Dự Án Lên Git Từ Xa (GitHub)
+### Phase 2.17: Khởi Tạo Tự Động & Đẩy Lên Repository GitHub Riêng Biệt (`HomeShare`)
 * **Ngày hoàn thành:** 02/10/2026
-* **Yêu cầu người dùng:** "đẩy lên git"
-* **Kho lưu trữ từ xa (Remote):** `https://github.com/Anh-Anh2018/web-react.git`
-* **Nhánh phát hành:** `homeshare` (Bảo toàn 100% các commit React cũ trên nhánh `main`).
-* **Trạng thái:** **Thành công (Pushed successfully)**:
-  - Khởi tạo Git repo, chuẩn hóa `.gitignore` Flutter.
-  - Commit toàn bộ source code, model, test suite và tài liệu `tiendo.md`.
-  - Kết nối `origin` và đẩy thành công lên GitHub: `* [new branch] main -> homeshare`.
+* **Yêu cầu người dùng:** "m tự tạo git đi"
+* **Kho lưu trữ từ xa (Remote):** [`https://github.com/Anh-Anh2018/HomeShare.git`](https://github.com/Anh-Anh2018/HomeShare)
+* **Nhánh phát hành:** `main` (Nhánh chính độc lập chuẩn chuẩn quy chuẩn).
+* **Trạng thái:** **Thành công 100%**:
+  - Tự động gọi GitHub API tạo repository độc lập `HomeShare` trên tài khoản `Anh-Anh2018`.
+  - Cấu hình remote `origin` trỏ trực tiếp về `https://github.com/Anh-Anh2018/HomeShare.git`.
+  - Toàn bộ source code, model, test suite (44/44 tests), cấu hình Firebase và tài liệu `tiendo.md` đã được đẩy an toàn lên nhánh `main`.
 
 
 
