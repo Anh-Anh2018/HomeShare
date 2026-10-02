@@ -139,7 +139,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       // 2. Lọc theo danh mục tab
       if (_selectedFilter == 'landlord' && !conv.isLandlord) return false;
       if (_selectedFilter == 'roommate' && conv.isLandlord) return false;
-      if (_selectedFilter == 'unread' && conv.unreadCount <= 0) return false;
+      if (_selectedFilter == 'unread' && conv.unreadCount <= 0 && conv.isRead) return false;
 
       return true;
     }).toList();
@@ -243,7 +243,8 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                     separatorBuilder: (context, index) => const Divider(height: 1, indent: 76),
                     itemBuilder: (context, index) {
                       final item = filteredConversations[index];
-                      final isUnread = item.unreadCount > 0;
+                      final isUnread = item.unreadCount > 0 || !item.isRead;
+                      final displayUnreadCount = item.unreadCount > 0 ? item.unreadCount : (isUnread ? 1 : 0);
 
                       return Material(
                         color: isUnread ? AppColors.primaryContainer.withValues(alpha: 0.15) : Colors.transparent,
@@ -288,9 +289,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                                       child: Text(
                                         item.partnerName,
                                         style: TextStyle(
-                                          fontWeight: isUnread ? FontWeight.w800 : FontWeight.w600,
-                                          fontSize: isUnread ? 15 : 14,
-                                          color: AppColors.textDark,
+                                          fontWeight: isUnread ? FontWeight.w900 : FontWeight.w600,
+                                          fontSize: isUnread ? 15.5 : 14,
+                                          color: isUnread ? const Color(0xFF0F172A) : AppColors.textDark,
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -308,7 +309,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: isUnread ? AppColors.primary : AppColors.textMuted,
-                                  fontWeight: isUnread ? FontWeight.bold : FontWeight.normal,
+                                  fontWeight: isUnread ? FontWeight.w900 : FontWeight.normal,
                                 ),
                               ),
                             ],
@@ -339,9 +340,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                                     child: Text(
                                       item.lastMessage,
                                       style: TextStyle(
-                                        fontSize: isUnread ? 13.5 : 13,
-                                        color: isUnread ? AppColors.textDark : AppColors.textMuted,
-                                        fontWeight: isUnread ? FontWeight.w800 : FontWeight.normal,
+                                        fontSize: isUnread ? 14 : 13,
+                                        color: isUnread ? const Color(0xFF0F172A) : AppColors.textMuted,
+                                        fontWeight: isUnread ? FontWeight.w900 : FontWeight.normal,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -351,23 +352,25 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                                     Container(
                                       margin: const EdgeInsets.only(left: 8),
                                       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                                      constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+                                      alignment: Alignment.center,
                                       decoration: BoxDecoration(
-                                        color: AppColors.primary,
+                                        color: const Color(0xFFEF4444),
                                         borderRadius: BorderRadius.circular(10),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: AppColors.primary.withValues(alpha: 0.3),
+                                            color: const Color(0xFFEF4444).withValues(alpha: 0.35),
                                             blurRadius: 4,
                                             offset: const Offset(0, 1),
                                           ),
                                         ],
                                       ),
                                       child: Text(
-                                        item.unreadCount > 9 ? '9+' : '${item.unreadCount}',
+                                        displayUnreadCount > 99 ? '99+' : '$displayUnreadCount',
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 11,
-                                          fontWeight: FontWeight.bold,
+                                          fontWeight: FontWeight.w900,
                                         ),
                                       ),
                                     ),

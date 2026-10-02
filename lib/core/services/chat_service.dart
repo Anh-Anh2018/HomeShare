@@ -113,8 +113,13 @@ class ChatService {
       'userNames': userNames,
       'partnerNames': partnerNames,
       'isRead': false,
+      'readBy': {
+        message.senderId: true,
+        message.receiverId: false,
+      },
       'unreadCount': FieldValue.increment(1),
       'unreadFor_${message.receiverId}': FieldValue.increment(1),
+      'unreadFor_${message.senderId}': 0,
     };
 
     if (receiverAvatar != null && receiverAvatar.isNotEmpty) {

@@ -734,7 +734,9 @@ class _RoommateCommunityScreenState extends ConsumerState<RoommateCommunityScree
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Stack(
+              GestureDetector(
+                onTap: () => _openPostDetailModal(post),
+                child: Stack(
                 clipBehavior: Clip.none,
                 children: [
                   CircleAvatar(
@@ -779,8 +781,12 @@ class _RoommateCommunityScreenState extends ConsumerState<RoommateCommunityScree
                     ),
                 ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: GestureDetector(
+                onTap: () => _openPostDetailModal(post),
+                behavior: HitTestBehavior.opaque,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -834,6 +840,7 @@ class _RoommateCommunityScreenState extends ConsumerState<RoommateCommunityScree
                   ],
                 ),
               ),
+            ),
               // Nút Bookmark tròn bên phải
               InkWell(
                 onTap: () => _onToggleBookmark(post.id),

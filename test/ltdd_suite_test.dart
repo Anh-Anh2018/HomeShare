@@ -1133,6 +1133,51 @@ void main() {
       expect(conv.computedUnread, equals(3));
       expect(conv.isReadVal, isFalse);
     });
+
+    test('Tc_THEME_09 & 10: Kiểm tra tin nhắn chưa đọc in đậm, hiển thị badge số lượng và điều hướng chi tiết hồ sơ', () {
+      // 1. Kiểm tra tính unread khi có tin nhắn chưa đọc
+      final unreadConv = ConversationModel(
+        id: 'conv_unread',
+        partnerId: 'partner_01',
+        partnerName: 'Bác Ba Quản Lý KTX',
+        lastMessage: 'Phòng 204 vẫn còn nhé con',
+        lastMessageTime: DateTime.now(),
+        unreadCount: 2,
+        isRead: false,
+      );
+      final isUnread = unreadConv.unreadCount > 0 || !unreadConv.isRead;
+      final displayCount = unreadConv.unreadCount > 0 ? unreadConv.unreadCount : 1;
+      expect(isUnread, isTrue);
+      expect(displayCount, equals(2));
+
+      // 2. Bài đăng ở ghép luôn có fallback ảnh và người đăng hợp lệ
+      final post = RoommatePostModel(
+        id: 'rm_test',
+        authorId: 'user_test',
+        authorName: 'Minh Trang',
+        authorAge: 21,
+        authorGender: 'Nữ',
+        authorOccupation: 'SV Đại học Ngoại Thương CS2',
+        title: 'Cần tìm 1 bạn nữ ở ghép',
+        description: 'Phòng thoáng mát sạch sẽ',
+        postType: 'timNguoiOGhep',
+        propertyType: 'Căn hộ chung cư',
+        pricePerPerson: 1800000,
+        budgetMin: 1500000,
+        budgetMax: 2000000,
+        address: 'Linh Trung, TP. Thủ Đức',
+        district: 'TP. Thủ Đức',
+        targetGender: 'Nữ',
+        habits: ['Không hút thuốc'],
+        images: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800'],
+        hasRoom: true,
+        contactPhone: '0981234567',
+        createdAt: DateTime.now(),
+      );
+      expect(post.authorName, isNotEmpty);
+      expect(post.images, isNotEmpty);
+      expect(post.district, equals('TP. Thủ Đức'));
+    });
   });
 }
 

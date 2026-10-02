@@ -207,13 +207,22 @@ class ConversationModel {
     }
 
     final lastSenderId = data['lastSenderId']?.toString() ?? '';
-    final isReadVal = data['isRead'] == true ||
-        (data['readBy'] is Map && data['readBy'][currentUserId] == true);
+    bool isReadVal = false;
+    if (lastSenderId == currentUserId) {
+      isReadVal = true;
+    } else if (data['readBy'] is Map && data['readBy'][currentUserId] != null) {
+      isReadVal = data['readBy'][currentUserId] == true;
+    } else {
+      isReadVal = data['isRead'] == true;
+    }
 
-    if (lastSenderId.isNotEmpty && lastSenderId != currentUserId && !isReadVal) {
-      if (computedUnread <= 0) computedUnread = 1;
+    if (lastSenderId.isNotEmpty && lastSenderId != currentUserId) {
+      if (!isReadVal && computedUnread <= 0) {
+        computedUnread = 1;
+      }
     } else if (lastSenderId == currentUserId) {
       computedUnread = 0;
+      isReadVal = true;
     }
 
     return ConversationModel(
