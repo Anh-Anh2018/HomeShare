@@ -930,5 +930,18 @@ Thực hiện yêu cầu của người dùng: *"làm phần chi tiết ở ghé
 * **Kiểm thử tự động (`flutter test`):** Bổ sung test case `Tc_USER_CODE_01` kiểm tra toàn diện 4 tiêu chí của mã 5 ký tự và nội dung chuyển tiền.
 * **Hot Reload:** Đã nạp thành công lên thiết bị Xiaomi Redmi (`25100RA69G`), kiểm tra qua `get_runtime_errors` trả về **0 runtime errors**.
 
+---
+
+### Phase 2.17: Đồng Bộ & Đẩy Toàn Bộ Dự Án Lên Git Từ Xa (GitHub)
+* **Ngày hoàn thành:** 02/10/2026
+* **Yêu cầu người dùng:** "đẩy lên git"
+* **Kho lưu trữ từ xa (Remote):** `https://github.com/Anh-Anh2018/web-react.git`
+* **Nhánh phát hành:** `homeshare` (Bảo toàn 100% các commit React cũ trên nhánh `main`).
+* **Trạng thái:** **Thành công (Pushed successfully)**:
+  - Khởi tạo Git repo, chuẩn hóa `.gitignore` Flutter.
+  - Commit toàn bộ source code, model, test suite và tài liệu `tiendo.md`.
+  - Kết nối `origin` và đẩy thành công lên GitHub: `* [new branch] main -> homeshare`.
+
+
 
 
