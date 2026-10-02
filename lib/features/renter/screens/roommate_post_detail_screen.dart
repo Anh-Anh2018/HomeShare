@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -88,6 +89,7 @@ class _RoommatePostDetailScreenState extends ConsumerState<RoommatePostDetailScr
         child: const Icon(Icons.image_outlined, color: Color(0xFF94A3B8), size: 48),
       );
     }
+    // 1. Ảnh trực tuyến (Firebase Storage / URL công khai)
     if (imgUrl.startsWith('http://') || imgUrl.startsWith('https://')) {
       return Image.network(
         imgUrl,
@@ -98,6 +100,23 @@ class _RoommatePostDetailScreenState extends ConsumerState<RoommatePostDetailScr
         ),
       );
     }
+    // 2. Ảnh Base64 Data URI
+    if (imgUrl.startsWith('data:image')) {
+      try {
+        final commaIdx = imgUrl.indexOf(',');
+        final base64Data = commaIdx != -1 ? imgUrl.substring(commaIdx + 1) : imgUrl;
+        final bytes = base64Decode(base64Data);
+        return Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Container(
+            color: const Color(0xFFF1F5F9),
+            child: const Icon(Icons.broken_image_outlined, color: Color(0xFF94A3B8), size: 48),
+          ),
+        );
+      } catch (_) {}
+    }
+    // 3. File nội bộ trên cùng thiết bị
     try {
       final file = File(imgUrl);
       if (file.existsSync()) {
@@ -111,9 +130,15 @@ class _RoommatePostDetailScreenState extends ConsumerState<RoommatePostDetailScr
         );
       }
     } catch (_) {}
-    return Container(
-      color: const Color(0xFFF1F5F9),
-      child: const Icon(Icons.image_outlined, color: Color(0xFF94A3B8), size: 48),
+
+    // 4. Fallback cho các thiết bị khác khi bài viết cũ lưu file cục bộ từ máy khác
+    return Image.network(
+      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600',
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => Container(
+        color: const Color(0xFFF1F5F9),
+        child: const Icon(Icons.image_outlined, color: Color(0xFF94A3B8), size: 48),
+      ),
     );
   }
 
@@ -195,9 +220,11 @@ class _RoommatePostDetailScreenState extends ConsumerState<RoommatePostDetailScr
         builder: (_) => ChatDetailScreen(
           receiverId: widget.post.authorId,
           receiverName: widget.post.authorName,
+          receiverAvatar: widget.post.authorAvatar,
           receiverPhone: widget.post.contactPhone,
+          isLandlord: false,
           currentUserId: currentUser.uid,
-          currentUserName: profile?.displayName ?? 'Khách thuê',
+          currentUserName: profile?.displayName ?? currentUser.displayName ?? 'Khách thuê',
         ),
       ),
     );

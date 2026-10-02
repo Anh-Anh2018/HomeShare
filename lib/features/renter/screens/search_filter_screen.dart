@@ -213,8 +213,12 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
         builder: (_) => ChatDetailScreen(
           receiverId: room.hostId,
           receiverName: room.hostName,
+          receiverAvatar: room.hostAvatar,
+          receiverPhone: room.hostPhone,
+          isLandlord: true,
           currentUserId: currentUser.uid,
           currentUserName: profile?.displayName ?? currentUser.displayName ?? 'Khách thuê',
+          pinnedRoom: room,
         ),
       ),
     );

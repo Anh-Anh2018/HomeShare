@@ -49,12 +49,17 @@ class ChatService {
 
   // Tính chatId / cuocTroChuyenId duy nhất giữa 2 người dùng
   static String getChatId(String a, String b) {
-    return a.compareTo(b) < 0 ? '${a}_$b' : '${b}_$a';
+    final cleanA = a.trim();
+    final cleanB = b.trim();
+    return cleanA.compareTo(cleanB) < 0 ? '${cleanA}_$cleanB' : '${cleanB}_$cleanA';
   }
 
   // Gửi tin nhắn mới lưu vào subcollection chats/{chatId}/messages
   Future<void> sendMessage(
     ChatMessageModel message, {
+    String? receiverName,
+    String? receiverAvatar,
+    String? receiverPhone,
     Map<String, dynamic>? roomMetadata,
   }) async {
     // 1. Kiểm tra không gửi rỗng / toàn khoảng trắng (Tc_CHAT_24)
@@ -79,6 +84,20 @@ class ChatService {
     batch.set(msgDoc, messageToSave.toMap());
 
     // 4. Cập nhật hội thoại tổng quan (recent conversation)
+    final userNames = <String, String>{
+      message.senderId: message.senderName,
+    };
+    if (receiverName != null && receiverName.trim().isNotEmpty) {
+      userNames[message.receiverId] = receiverName.trim();
+    }
+
+    final partnerNames = <String, String>{
+      message.senderId: (receiverName != null && receiverName.trim().isNotEmpty)
+          ? receiverName.trim()
+          : 'Đối tác trao đổi',
+      message.receiverId: message.senderName,
+    };
+
     final chatDoc = _firestore.collection('chats').doc(chatId);
     final convData = <String, dynamic>{
       'chatId': chatId,
@@ -91,7 +110,16 @@ class ChatService {
       'lastSenderId': message.senderId,
       'lastTimestamp': FieldValue.serverTimestamp(),
       'ngayGuiCuoi': FieldValue.serverTimestamp(),
+      'userNames': userNames,
+      'partnerNames': partnerNames,
     };
+
+    if (receiverAvatar != null && receiverAvatar.isNotEmpty) {
+      convData['userAvatars'] = {message.receiverId: receiverAvatar};
+    }
+    if (receiverPhone != null && receiverPhone.isNotEmpty) {
+      convData['userPhones'] = {message.receiverId: receiverPhone};
+    }
 
     if (roomMetadata != null) {
       convData.addAll(roomMetadata);
@@ -120,11 +148,13 @@ class ChatService {
 
   // Stream tin nhắn an toàn, chỉ truy vấn đúng cuộc hội thoại giữa 2 người
   Stream<List<ChatMessageModel>> getMessagesStream(String userA, String userB) {
-    if (userA.isEmpty || userB.isEmpty) {
+    final cleanA = userA.trim();
+    final cleanB = userB.trim();
+    if (cleanA.isEmpty || cleanB.isEmpty) {
       return Stream.value([]);
     }
 
-    final chatId = getChatId(userA, userB);
+    final chatId = getChatId(cleanA, cleanB);
     return _firestore
         .collection('chats')
         .doc(chatId)
@@ -133,7 +163,7 @@ class ChatService {
         .limit(100)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
+      final list = snapshot.docs.map((doc) {
         try {
           return ChatMessageModel.fromFirestore(doc);
         } catch (e) {
@@ -141,29 +171,35 @@ class ChatService {
           return null;
         }
       }).whereType<ChatMessageModel>().toList();
+
+      list.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      return list;
     });
   }
 
   // Stream danh sách cuộc trò chuyện gần đây của người dùng
   Stream<List<ConversationModel>> getConversationsStream(String currentUserId) {
-    if (currentUserId.isEmpty) {
+    final cleanUid = currentUserId.trim();
+    if (cleanUid.isEmpty) {
       return Stream.value([]);
     }
 
     return _firestore
         .collection('chats')
-        .where('users', arrayContains: currentUserId)
-        .orderBy('lastTimestamp', descending: true)
+        .where('users', arrayContains: cleanUid)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
+      final list = snapshot.docs.map((doc) {
         try {
-          return ConversationModel.fromFirestore(doc, currentUserId);
+          return ConversationModel.fromFirestore(doc, cleanUid);
         } catch (e) {
           debugPrint('Error parsing conversation ${doc.id}: $e');
           return null;
         }
       }).whereType<ConversationModel>().toList();
+
+      list.sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
+      return list;
     });
   }
 }

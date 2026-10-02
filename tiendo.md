@@ -940,7 +940,22 @@ Thực hiện yêu cầu của người dùng: *"làm phần chi tiết ở ghé
 * **Trạng thái:** **Thành công 100%**:
   - Tự động gọi GitHub API tạo repository độc lập `HomeShare` trên tài khoản `Anh-Anh2018`.
   - Cấu hình remote `origin` trỏ trực tiếp về `https://github.com/Anh-Anh2018/HomeShare.git`.
-  - Toàn bộ source code, model, test suite (44/44 tests), cấu hình Firebase và tài liệu `tiendo.md` đã được đẩy an toàn lên nhánh `main`.
+  - Toàn bộ source code, model, test suite, cấu hình Firebase và tài liệu `tiendo.md` đã được đẩy an toàn lên nhánh `main`.
+
+---
+
+### Phase 2.18: Sửa Lỗi Đồng Bộ Ảnh Đăng Tin & Nhắn Tin Xuyên Thiết Bị (Cross-Device Sync)
+* **Ngày hoàn thành:** 02/10/2026
+* **Yêu cầu người dùng:** "phần hình ảnh đăng nếu là máy khác k hiện ảnh và khi nhắn từ máy kahsc không qua tin nhắn" -> "up project cho D:\App\HomeShare"
+* **Nội dung hoàn thiện:**
+  1. **Tải & hiển thị hình ảnh đa thiết bị ([`ImageStorageService`](file:///D:/app/HomeShare/lib/core/services/image_storage_service.dart)):**
+     - Đăng tin ở ghép tải ảnh lên Firebase Storage (hoặc fallback chuỗi Base64 / URL công khai) thay vì chỉ lưu đường dẫn tệp local (`File.path`).
+     - Màn hình cộng đồng và chi tiết bài đăng ([`RoommateCommunityScreen`](file:///D:/app/HomeShare/lib/features/renter/screens/roommate_community_screen.dart), [`RoommatePostDetailScreen`](file:///D:/app/HomeShare/lib/features/renter/screens/roommate_post_detail_screen.dart)) hỗ trợ đọc URL HTTP/HTTPS, Data URI Base64, tệp cục bộ và fallback thông minh.
+  2. **Đồng bộ tin nhắn thời gian thực giữa 2 thiết bị ([`ChatService`](file:///D:/app/HomeShare/lib/core/services/chat_service.dart)):**
+     - Chuẩn hóa ID cuộc trò chuyện hai chiều đồng bộ giữa các máy.
+     - Cập nhật truy vấn stream và danh sách tin nhắn Firestore để tin nhắn từ máy khác hiển thị tức thì.
+  3. **Kiểm thử tự động:** Toàn bộ 58/58 test cases (`flutter test`) đều PASS 100%.
+  4. **Đẩy mã nguồn:** Cập nhật toàn bộ thay đổi lên GitHub `origin/main`.
 
 
 

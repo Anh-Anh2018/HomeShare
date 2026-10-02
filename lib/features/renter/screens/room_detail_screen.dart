@@ -81,6 +81,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen> {
         builder: (_) => ChatDetailScreen(
           receiverId: widget.room.hostId,
           receiverName: widget.room.hostName,
+          receiverAvatar: widget.room.hostAvatar,
           receiverPhone: widget.room.hostPhone,
           isLandlord: true,
           currentUserId: currentUser.uid,

@@ -330,16 +330,17 @@ void main() {
 
   group('VietnamLocations 63 Provinces & Districts Tests', () {
     test('Contains exactly 63 provinces and centrally-governed cities across Vietnam', () {
-      expect(VietnamLocations.provinces.length, equals(63));
-      expect(VietnamLocations.provinces.contains('TP. Hồ Chí Minh'), isTrue);
-      expect(VietnamLocations.provinces.contains('Hà Nội'), isTrue);
-      expect(VietnamLocations.provinces.contains('Đà Nẵng'), isTrue);
-      expect(VietnamLocations.provinces.contains('Bình Dương'), isTrue);
-      expect(VietnamLocations.provinces.contains('Cần Thơ'), isTrue);
-      expect(VietnamLocations.provinces.contains('Hải Phòng'), isTrue);
-      expect(VietnamLocations.provinces.contains('Đồng Nai'), isTrue);
-      expect(VietnamLocations.provinces.contains('Lâm Đồng'), isTrue);
-      expect(VietnamLocations.provinces.contains('Yên Bái'), isTrue);
+      expect(VietnamLocations.provinces63.length, equals(63));
+      expect(VietnamLocations.provinces.length, equals(34));
+      expect(VietnamLocations.provinces63.contains('TP. Hồ Chí Minh'), isTrue);
+      expect(VietnamLocations.provinces63.contains('Hà Nội'), isTrue);
+      expect(VietnamLocations.provinces63.contains('Đà Nẵng'), isTrue);
+      expect(VietnamLocations.provinces63.contains('Bình Dương'), isTrue);
+      expect(VietnamLocations.provinces63.contains('Cần Thơ'), isTrue);
+      expect(VietnamLocations.provinces63.contains('Hải Phòng'), isTrue);
+      expect(VietnamLocations.provinces63.contains('Đồng Nai'), isTrue);
+      expect(VietnamLocations.provinces63.contains('Lâm Đồng'), isTrue);
+      expect(VietnamLocations.provinces63.contains('Yên Bái'), isTrue);
     });
 
     test('getDistricts returns comprehensive administrative units for selected province', () {

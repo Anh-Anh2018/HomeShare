@@ -393,6 +393,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                               builder: (_) => ChatDetailScreen(
                                 receiverId: item.partnerId,
                                 receiverName: item.partnerName,
+                                receiverAvatar: item.partnerAvatar,
                                 receiverPhone: item.partnerPhone,
                                 isLandlord: item.isLandlord,
                                 currentUserId: currentUserId,

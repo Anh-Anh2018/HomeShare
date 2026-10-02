@@ -130,7 +130,13 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
             }
           : null;
 
-      await ref.read(chatServiceProvider).sendMessage(message, roomMetadata: roomMeta);
+      await ref.read(chatServiceProvider).sendMessage(
+        message,
+        receiverName: widget.receiverName,
+        receiverAvatar: widget.receiverAvatar,
+        receiverPhone: widget.receiverPhone,
+        roomMetadata: roomMeta,
+      );
       _scrollToBottom();
     } catch (e) {
       if (overrideText == null) {
@@ -165,7 +171,12 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
     );
 
     try {
-      await ref.read(chatServiceProvider).sendMessage(message);
+      await ref.read(chatServiceProvider).sendMessage(
+        message,
+        receiverName: widget.receiverName,
+        receiverAvatar: widget.receiverAvatar,
+        receiverPhone: widget.receiverPhone,
+      );
       _scrollToBottom();
     } catch (e) {
       if (mounted) {

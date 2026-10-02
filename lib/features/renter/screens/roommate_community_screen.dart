@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../../../core/constants/app_colors.dart';
 import '../../../core/services/roommate_service.dart';
 import '../../../data/models/roommate_post_model.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -141,8 +143,11 @@ class _RoommateCommunityScreenState extends ConsumerState<RoommateCommunityScree
         builder: (_) => ChatDetailScreen(
           receiverId: post.authorId,
           receiverName: post.authorName,
+          receiverAvatar: post.authorAvatar,
+          receiverPhone: post.contactPhone,
+          isLandlord: false,
           currentUserId: currentUser.uid,
-          currentUserName: profile?.displayName ?? 'Khách thuê',
+          currentUserName: profile?.displayName ?? currentUser.displayName ?? 'Khách thuê',
         ),
       ),
     );
@@ -172,6 +177,16 @@ class _RoommateCommunityScreenState extends ConsumerState<RoommateCommunityScree
       backgroundColor: const Color(0xFFF8FAFC),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
+          final user = ref.read(currentUserProvider);
+          if (user == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Vui lòng đăng nhập để đăng tin tìm ở ghép'),
+                backgroundColor: AppColors.danger,
+              ),
+            );
+            return;
+          }
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const CreateRoommatePostScreen()),
@@ -1093,6 +1108,7 @@ class _RoommateCommunityScreenState extends ConsumerState<RoommateCommunityScree
         child: const Icon(Icons.image_outlined, color: Color(0xFF94A3B8), size: 28),
       );
     }
+    // 1. Ảnh trực tuyến (Firebase Storage / Web URL)
     if (imgUrl.startsWith('http://') || imgUrl.startsWith('https://')) {
       return Image.network(
         imgUrl,
@@ -1103,6 +1119,23 @@ class _RoommateCommunityScreenState extends ConsumerState<RoommateCommunityScree
         ),
       );
     }
+    // 2. Ảnh mã hóa Base64 Data URI (hiển thị 100% trên mọi máy)
+    if (imgUrl.startsWith('data:image')) {
+      try {
+        final commaIdx = imgUrl.indexOf(',');
+        final base64Data = commaIdx != -1 ? imgUrl.substring(commaIdx + 1) : imgUrl;
+        final bytes = base64Decode(base64Data);
+        return Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Container(
+            color: const Color(0xFFF1F5F9),
+            child: const Icon(Icons.broken_image_outlined, color: Color(0xFF94A3B8), size: 28),
+          ),
+        );
+      } catch (_) {}
+    }
+    // 3. File nội bộ trên cùng thiết bị
     try {
       final file = File(imgUrl);
       if (file.existsSync()) {
@@ -1116,9 +1149,15 @@ class _RoommateCommunityScreenState extends ConsumerState<RoommateCommunityScree
         );
       }
     } catch (_) {}
-    return Container(
-      color: const Color(0xFFF1F5F9),
-      child: const Icon(Icons.image_outlined, color: Color(0xFF94A3B8), size: 28),
+
+    // 4. Fallback cho thiết bị khác khi bài viết cũ lưu file path cục bộ từ máy khác
+    return Image.network(
+      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600',
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => Container(
+        color: const Color(0xFFF1F5F9),
+        child: const Icon(Icons.image_outlined, color: Color(0xFF94A3B8), size: 28),
+      ),
     );
   }
 

@@ -6,6 +6,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/vietnam_locations.dart';
 import '../../../data/models/roommate_post_model.dart';
 import '../../../core/services/roommate_service.dart';
+import '../../../core/services/image_storage_service.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../auth/providers/user_provider.dart';
 import 'renter_main_screen.dart';
@@ -261,11 +262,25 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
       final user = ref.read(currentUserProvider);
       final profile = ref.read(userProfileProvider).value;
 
+      if (user == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Vui lòng đăng nhập tài khoản để đăng tin ở ghép!'),
+              backgroundColor: AppColors.danger,
+            ),
+          );
+        }
+        return;
+      }
+
       final priceVal = double.tryParse(_priceController.text.replaceAll(RegExp(r'\D'), '')) ?? 1800000;
       final district = _selectedDistrict ?? _extractDistrict(_addressController.text);
       final authorName = _authorNameController.text.trim().isNotEmpty
           ? _authorNameController.text.trim()
-          : (profile?.displayName.isNotEmpty == true ? profile!.displayName : 'Minh Trang');
+          : (profile?.displayName.isNotEmpty == true
+              ? profile!.displayName
+              : (user.displayName?.isNotEmpty == true ? user.displayName! : 'Minh Trang'));
       final authorAge = int.tryParse(_authorAgeController.text.trim()) ??
           (profile?.birthDate != null ? (DateTime.now().year - profile!.birthDate!.year) : 21);
       final authorOccupation = _authorOccupationController.text.trim().isNotEmpty
@@ -287,16 +302,28 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
         }
       }
 
+      // Tải hình ảnh lên Firebase Storage / Cloud để tất cả thiết bị khác luôn thấy ảnh
+      final postId = 'rm_${DateTime.now().millisecondsSinceEpoch}';
+      List<String> uploadedImages = [];
+      if (hasRoom && _selectedImages.isNotEmpty) {
+        uploadedImages = await ref.read(imageStorageServiceProvider).uploadRoommateImages(
+          localPaths: _selectedImages,
+          postId: postId,
+        );
+      }
+
       final post = RoommatePostModel(
-        id: '',
-        authorId: user?.uid ?? 'user_${DateTime.now().millisecondsSinceEpoch}',
+        id: postId,
+        authorId: user.uid,
         authorName: authorName,
         authorAge: authorAge,
         authorGender: _authorGender,
         authorOccupation: authorOccupation,
         authorAvatar: profile?.avatarUrl.isNotEmpty == true
             ? profile!.avatarUrl
-            : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400',
+            : (user.photoURL?.isNotEmpty == true
+                ? user.photoURL!
+                : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400'),
         title: _titleController.text.trim().isNotEmpty
             ? _titleController.text.trim()
             : 'Cần tìm 1 bạn nữ ở ghép căn hộ Sunview Town (Đã có phòng)',
@@ -316,7 +343,7 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
         habits: _selectedHabits.isNotEmpty
             ? List.from(_selectedHabits)
             : ['Không hút thuốc', 'Yên tĩnh sau 23h', 'Sạch sẽ ngăn nắp', 'Thân thiện vui vẻ'],
-        images: hasRoom ? List.from(_selectedImages) : [],
+        images: hasRoom ? uploadedImages : [],
         imageCaptions: captions,
         hasRoom: hasRoom,
         status: 'dangMo',

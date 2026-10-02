@@ -112,6 +112,7 @@ class ChatMessageModel {
       'nguoiGuiId': senderId,
       'senderName': senderName,
       'receiverId': receiverId,
+      'nguoiNhanId': receiverId,
       'text': text,
       'noiDung': text,
       'attachmentUrl': attachmentUrl,
@@ -172,12 +173,33 @@ class ConversationModel {
       timestamp = (data['ngayGuiCuoi'] as Timestamp).toDate();
     }
 
+    final userNames = (data['userNames'] is Map) ? Map<String, dynamic>.from(data['userNames'] as Map) : {};
+    final partnerNames = (data['partnerNames'] is Map) ? Map<String, dynamic>.from(data['partnerNames'] as Map) : {};
+    final userAvatars = (data['userAvatars'] is Map) ? Map<String, dynamic>.from(data['userAvatars'] as Map) : {};
+    final userPhones = (data['userPhones'] is Map) ? Map<String, dynamic>.from(data['userPhones'] as Map) : {};
+
+    String resolvedPartnerName = '';
+    if (partnerNames.containsKey(currentUserId) && partnerNames[currentUserId]?.toString().isNotEmpty == true) {
+      resolvedPartnerName = partnerNames[currentUserId].toString();
+    } else if (userNames.containsKey(partnerId) && userNames[partnerId]?.toString().isNotEmpty == true) {
+      resolvedPartnerName = userNames[partnerId].toString();
+    } else if (data['lastSenderId'] == partnerId && data['lastSenderName'] != null) {
+      resolvedPartnerName = data['lastSenderName'].toString();
+    } else if (data['partnerName'] != null && data['partnerName'].toString().isNotEmpty) {
+      resolvedPartnerName = data['partnerName'].toString();
+    } else {
+      resolvedPartnerName = 'Đối tác trao đổi';
+    }
+
+    String resolvedAvatar = userAvatars[partnerId]?.toString() ?? data['partnerAvatar'] ?? '';
+    String resolvedPhone = userPhones[partnerId]?.toString() ?? data['partnerPhone'] ?? '';
+
     return ConversationModel(
       id: doc.id,
       partnerId: partnerId,
-      partnerName: data['partnerName'] ?? data['lastSenderName'] ?? 'Đối tác trao đổi',
-      partnerAvatar: data['partnerAvatar'] ?? '',
-      partnerPhone: data['partnerPhone'] ?? '',
+      partnerName: resolvedPartnerName,
+      partnerAvatar: resolvedAvatar,
+      partnerPhone: resolvedPhone,
       isLandlord: data['isLandlord'] ?? false,
       lastMessage: data['lastMessage'] ?? data['noiDungCuoi'] ?? '',
       lastMessageTime: timestamp,
