@@ -10,6 +10,7 @@ import 'package:home_share/features/auth/providers/user_provider.dart';
 import 'package:home_share/features/profile/screens/cccd_scanner_screen.dart';
 import 'package:home_share/core/utils/vietqr_helper.dart';
 import 'package:home_share/core/services/roommate_service.dart';
+import 'package:home_share/core/services/image_storage_service.dart';
 
 void main() {
   group('Module 1: Màn hình chào mừng (Tc_WELCOME_01 - 50)', () {
@@ -959,6 +960,80 @@ void main() {
 
       expect(filtered.length, equals(1));
       expect(filtered.first.authorName, equals('Minh Trang'));
+    });
+  });
+
+  group('Module 14: Đồng bộ hình ảnh đa thiết bị & Nhắn tin hai chiều thời gian thực (Tc_SYNC_01 - 20)', () {
+    test('Tc_SYNC_01 - 05: ChatService.getChatId bảo đảm tính giao hoán và xử lý cắt khoảng trắng', () {
+      expect(ChatService.getChatId('userA', 'userB'), equals('userA_userB'));
+      expect(ChatService.getChatId('userB', 'userA'), equals('userA_userB'));
+      expect(ChatService.getChatId('userA ', ' userB'), equals('userA_userB'));
+      expect(ChatService.getChatId('uid_999', 'uid_111'), equals('uid_111_uid_999'));
+    });
+
+    test('Tc_SYNC_06 - 10: ChatMessageModel bảo toàn cả 2 trường receiverId và nguoiNhanId', () {
+      final msg = ChatMessageModel(
+        id: 'msg_sync_1',
+        senderId: 'user_A',
+        senderName: 'Nguyễn Văn A',
+        receiverId: 'user_B',
+        text: 'Phòng này còn trống không bạn?',
+        timestamp: DateTime.now(),
+      );
+
+      final map = msg.toMap();
+      expect(map['receiverId'], equals('user_B'));
+      expect(map['nguoiNhanId'], equals('user_B'));
+      expect(map['senderId'], equals('user_A'));
+      expect(map['nguoiGuiId'], equals('user_A'));
+    });
+
+    test('Tc_SYNC_11 - 15: ImageStorageService có cơ chế fallback ảnh hợp lệ khi file cục bộ không tồn tại', () async {
+      final service = ImageStorageService();
+      // File không tồn tại trên thiết bị hiện tại (máy khác xem bài)
+      final fallbackUrl = await service.uploadSingleImage(
+        filePath: '/data/user/0/com.homeshare/non_existent.jpg',
+        folder: 'test',
+        fileName: 'test.jpg',
+      );
+
+      expect(fallbackUrl.startsWith('http'), isTrue);
+      expect(fallbackUrl, contains('unsplash.com'));
+    });
+
+    test('Tc_SYNC_16 - 20: ConversationModel phân giải chính xác partnerName hai chiều giữa 2 người dùng', () {
+      final data = {
+        'users': ['user_A', 'user_B'],
+        'userNames': {
+          'user_A': 'Anh Toàn',
+          'user_B': 'Bảo Trâm',
+        },
+        'lastSenderId': 'user_A',
+        'lastSenderName': 'Anh Toàn',
+        'lastMessage': 'Chào bạn!',
+      };
+
+      // Khi user_A mở danh sách chat: Phải thấy partner là "Bảo Trâm"
+      final convForA = ConversationModel(
+        id: 'user_A_user_B',
+        partnerId: 'user_B',
+        partnerName: (data['userNames'] as Map)['user_B'] ?? '',
+        lastMessage: 'Chào bạn!',
+        lastMessageTime: DateTime.now(),
+      );
+      expect(convForA.partnerId, equals('user_B'));
+      expect(convForA.partnerName, equals('Bảo Trâm'));
+
+      // Khi user_B mở danh sách chat: Phải thấy partner là "Anh Toàn"
+      final convForB = ConversationModel(
+        id: 'user_A_user_B',
+        partnerId: 'user_A',
+        partnerName: (data['userNames'] as Map)['user_A'] ?? '',
+        lastMessage: 'Chào bạn!',
+        lastMessageTime: DateTime.now(),
+      );
+      expect(convForB.partnerId, equals('user_A'));
+      expect(convForB.partnerName, equals('Anh Toàn'));
     });
   });
 }

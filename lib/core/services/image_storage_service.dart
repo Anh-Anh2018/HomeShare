@@ -10,7 +10,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// 2. Hỗ trợ Timeout an toàn 12s tránh đơ giao diện khi mạng kém / chưa bật bucket.
 /// 3. Tự động fallback nén dữ liệu Base64 Data URI hoặc link ảnh phòng chuẩn khi Storage gặp sự cố.
 class ImageStorageService {
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final FirebaseStorage? _customStorage;
+
+  ImageStorageService({FirebaseStorage? storage}) : _customStorage = storage;
+
+  FirebaseStorage get _storage => _customStorage ?? FirebaseStorage.instance;
 
   // Danh sách ảnh mẫu phòng trọ chất lượng cao phòng khi Storage offline/thiếu cấu hình
   static const List<String> _sampleRoomImages = [

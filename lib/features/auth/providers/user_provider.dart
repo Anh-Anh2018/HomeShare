@@ -33,8 +33,8 @@ class UserProfile {
 
   // Vietnamese DrawIO Alias Getters
   String get id => uid;
-  String get userCode => (_userCode != null && isValidUserCode(_userCode!))
-      ? _userCode!
+  String get userCode => (_userCode != null && isValidUserCode(_userCode))
+      ? _userCode
       : generateUserCode(seed: uid);
   String get maNguoiDung => userCode;
   String get idNguoiDung => userCode;
