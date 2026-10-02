@@ -634,14 +634,32 @@ class _RenterDashboardScreenState extends ConsumerState<RenterDashboardScreen> {
                 onPressed: () {
                   final currentUser = ref.read(currentUserProvider);
                   final profile = ref.read(userProfileProvider).value;
+                  if (currentUser == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Vui lòng đăng nhập để gửi tin nhắn'),
+                        backgroundColor: AppColors.danger,
+                      ),
+                    );
+                    return;
+                  }
+                  if (currentUser.uid == post.authorId) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Đây là bài đăng của chính bạn')),
+                    );
+                    return;
+                  }
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => ChatDetailScreen(
                         receiverId: post.authorId,
                         receiverName: post.authorName,
-                        currentUserId: currentUser?.uid ?? 'guest',
-                        currentUserName: profile?.displayName ?? 'Khách thuê',
+                        receiverAvatar: post.authorAvatar,
+                        receiverPhone: post.contactPhone,
+                        isLandlord: false,
+                        currentUserId: currentUser.uid,
+                        currentUserName: profile?.displayName ?? currentUser.displayName ?? 'Khách thuê',
                       ),
                     ),
                   );
