@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -21,21 +22,27 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
   final _searchController = TextEditingController();
   String _searchQuery = '';
   String _selectedFilter = 'all'; // 'all', 'landlord', 'roommate', 'unread'
-
-  @override
-  void initState() {
-    super.initState();
-    _searchController.addListener(() {
-      setState(() {
-        _searchQuery = _searchController.text.trim().toLowerCase();
-      });
-    });
-  }
+  Timer? _searchDebounce;
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _onSearchChanged(String value) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 150), () {
+      if (mounted) {
+        final query = value.trim().toLowerCase();
+        if (query != _searchQuery) {
+          setState(() {
+            _searchQuery = query;
+          });
+        }
+      }
+    });
   }
 
   @override
@@ -163,46 +170,55 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       body: Column(
         children: [
           // 1. Thanh tìm kiếm hội thoại Real-time (Tc_CHAT)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            color: Colors.white,
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Tìm kiếm cuộc trò chuyện, phòng trọ...',
-                hintStyle: const TextStyle(fontSize: 13, color: AppColors.textMuted),
-                prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.textMuted),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear, size: 18),
-                        onPressed: () => _searchController.clear(),
-                      )
-                    : null,
-                filled: true,
-                fillColor: const Color(0xFFF3F4F6),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+          RepaintBoundary(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              color: Colors.white,
+              child: TextField(
+                controller: _searchController,
+                onChanged: _onSearchChanged,
+                decoration: InputDecoration(
+                  hintText: 'Tìm kiếm cuộc trò chuyện, phòng trọ...',
+                  hintStyle: const TextStyle(fontSize: 13, color: AppColors.textMuted),
+                  prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.textMuted),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear, size: 18),
+                          onPressed: () {
+                            _searchDebounce?.cancel();
+                            _searchController.clear();
+                            setState(() => _searchQuery = '');
+                          },
+                        )
+                      : null,
+                  filled: true,
+                  fillColor: const Color(0xFFF3F4F6),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
             ),
           ),
 
           // 2. Thanh Filter Chips (Tất cả, Chủ trọ, Ở ghép, Chưa đọc)
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            child: Row(
-              children: [
-                _buildFilterChip('all', 'Tất cả'),
-                const SizedBox(width: 8),
-                _buildFilterChip('landlord', 'Chủ trọ'),
-                const SizedBox(width: 8),
-                _buildFilterChip('roommate', 'Ở ghép'),
-                const SizedBox(width: 8),
-                _buildFilterChip('unread', 'Chưa đọc'),
-              ],
+          RepaintBoundary(
+            child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              child: Row(
+                children: [
+                  _buildFilterChip('all', 'Tất cả'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip('landlord', 'Chủ trọ'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip('roommate', 'Ở ghép'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip('unread', 'Chưa đọc'),
+                ],
+              ),
             ),
           ),
           const Divider(height: 1),
@@ -229,7 +245,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                         OutlinedButton(
                           onPressed: () {
                             setState(() {
+                              _searchDebounce?.cancel();
                               _searchController.clear();
+                              _searchQuery = '';
                               _selectedFilter = 'all';
                             });
                           },
@@ -238,10 +256,13 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                       ],
                     ),
                   )
-                : ListView.separated(
-                    itemCount: filteredConversations.length,
-                    separatorBuilder: (context, index) => const Divider(height: 1, indent: 76),
-                    itemBuilder: (context, index) {
+                : RepaintBoundary(
+                    child: ListView.separated(
+                      physics: const ClampingScrollPhysics(),
+                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                      itemCount: filteredConversations.length,
+                      separatorBuilder: (context, index) => const Divider(height: 1, indent: 76),
+                      itemBuilder: (context, index) {
                       final item = filteredConversations[index];
                       final isUnread = item.unreadCount > 0 || !item.isRead;
                       final displayUnreadCount = item.unreadCount > 0 ? item.unreadCount : (isUnread ? 1 : 0);
@@ -433,7 +454,8 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                     );
                   },
                 ),
-          ),
+              ),
+            ),
         ],
       ),
     );

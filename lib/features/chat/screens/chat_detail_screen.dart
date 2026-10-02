@@ -858,6 +858,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final maxBubbleWidth = MediaQuery.sizeOf(context).width * 0.78;
     final messagesAsync = ref.watch(messagesStreamProvider(ChatParams(
       userA: widget.currentUserId,
       userB: widget.receiverId,
@@ -1026,22 +1027,25 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                       );
                     }
 
-                    return ListView.builder(
-                      controller: _scrollController,
-                      reverse: true,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      addAutomaticKeepAlives: true,
-                      addRepaintBoundaries: true,
-                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                      itemCount: messages.length,
-                      itemBuilder: (context, index) {
-                        final msg = messages[index];
-                        final isMe = msg.senderId == widget.currentUserId;
-                        return RepaintBoundary(
-                          key: ValueKey(msg.id),
-                          child: _buildMessageItem(msg, isMe),
-                        );
-                      },
+                    return RepaintBoundary(
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        reverse: true,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        addAutomaticKeepAlives: true,
+                        addRepaintBoundaries: true,
+                        physics: const ClampingScrollPhysics(),
+                        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                        itemCount: messages.length,
+                        itemBuilder: (context, index) {
+                          final msg = messages[index];
+                          final isMe = msg.senderId == widget.currentUserId;
+                          return RepaintBoundary(
+                            key: ValueKey(msg.id),
+                            child: _buildMessageItem(msg, isMe, maxBubbleWidth),
+                          );
+                        },
+                      ),
                     );
                   },
                   loading: () => const Center(child: CircularProgressIndicator()),
@@ -1050,10 +1054,14 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
               ),
 
               // 4. Thanh câu hỏi gợi ý nhanh (Quick Action Chips - Tc_CHAT_12 -> 14 & SRS 2.10)
-              _buildQuickChipsBar(),
+              RepaintBoundary(
+                child: _buildQuickChipsBar(),
+              ),
 
               // 5. Thanh nhập tin nhắn và đính kèm
-              _buildInputArea(),
+              RepaintBoundary(
+                child: _buildInputArea(),
+              ),
             ],
           ),
 
@@ -1316,7 +1324,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
   }
 
   // Builder cho từng loại bong bóng tin nhắn (Văn bản, Lịch hẹn, Lời mời ở ghép, Vị trí, Ảnh, Audio)
-  Widget _buildMessageItem(ChatMessageModel msg, bool isMe) {
+  Widget _buildMessageItem(ChatMessageModel msg, bool isMe, [double? maxBubbleWidth]) {
     return GestureDetector(
       onLongPress: () => _showMessageContextMenu(msg, isMe),
       child: Align(
@@ -1324,7 +1332,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
         child: Container(
           margin: const EdgeInsets.only(bottom: 8),
           constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.78,
+            maxWidth: maxBubbleWidth ?? (MediaQuery.of(context).size.width * 0.78),
           ),
           child: Column(
             crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,

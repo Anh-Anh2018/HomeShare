@@ -27,15 +27,15 @@ class _RoomBookingDetailScreenState extends ConsumerState<RoomBookingDetailScree
   // Trạng thái: true = Bản thân tôi thuê, false = Đặt hộ người thân
   bool _isBookingForSelf = true;
 
-  // Form controllers cho người ở trực tiếp
-  late final TextEditingController _nameController;
-  late final TextEditingController _ageController;
-  late final TextEditingController _jobController;
-  late final TextEditingController _phoneController;
-  late final TextEditingController _noteController;
+  // Form controllers cho người ở trực tiếp (khởi tạo mặc định tránh LateInitializationError)
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _jobController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _noteController = TextEditingController();
 
   // Kế hoạch dọn vào & ở
-  late DateTime _moveInDate;
+  DateTime _moveInDate = DateTime.now().add(const Duration(days: 1));
   int _rentalMonths = 6;
   int _occupantCount = 1;
   String _renterGender = 'nam'; // 'nam' | 'nu' | 'khac'
@@ -55,16 +55,15 @@ class _RoomBookingDetailScreenState extends ConsumerState<RoomBookingDetailScree
     final realName = profile?.displayName.isNotEmpty == true
         ? profile!.displayName
         : (profile?.cccdFullName.isNotEmpty == true ? profile!.cccdFullName : (user?.displayName ?? ''));
-    _nameController = TextEditingController(text: realName);
+    _nameController.text = realName;
 
     String realAge = '';
     if (profile?.birthDate != null) {
       realAge = '${DateTime.now().year - profile!.birthDate!.year} tuổi';
     }
-    _ageController = TextEditingController(text: realAge);
-    _jobController = TextEditingController(text: profile?.occupation ?? '');
-    _phoneController = TextEditingController(text: profile?.phoneNumber ?? '');
-    _noteController = TextEditingController(); // Để trống, không có mock data fix cứng
+    _ageController.text = realAge;
+    _jobController.text = profile?.occupation ?? '';
+    _phoneController.text = profile?.phoneNumber ?? '';
 
     _renterGender = profile?.gender == 'nu' ? 'nu' : (profile?.gender == 'khac' ? 'khac' : 'nam');
 
@@ -389,7 +388,7 @@ class _RoomBookingDetailScreenState extends ConsumerState<RoomBookingDetailScree
                   width: 80,
                   height: 80,
                   color: const Color(0xFFF1F5F9),
-                  child: widget.room.images.isNotEmpty
+                  child: widget.room.images.isNotEmpty && widget.room.images.first.isNotEmpty
                       ? Image.network(
                           widget.room.images.first,
                           fit: BoxFit.cover,
@@ -1363,14 +1362,18 @@ class _RoomBookingDetailScreenState extends ConsumerState<RoomBookingDetailScree
               ),
             ),
             const SizedBox(height: 8),
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.lock_outline, size: 13, color: Color(0xFF64748B)),
-                SizedBox(width: 4),
-                Text(
-                  'Không trừ phí ngay • Chỉ cọc khi chủ nhà chấp thuận lịch hẹn.',
-                  style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                const Icon(Icons.lock_outline, size: 12, color: Color(0xFF64748B)),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    'Không trừ phí ngay • Chỉ cọc khi chủ nhà chấp thuận lịch hẹn.',
+                    style: const TextStyle(fontSize: 10.5, color: Color(0xFF64748B)),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),

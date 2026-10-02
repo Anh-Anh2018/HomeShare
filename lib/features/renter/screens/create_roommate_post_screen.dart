@@ -385,8 +385,12 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
     ref.listen<AsyncValue<UserProfile?>>(userProfileProvider, (prev, next) {
       final p = next.value;
       if (p != null && mounted) {
-        setState(() {
-          _syncFromProfile(p, force: false);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            setState(() {
+              _syncFromProfile(p, force: false);
+            });
+          }
         });
       }
     });
@@ -426,6 +430,8 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
           } else {
             if (Navigator.canPop(context)) {
               Navigator.pop(context);
+            } else {
+              ref.read(renterBottomNavIndexProvider.notifier).setIndex(0);
             }
           }
         },

@@ -1082,3 +1082,43 @@ Thực hiện yêu cầu của người dùng: *"làm phần chi tiết ở ghé
      - Đã thêm remote 
 huquynh: https://github.com/23211tt0240-NhuQuynh/homeshare.git.
      - Đẩy mã nguồn đăng ký/đăng nhập hoàn thiện lên repository theo yêu cầu.
+
+
+---
+
+### Phase 2.22: Sửa Triệt Để Lỗi Trắng Màn Hình (Đăng Tin & Đặt Phòng), Sửa Lỗi Tràn 2px, Bộ Lọc 3 Cấp & Tối Ưu Mượt Mà Khi Mở Bàn Phím
+* **Ngày hoàn thành:** 02/10/2026
+* **Yêu cầu người dùng:** "lỗi phân đăng bài ,phần tin nhắn mới ở danh sách tin nhắn nếu chưa đọc thì phải đậm chử và có số lượng tin nhắn chưa đọc, cá nhân có thể nhấn vào avt tên nói chung là nguyên phần có avt thì sẻ chuyển qua màn hình chi tiết" & "fix những lỗi này và tối ưu lại phần mở phím khi nhắn tin hay tìm kiếm nó bị lag và cập nhạt những lỗi vào tiendo"
+* **Chi tiết lỗi được phát hiện & Phân tích nguyên nhân gốc rễ:**
+  1. **Lỗi Đăng bài bị trắng tinh (CreateRoommatePostScreen - Hình 1):**
+     - *Hiện tượng:* Tab "Đăng tin" ở Bottom Navigation sau AppBar bị trắng toàn bộ phần thân màn hình.
+     - *Nguyên nhân:* Trong phương thức `build()`, có lệnh `ref.listen` trực tiếp gọi `setState()` khi Riverpod phát hiện UserProfile. Trên Flutter (đặc biệt Release mode trên thiết bị thật), việc gọi `setState` trực tiếp trong pha layout/build ném exception `setState() or markNeedsBuild() called during build`, khiến Flutter ẩn widget thành `SizedBox.shrink()` (màn hình trắng).
+     - *Khắc phục:* Bọc logic cập nhật form trong `WidgetsBinding.instance.addPostFrameCallback`. Nút quay lại trên AppBar khi nằm trong BottomNav (không thể pop) được cấu hình chuyển mượt về Tab 0 ("Khám phá").
+  2. **Lỗi Trang chủ / Tìm kiếm phòng (SearchFilterScreen - Hình 2):**
+     - *Hiện tượng:* AppBar hiển thị nút `<` và text cứng `Trang Chủ`; Bộ lọc chỉ có 2 cấp (Tỉnh/TP và Phường/Xã - thiếu Quận/Huyện); Tìm kiếm ra "0 phòng" ("Không tìm thấy phòng phù hợp").
+     - *Nguyên nhân:* AppBar hardcode chữ "Trang Chủ"; danh sách Phường/Xã lại gọi nhầm hàm lấy danh sách Quận; biến `_selectedAmenities` khởi tạo sẵn 5 tiêu chí lọc cứng và `_priceRange` bị thu hẹp (2M-5M) khiến toàn bộ phòng sẵn có trong hệ thống bị loại bỏ.
+     - *Khắc phục:*
+       + Thay mới AppBar: Logo HomeShare xanh lục + Tên app `HomeShare` + Slogan "Tìm phòng & Ở ghép thông minh".
+       + Xây dựng bộ lọc 3 cấp hành chính chuẩn Việt Nam: **1. Tỉnh / TP** -> **2. Quận / Huyện** -> **3. Phường / Xã** (tích hợp `VietnamLocations.getAdministrativeDistricts` & `VietnamLocations.getWards`).
+       + Đưa bộ lọc tiện ích mặc định về rỗng (`_selectedAmenities = {}`) và dải giá mặc định bao phủ toàn bộ (0 - 20 triệu) để luôn hiển thị danh sách phòng phong phú ngay khi vừa vào màn hình, kèm nút "Xem tất cả phòng có sẵn".
+  3. **Lỗi Chi tiết đặt phòng (RoomBookingDetailScreen - Hình 3):**
+     - *Hiện tượng:* Body màn hình đặt phòng bị trắng dữ liệu; góc phải dưới thanh đặt phòng bị lỗi đỏ `A RenderFlex overflowed by 2.0 pixels on the right`.
+     - *Nguyên nhân:* Lỗi tràn 2.0px do dòng ghi chú bảo vệ trong Row không có `Flexible` trên màn hình hẹp (360-390dp); Trắng body do các biến `late final` (`late final TextEditingController`, `late DateTime _moveInDate`) gặp ngoại lệ `LateInitializationError` nếu initState bị gián đoạn.
+     - *Khắc phục:* Khởi tạo trực tiếp controllers an toàn ngay tại dòng khai báo; Bọc dòng text bảo vệ trong `Flexible` với kích thước font 11.5sp và icon 14sp co giãn responsive; Guard an toàn ảnh phòng `widget.room.images.first.isNotEmpty`.
+  4. **Tối ưu triệt để hiện tượng giật lag khi mở bàn phím nhắn tin & tìm kiếm:**
+     - *Hiện tượng:* Khi mở bàn phím nhắn tin trong `ChatDetailScreen` hoặc gõ tìm kiếm trong `ChatListScreen` và bộ lọc tìm kiếm, giao diện bị giật khung hình (frame drops), gõ chữ bị khựng.
+     - *Nguyên nhân:*
+       + Khi bàn phím xuất hiện, `viewInsets.bottom` thay đổi liên tục trên từng frame animation (15-20 frames). Toàn bộ `ListView.builder` và các widget con bị rebuild và repaint lại toàn bộ do thiếu `RepaintBoundary`.
+       + `MediaQuery.of(context)` được gọi cục bộ trong từng bubble tin nhắn (`maxWidth: MediaQuery.of(context).size.width * 0.78`) khiến mọi item đều lắng nghe và bị layout lại khi bàn phím đổi kích thước viewport.
+       + Trong `ChatListScreen`, listener `_searchController.addListener(setState)` lắng nghe từng ký tự gõ không debounce, khiến bộ gõ tiếng Việt (Telex) với các ký tự tổ hợp dấu kích hoạt rebuild liên tục toàn màn hình.
+       + Trong `_LocationSearchBottomSheet`, thiếu xử lý bù trừ `viewInsets.bottom` khiến bottom sheet bị bàn phím che khuất hoặc giật.
+     - *Khắc phục:*
+       + `ChatDetailScreen`: Cô lập render với `RepaintBoundary` cho `ListView.builder`, `_buildQuickChipsBar()`, `_buildInputArea()`; thêm `physics: const ClampingScrollPhysics()`; precompute `maxBubbleWidth` bằng `MediaQuery.sizeOf(context)` một lần duy nhất tại hàm `build()`.
+       + `ChatListScreen`: Thêm cơ chế debounce 150ms cho `TextField.onChanged`, bọc thanh Search Bar, Filter Chips và `ListView.separated` trong `RepaintBoundary`.
+       + `_LocationSearchBottomSheet`: Bọc `Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom))` và `RepaintBoundary` cho danh sách địa điểm.
+* **Kết quả kiểm thử & Phân tích:**
+  - `flutter test`: **68/68 test cases PASSED 100%**.
+  - `flutter analyze`: **0 errors** trên toàn bộ các file sửa đổi.
+  - Đã biên dịch APK và cài đặt trực tiếp lên điện thoại thật Android 16 (`25100RA69G` / `lj6hwwwgauugwkci`).
+* **Quy tắc phân nhánh Git:**
+  - Toàn bộ commit và push được thực hiện **CHỈ TRÊN BRANCH homeshare** của `origin`, tuyệt đối **KHÔNG CẬP NHẬT NHÁNH main** và **KHÔNG PUSH VÀO REPO NHUQUYNH**.

@@ -22,34 +22,29 @@ class SearchFilterScreen extends ConsumerStatefulWidget {
 class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
   final currencyFormatter = NumberFormat('#,###', 'vi_VN');
 
-  // 1. Khu vực state
+  // 1. Khu vực state 3 cấp đầy đủ: Tỉnh/TP -> Quận/Huyện -> Phường/Xã
   String _selectedCity = 'TP. Hồ Chí Minh';
   String _selectedDistrict = 'Tất cả';
-  String _rentalType = 'single'; // 'single' (Ở 1 mình), 'shared' (Ở ghép), 'all' (Khác / Cả hai)
+  String _selectedWard = 'Tất cả';
+  String _rentalType = 'all'; // 'all' (Tất cả), 'single' (Ở 1 mình), 'shared' (Ở ghép)
 
   // 2. Bộ lọc nâng cao state
   bool _isAdvancedExpanded = false;
   bool _hasSearched = false;
 
-  // Giá thuê
-  RangeValues _priceRange = const RangeValues(2000000, 5000000);
+  // Giá thuê mặc định mở rộng tối đa (0 - 20.000.000đ) để không lọc mất dữ liệu phòng
+  RangeValues _priceRange = const RangeValues(0, 20000000);
   final double _minPriceLimit = 0;
   final double _maxPriceLimit = 20000000;
 
   // Diện tích
-  RangeValues _areaRange = const RangeValues(20, 60);
+  RangeValues _areaRange = const RangeValues(10, 200);
   final double _minAreaLimit = 10;
   final double _maxAreaLimit = 200;
 
-  // Tiện ích & Yêu cầu
+  // Tiện ích & Yêu cầu - Mặc định RỖNG để luôn hiển thị các phòng hiện có
   final TextEditingController _customAmenityController = TextEditingController();
-  final Set<String> _selectedAmenities = {
-    'Máy lạnh',
-    'Có gác lửng',
-    'Chỗ để xe miễn phí',
-    'Giờ giấc tự do',
-    'Gần trường ĐH / Bến xe',
-  };
+  final Set<String> _selectedAmenities = {};
 
   final List<String> _availableAmenities = [
     'Máy lạnh',
@@ -67,7 +62,17 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
   // Sắp xếp
   String _selectedSort = 'newest';
 
-  List<String> get _districts => VietnamLocations.getDistricts(_selectedCity);
+  List<String> get _districts {
+    if (_selectedCity == 'Tất cả') return const ['Tất cả'];
+    final list = VietnamLocations.getAdministrativeDistricts(_selectedCity);
+    return ['Tất cả', ...list];
+  }
+
+  List<String> get _wards {
+    if (_selectedCity == 'Tất cả' || _selectedDistrict == 'Tất cả') return const ['Tất cả'];
+    final list = VietnamLocations.getWards(_selectedCity, _selectedDistrict);
+    return ['Tất cả', ...list];
+  }
 
   void _showCityPicker() {
     showModalBottomSheet(
@@ -84,6 +89,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
           setState(() {
             _selectedCity = val;
             _selectedDistrict = 'Tất cả';
+            _selectedWard = 'Tất cả';
           });
         },
       ),
@@ -98,15 +104,46 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => _LocationSearchBottomSheet(
         title: _selectedCity == 'Tất cả'
-            ? 'Chọn Phường / Xã'
-            : 'Chọn Phường / Xã ($_selectedCity)',
-        searchHint: 'Tìm quận, huyện, thị xã, phường, xã...',
+            ? 'Chọn Quận / Huyện'
+            : 'Chọn Quận / Huyện ($_selectedCity)',
+        searchHint: 'Tìm quận, huyện, thị xã...',
         items: districts,
         selectedItem: _selectedDistrict,
-        allLabel: 'Tất cả Phường / Xã',
+        allLabel: 'Tất cả Quận / Huyện',
         onSelected: (val) {
           setState(() {
             _selectedDistrict = val;
+            _selectedWard = 'Tất cả';
+          });
+        },
+      ),
+    );
+  }
+
+  void _showWardPicker() {
+    if (_selectedDistrict == 'Tất cả') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng chọn Quận / Huyện trước khi chọn Phường / Xã'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+    final wards = _wards;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _LocationSearchBottomSheet(
+        title: 'Chọn Phường / Xã ($_selectedDistrict)',
+        searchHint: 'Tìm phường, xã, thị trấn...',
+        items: wards,
+        selectedItem: _selectedWard,
+        allLabel: 'Tất cả Phường / Xã',
+        onSelected: (val) {
+          setState(() {
+            _selectedWard = val;
           });
         },
       ),
@@ -135,17 +172,14 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
     setState(() {
       _selectedCity = 'TP. Hồ Chí Minh';
       _selectedDistrict = 'Tất cả';
-      _rentalType = 'single';
-      _priceRange = const RangeValues(2000000, 5000000);
-      _areaRange = const RangeValues(20, 60);
+      _selectedWard = 'Tất cả';
+      _rentalType = 'all';
+      _priceRange = const RangeValues(0, 20000000);
+      _areaRange = const RangeValues(10, 200);
       _selectedAmenities.clear();
-      _selectedAmenities.addAll([
-        'Máy lạnh',
-        'Có gác lửng',
-        'Chỗ để xe miễn phí',
-        'Giờ giấc tự do',
-      ]);
       _selectedSort = 'newest';
+      _hasSearched = false;
+      _isAdvancedExpanded = false;
     });
   }
 
@@ -236,16 +270,21 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
   Widget build(BuildContext context) {
     final profile = ref.watch(userProfileProvider).value;
 
-    // Filter Params for Stream
+    // Xử lý bộ lọc địa giới hành chính (Ưu tiên Phường/Xã -> Quận/Huyện -> Tỉnh/TP)
+    final filterDistrict = _selectedWard != 'Tất cả'
+        ? _selectedWard
+        : (_selectedDistrict != 'Tất cả' ? _selectedDistrict : 'Tất cả');
+
+    // Filter Params for Stream (Chỉ áp dụng bộ lọc nâng cao khi người dùng mở rộng)
     final filterParams = RoomFilterParams(
       city: _selectedCity,
-      district: _selectedDistrict,
+      district: filterDistrict,
       rentalType: _rentalType,
-      minPrice: _priceRange.start,
-      maxPrice: _priceRange.end,
-      minArea: _areaRange.start,
-      maxArea: _areaRange.end,
-      amenities: _selectedAmenities.toList(),
+      minPrice: _isAdvancedExpanded && _priceRange.start > 0 ? _priceRange.start : null,
+      maxPrice: _isAdvancedExpanded && _priceRange.end < 20000000 ? _priceRange.end : null,
+      minArea: _isAdvancedExpanded && _areaRange.start > 10 ? _areaRange.start : null,
+      maxArea: _isAdvancedExpanded && _areaRange.end < 200 ? _areaRange.end : null,
+      amenities: _isAdvancedExpanded ? _selectedAmenities.toList() : const [],
       sortBy: _selectedSort,
     );
 
@@ -254,20 +293,75 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAF9),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
-          tooltip: 'Quay lại',
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Trang Chủ',
-          style: TextStyle(
-            color: AppColors.textDark,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
+        centerTitle: false,
+        title: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppColors.primary, AppColors.primaryLight],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.22),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.home_work_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Text(
+                      'Home',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.textDark,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    Text(
+                      'Share',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.primary,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                  ],
+                ),
+                const Text(
+                  'Tìm phòng & Ở ghép thông minh',
+                  style: TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textMuted,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
         actions: [
           IconButton(
@@ -423,9 +517,9 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
           ),
           const SizedBox(height: 12),
 
-          // Phường / Xã
+          // 2. Quận / Huyện *
           const Text(
-            'Phường / Xã',
+            'Quận / Huyện *',
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textDark),
           ),
           const SizedBox(height: 6),
@@ -440,15 +534,51 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.map_outlined, size: 18, color: AppColors.textMuted),
+                  const Icon(Icons.location_city_outlined, size: 18, color: AppColors.primary),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      _selectedDistrict == 'Tất cả' ? 'Chọn Phường / Xã' : _selectedDistrict,
+                      _selectedDistrict == 'Tất cả' ? 'Chọn Quận / Huyện' : _selectedDistrict,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: _selectedDistrict == 'Tất cả' ? FontWeight.normal : FontWeight.w500,
                         color: _selectedDistrict == 'Tất cả' ? AppColors.textMuted : AppColors.textDark,
+                      ),
+                    ),
+                  ),
+                  const Icon(Icons.keyboard_arrow_down, color: AppColors.textDark),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // 3. Phường / Xã
+          const Text(
+            'Phường / Xã',
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textDark),
+          ),
+          const SizedBox(height: 6),
+          InkWell(
+            onTap: _showWardPicker,
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF3F4F6),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.map_outlined, size: 18, color: AppColors.textMuted),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _selectedWard == 'Tất cả' ? 'Chọn Phường / Xã' : _selectedWard,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: _selectedWard == 'Tất cả' ? FontWeight.normal : FontWeight.w500,
+                        color: _selectedWard == 'Tất cả' ? AppColors.textMuted : AppColors.textDark,
                       ),
                     ),
                   ),
@@ -1052,31 +1182,47 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
         roomsAsync.when(
           data: (rooms) {
             if (rooms.isEmpty) {
-              return Container(
-                padding: const EdgeInsets.all(32),
-                child: Center(
-                  child: Column(
-                    children: [
-                      Icon(Icons.search_off, size: 54, color: Colors.grey.shade400),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Không tìm thấy phòng phù hợp',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              return Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                    ),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Icon(Icons.search_off, size: 52, color: Colors.grey.shade400),
+                          const SizedBox(height: 10),
+                          const Text(
+                            'Chưa tìm thấy phòng khớp chính xác',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Hãy thử điều chỉnh bộ lọc hoặc bấm nút bên dưới để xem toàn bộ phòng trọ có sẵn.',
+                            style: TextStyle(color: AppColors.textMuted, fontSize: 12.5),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 14),
+                          ElevatedButton.icon(
+                            onPressed: _resetFilters,
+                            icon: const Icon(Icons.refresh, size: 16),
+                            label: const Text('Xem tất cả phòng có sẵn'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 6),
-                      const Text(
-                        'Thử điều chỉnh lại khoảng giá hoặc khu vực tìm kiếm nhé.',
-                        style: TextStyle(color: AppColors.textMuted, fontSize: 13),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 14),
-                      OutlinedButton(
-                        onPressed: _resetFilters,
-                        child: const Text('Xem tất cả phòng'),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               );
             }
 
@@ -1353,132 +1499,139 @@ class _LocationSearchBottomSheetState extends State<_LocationSearchBottomSheet> 
              (item == 'Tất cả' && cleanAllLabel.contains(cleanQuery));
     }).toList();
 
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.75,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        children: [
-          const SizedBox(height: 10),
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Tiêu đề BottomSheet
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    widget.title,
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textDark,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: AppColors.textMuted),
-                  onPressed: () => Navigator.pop(context),
-                  tooltip: 'Đóng',
-                ),
-              ],
-            ),
-          ),
-          // Ô tìm kiếm nhanh
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            Container(
+              width: 40,
+              height: 4,
               decoration: BoxDecoration(
-                color: const Color(0xFFF3F4F6),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: TextField(
-                controller: _searchController,
-                autofocus: false,
-                decoration: InputDecoration(
-                  hintText: widget.searchHint,
-                  hintStyle: const TextStyle(fontSize: 14, color: AppColors.textMuted),
-                  icon: const Icon(Icons.search, size: 20, color: AppColors.primary),
-                  border: InputBorder.none,
-                  suffixIcon: _query.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear, size: 18, color: AppColors.textMuted),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() => _query = '');
-                          },
-                        )
-                      : null,
-                ),
-                onChanged: (val) => setState(() => _query = val),
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
-          ),
-          const Divider(height: 1, color: Color(0xFFE5E7EB)),
-          // Danh sách các địa điểm
-          Expanded(
-            child: filteredItems.isEmpty
-                ? const Center(
+            const SizedBox(height: 12),
+            // Tiêu đề BottomSheet
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  Expanded(
                     child: Text(
-                      'Không tìm thấy khu vực phù hợp',
-                      style: TextStyle(color: AppColors.textMuted, fontSize: 14),
+                      widget.title,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textDark,
+                      ),
                     ),
-                  )
-                : ListView.separated(
-                    itemCount: filteredItems.length,
-                    separatorBuilder: (_, _) => const Divider(height: 1, indent: 56, color: Color(0xFFF3F4F6)),
-                    itemBuilder: (ctx, index) {
-                      final item = filteredItems[index];
-                      final isSelected = item == widget.selectedItem;
-                      final isAll = item == 'Tất cả';
-
-                      return ListTile(
-                        leading: Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: isSelected ? const Color(0xFFE8F5E9) : const Color(0xFFF3F4F6),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            isAll
-                                ? Icons.location_on_outlined
-                                : Icons.near_me_outlined,
-                            size: 18,
-                            color: isSelected ? AppColors.primary : AppColors.textMuted,
-                          ),
-                        ),
-                        title: Text(
-                          isAll ? widget.allLabel : item,
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                            color: isSelected ? AppColors.primary : AppColors.textDark,
-                          ),
-                        ),
-                        trailing: isSelected
-                            ? const Icon(Icons.check_circle, color: AppColors.primary, size: 20)
-                            : null,
-                        onTap: () {
-                          widget.onSelected(item);
-                          Navigator.pop(context);
-                        },
-                      );
-                    },
                   ),
-          ),
-        ],
+                  IconButton(
+                    icon: const Icon(Icons.close, color: AppColors.textMuted),
+                    onPressed: () => Navigator.pop(context),
+                    tooltip: 'Đóng',
+                  ),
+                ],
+              ),
+            ),
+            // Ô tìm kiếm nhanh
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3F4F6),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: TextField(
+                  controller: _searchController,
+                  autofocus: false,
+                  decoration: InputDecoration(
+                    hintText: widget.searchHint,
+                    hintStyle: const TextStyle(fontSize: 14, color: AppColors.textMuted),
+                    icon: const Icon(Icons.search, size: 20, color: AppColors.primary),
+                    border: InputBorder.none,
+                    suffixIcon: _query.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, size: 18, color: AppColors.textMuted),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() => _query = '');
+                            },
+                          )
+                        : null,
+                  ),
+                  onChanged: (val) => setState(() => _query = val),
+                ),
+              ),
+            ),
+            const Divider(height: 1, color: Color(0xFFE5E7EB)),
+            // Danh sách các địa điểm
+            Expanded(
+              child: filteredItems.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'Không tìm thấy khu vực phù hợp',
+                        style: TextStyle(color: AppColors.textMuted, fontSize: 14),
+                      ),
+                    )
+                  : RepaintBoundary(
+                      child: ListView.separated(
+                        physics: const ClampingScrollPhysics(),
+                        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                        itemCount: filteredItems.length,
+                        separatorBuilder: (_, _) => const Divider(height: 1, indent: 56, color: Color(0xFFF3F4F6)),
+                        itemBuilder: (ctx, index) {
+                          final item = filteredItems[index];
+                          final isSelected = item == widget.selectedItem;
+                          final isAll = item == 'Tất cả';
+
+                          return ListTile(
+                            leading: Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: isSelected ? const Color(0xFFE8F5E9) : const Color(0xFFF3F4F6),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                isAll
+                                    ? Icons.location_on_outlined
+                                    : Icons.near_me_outlined,
+                                size: 18,
+                                color: isSelected ? AppColors.primary : AppColors.textMuted,
+                              ),
+                            ),
+                            title: Text(
+                              isAll ? widget.allLabel : item,
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                                color: isSelected ? AppColors.primary : AppColors.textDark,
+                              ),
+                            ),
+                            trailing: isSelected
+                                ? const Icon(Icons.check_circle, color: AppColors.primary, size: 20)
+                                : null,
+                            onTap: () {
+                              widget.onSelected(item);
+                              Navigator.pop(context);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
