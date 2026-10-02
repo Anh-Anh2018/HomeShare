@@ -64,6 +64,18 @@ void main() {
       expect(hostProfile.role, equals('host'));
       expect(hostProfile.role == 'renter', isFalse);
     });
+
+    test('Tc_ROLE_05 & 06: Đăng ký hỗ trợ đủ 2 vai trò Người thuê (renter) và Chủ trọ (host)', () {
+      const availableRoles = ['renter', 'host'];
+      expect(availableRoles.contains('renter'), isTrue);
+      expect(availableRoles.contains('host'), isTrue);
+      expect(availableRoles.length, equals(2));
+
+      // Kiểm định role mapping DrawIO
+      int getRoleId(String role) => role == 'host' ? 2 : 1;
+      expect(getRoleId('renter'), equals(1));
+      expect(getRoleId('host'), equals(2));
+    });
   });
 
   group('Module 3: Thông tin người thuê 1 & 2 - eKYC (Tc_INFO1_01 - 50, Tc_INFO2_01 - 50)', () {

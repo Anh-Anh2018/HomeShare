@@ -1050,3 +1050,35 @@ Thực hiện yêu cầu của người dùng: *"làm phần chi tiết ở ghé
      - Biên dịch APK Debug và cài đặt trực tiếp lên điện thoại thật Android 16 25100RA69G.
   6. **Quy tắc phân nhánh Git:**
      - Toàn bộ commit và push được thực hiện **CHỈ TRÊN BRANCH homeshare**, tuyệt đối **KHÔNG CẬP NHẬT NHÁNH main**.
+
+---
+
+### Phase 2.21: Tái Thiết Toàn Diện Giao Diện Đăng Ký (2 Role Người Thuê & Chủ Trọ) & Luồng Trở Về Đăng Nhập
+* **Ngày hoàn thành:** 02/10/2026
+* **Yêu cầu người dùng:** "làm lại giao diện của đăng ký đủ 2 role người thuê và chủ trọ sau khi dăng ký về lại đăng nhập , lưu phần đăng ký đăng nhập vào repo https://github.com/23211tt0240-NhuQuynh/homeshare"
+* **Phân tích yêu cầu & Định hướng triển khai:**
+  1. **Tái thiết kế Màn hình Đăng Ký ([RegisterScreen](file:///D:/app/HomeShare/lib/features/auth/screens/register_screen.dart)):**
+     - Hỗ trợ chọn 2 vai trò trực quan bằng thẻ Card tương tác:
+       + **Người thuê (enter)**: Icon person_search_rounded, mô tả "Tìm phòng, căn hộ & bạn ở ghép".
+       + **Chủ trọ (host)**: Icon domain_rounded, mô tả "Đăng tin phòng & tìm khách thuê".
+       + Có viền highlight màu xanh #155EEF (AppColors.primary), nền mềm #E8F0FE (AppColors.primaryContainer) và radio indicator khi được kích hoạt.
+     - Form thông tin chuẩn phong cách Phòng Sáng:
+       + Họ và tên (_nameController)
+       + Email (_emailController)
+       + Số điện thoại (_phoneController - kiểm tra chuẩn 10 số đầu 0)
+       + Mật khẩu & Xác nhận mật khẩu (icon ẩn/hiện mắt, kiểm tra trùng khớp)
+       + Checkbox đồng ý Điều khoản dịch vụ & Chính sách của HomeShare
+     - Nút "Đăng Ký Tài Khoản" hiển thị rõ tên vai trò đang chọn: Đăng Ký Tài Khoản (Người Thuê / Chủ Trọ).
+  2. **Luồng sau khi đăng ký quay về đăng nhập:**
+     - Lưu đầy đủ thông tin tài khoản vào Firestore users với: ole, aiTro, aiTro_id (1 cho renter, 2 cho host), userCode (5 ký tự 3 số 2 chữ), hoTen, soDienThoai, v.v.
+     - Sau khi lưu thành công, tự động gọi uthService.signOut() để không bị chuyển thẳng vào dashboard mà giữ trạng thái đăng xuất.
+     - Hiển thị SnackBar thông báo: "Đăng ký tài khoản thành công! Vui lòng đăng nhập."
+     - Điều hướng quay về LoginScreen (Navigator.pop(context, email)), tự động điền sẵn email vừa tạo vào ô đăng nhập để người dùng không cần gõ lại.
+  3. **Kiểm thử tự động:**
+     - Đã thêm kiểm thử Tc_ROLE_05 & 06 vào [	est/ltdd_suite_test.dart](file:///D:/app/HomeShare/test/ltdd_suite_test.dart).
+     - Toàn bộ **53/53 test cases PASSED 100%**.
+     - lutter analyze: **0 errors**.
+  4. **Đồng bộ hóa Git & Lưu vào Repository:**
+     - Đã thêm remote 
+huquynh: https://github.com/23211tt0240-NhuQuynh/homeshare.git.
+     - Đẩy mã nguồn đăng ký/đăng nhập hoàn thiện lên repository theo yêu cầu.

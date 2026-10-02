@@ -16,6 +16,7 @@ class AppColors {
   static const Color background = PhongSangColors.paper;      // Nền app (--paper #F3F6FB)
   static const Color surface = PhongSangColors.card;          // Thẻ card (--card #FFFFFF)
   static const Color surfaceVariant = PhongSangColors.priceSoft; // Nền tag/chip lọc (--price-soft #F2F4F7)
+  static const Color priceSoft = PhongSangColors.priceSoft;      // Nền tag/chip lọc chuẩn PhongSangColors
   static const Color border = PhongSangColors.line;           // Viền (--line #E4E7EC)
   static const Color borderDark = PhongSangColors.ink;        // Viền đậm nét
   static const Color noteHighlight = Color(0xFFFEFFDD);       // Màu ghi chú vàng nhạt

@@ -60,10 +60,17 @@ class AuthService {
           'idNguoiDung': userCode,
           'email': email.trim(),
           'displayName': displayName.trim(),
+          'hoTen': displayName.trim(),
           'phoneNumber': phoneNumber ?? '',
+          'soDienThoai': phoneNumber ?? '',
           'role': role,
+          'vaiTro': role,
+          'vaiTro_id': role == 'host' ? 2 : 1,
+          'diemUyTin': 100,
           'avatarUrl': '',
+          'anhDaiDien': '',
           'createdAt': FieldValue.serverTimestamp(),
+          'ngayTao': FieldValue.serverTimestamp(),
         });
       }
 

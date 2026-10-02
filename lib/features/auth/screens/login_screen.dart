@@ -5,7 +5,8 @@ import '../providers/auth_provider.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+  final String? initialEmail;
+  const LoginScreen({super.key, this.initialEmail});
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -13,10 +14,16 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  late final TextEditingController _emailController;
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController(text: widget.initialEmail ?? '');
+  }
 
   @override
   void dispose() {
@@ -223,13 +230,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         style: TextStyle(color: AppColors.textMuted),
                       ),
                       GestureDetector(
-                        onTap: () {
-                          Navigator.push(
+                        onTap: () async {
+                          final registeredEmail = await Navigator.push<String>(
                             context,
                             MaterialPageRoute(
                               builder: (_) => const RegisterScreen(),
                             ),
                           );
+                          if (registeredEmail != null && registeredEmail.isNotEmpty && mounted) {
+                            setState(() {
+                              _emailController.text = registeredEmail;
+                              _passwordController.clear();
+                            });
+                          }
                         },
                         child: const Text(
                           'Đăng ký ngay',
