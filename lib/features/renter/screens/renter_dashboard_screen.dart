@@ -129,6 +129,7 @@ class _RenterDashboardScreenState extends ConsumerState<RenterDashboardScreen> {
           ref.invalidate(roommatePostsStreamProvider);
         },
         child: SingleChildScrollView(
+          primary: false,
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

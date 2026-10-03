@@ -1,14 +1,43 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image/image.dart' as img;
 
-/// Dịch vụ tải ảnh đa phương tiện đồng bộ cho toàn bộ ứng dụng HomeShare
-/// Đảm bảo ảnh luôn hiển thị được trên tất cả các thiết bị khác nhau:
-/// 1. Ưu tiên tải lên Firebase Storage lấy public downloadURL.
-/// 2. Hỗ trợ Timeout an toàn 12s tránh đơ giao diện khi mạng kém / chưa bật bucket.
-/// 3. Tự động fallback nén dữ liệu Base64 Data URI hoặc link ảnh phòng chuẩn khi Storage gặp sự cố.
+/// Nén ảnh phòng về JPEG nhỏ để nhét vừa tài liệu Firestore
+/// và để tài khoản khác giải mã được mà không cần file trên máy đăng bài.
+Uint8List compressRoomPhoto(Uint8List bytes) {
+  final decoded = img.decodeImage(bytes);
+  if (decoded == null) return bytes;
+
+  final oriented = img.bakeOrientation(decoded);
+  var working = oriented.width > 1280
+      ? img.copyResize(oriented, width: 1280)
+      : oriented;
+
+  var quality = 62;
+  var encoded = img.encodeJpg(working, quality: quality);
+  while (encoded.length > 90 * 1024 && quality > 36) {
+    quality -= 8;
+    encoded = img.encodeJpg(working, quality: quality);
+  }
+
+  if (encoded.length > 110 * 1024) {
+    working = img.copyResize(working, width: 960);
+    encoded = img.encodeJpg(working, quality: 40);
+  }
+
+  return Uint8List.fromList(encoded);
+}
+
+/// Lưu ảnh phòng sao cho mọi tài khoản đọc bài đăng đều thấy đúng ảnh đã chọn.
+///
+/// 1. Nén JPEG trước khi gửi.
+/// 2. Ưu tiên Firebase Storage để lấy `downloadUrl`.
+/// 3. Nếu Storage lỗi, ghi Data URI của chính ảnh đã nén vào Firestore.
+/// Không thay ảnh người dùng bằng ảnh mẫu.
 class ImageStorageService {
   final FirebaseStorage? _customStorage;
 
@@ -16,23 +45,13 @@ class ImageStorageService {
 
   FirebaseStorage get _storage => _customStorage ?? FirebaseStorage.instance;
 
-  // Danh sách ảnh mẫu phòng trọ chất lượng cao phòng khi Storage offline/thiếu cấu hình
-  static const List<String> _sampleRoomImages = [
-    'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800',
-    'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=800',
-    'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800',
-    'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
-    'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800',
-  ];
-
-  /// Tải 1 ảnh lên Firebase Storage với cơ chế fallback tự động
+  /// Trả về URL hoặc Data URI. Chuỗi rỗng khi không có ảnh thật để chia sẻ.
   Future<String> uploadSingleImage({
     required String filePath,
     required String folder,
     required String fileName,
     int sampleIndex = 0,
   }) async {
-    // Nếu là URL online sẵn hoặc Base64 data thì giữ nguyên
     if (filePath.startsWith('http://') ||
         filePath.startsWith('https://') ||
         filePath.startsWith('data:image')) {
@@ -41,8 +60,17 @@ class ImageStorageService {
 
     final file = File(filePath);
     if (!file.existsSync()) {
-      debugPrint('[ImageStorageService] File không tồn tại tại $filePath, dùng ảnh fallback.');
-      return _sampleRoomImages[sampleIndex % _sampleRoomImages.length];
+      debugPrint('[ImageStorageService] Không có file tại $filePath, bỏ qua ảnh này.');
+      return '';
+    }
+
+    final Uint8List compressed;
+    try {
+      final raw = await file.readAsBytes();
+      compressed = await compute(compressRoomPhoto, raw);
+    } catch (e) {
+      debugPrint('[ImageStorageService] Không nén được ảnh: $e');
+      return '';
     }
 
     try {
@@ -51,51 +79,44 @@ class ImageStorageService {
         contentType: 'image/jpeg',
         customMetadata: {'uploadedAt': DateTime.now().toIso8601String()},
       );
-
-      final uploadTask = storageRef.putFile(file, metadata);
-      final snapshot = await uploadTask.timeout(const Duration(seconds: 12));
+      final snapshot = await storageRef
+          .putData(compressed, metadata)
+          .timeout(const Duration(seconds: 20));
       final downloadUrl = await snapshot.ref.getDownloadURL();
-      debugPrint('[ImageStorageService] Tải ảnh lên Firebase Storage thành công: $downloadUrl');
+      debugPrint('[ImageStorageService] Đã tải ảnh lên Storage: $downloadUrl');
       return downloadUrl;
     } catch (e) {
-      debugPrint('[ImageStorageService] Lỗi upload Firebase Storage ($e), tiến hành fallback đa nền tảng...');
-
-      try {
-        // Fallback 1: Nếu file nhỏ hơn 300KB, mã hóa Base64 Data URI để các máy khác hiển thị được 100%
-        final fileLength = await file.length();
-        if (fileLength <= 300 * 1024) {
-          final bytes = await file.readAsBytes();
-          final base64String = base64Encode(bytes);
-          return 'data:image/jpeg;base64,$base64String';
-        }
-      } catch (encodeErr) {
-        debugPrint('[ImageStorageService] Lỗi mã hóa Base64: $encodeErr');
-      }
-
-      // Fallback 2: Sử dụng bộ ảnh phòng chuẩn đẹp của HomeShare
-      return _sampleRoomImages[sampleIndex % _sampleRoomImages.length];
+      debugPrint('[ImageStorageService] Storage không dùng được ($e), lưu JPEG vào bài đăng.');
+      return 'data:image/jpeg;base64,${base64Encode(compressed)}';
     }
   }
 
-  /// Tải danh sách nhiều ảnh cùng lúc cho bài đăng ở ghép / đăng phòng
+  /// Tải danh sách ảnh của một bài đăng. Bỏ qua ảnh không lưu được.
   Future<List<String>> uploadRoommateImages({
     required List<String> localPaths,
     required String postId,
   }) async {
     if (localPaths.isEmpty) return [];
 
-    final List<String> uploadedUrls = [];
+    final uploadedUrls = <String>[];
     final timestamp = DateTime.now().millisecondsSinceEpoch;
+    var embeddedBytes = 0;
 
     for (int i = 0; i < localPaths.length; i++) {
-      final path = localPaths[i];
-      final fileName = '${postId}_img_${timestamp}_$i.jpg';
       final url = await uploadSingleImage(
-        filePath: path,
+        filePath: localPaths[i],
         folder: 'roommate_posts/$postId',
-        fileName: fileName,
+        fileName: '${postId}_img_${timestamp}_$i.jpg',
         sampleIndex: i,
       );
+      if (url.isEmpty) continue;
+      if (url.startsWith('data:image')) {
+        if (embeddedBytes + url.length > 720000) {
+          debugPrint('[ImageStorageService] Bỏ ảnh thứ ${i + 1} vì bài đăng sắp vượt giới hạn Firestore.');
+          continue;
+        }
+        embeddedBytes += url.length;
+      }
       uploadedUrls.add(url);
     }
 

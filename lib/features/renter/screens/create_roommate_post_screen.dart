@@ -204,7 +204,10 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
   /// Chọn thêm ảnh từ thư viện
   Future<void> _pickImages() async {
     try {
-      final pickedFiles = await _imagePicker.pickMultiImage();
+      final pickedFiles = await _imagePicker.pickMultiImage(
+        imageQuality: 70,
+        maxWidth: 1600,
+      );
       if (pickedFiles.isNotEmpty) {
         setState(() {
           for (final f in pickedFiles) {
@@ -310,6 +313,17 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
           localPaths: _selectedImages,
           postId: postId,
         );
+      }
+      if (hasRoom && uploadedImages.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Không lưu được ảnh phòng. Hãy chọn lại ảnh thật để người khác xem được.'),
+              backgroundColor: AppColors.danger,
+            ),
+          );
+        }
+        return;
       }
 
       final post = RoommatePostModel(
@@ -552,6 +566,7 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
   // ===========================================================================
   Widget _buildStep1InformationForm() {
     return SingleChildScrollView(
+      primary: false,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Form(
         key: _formKey,
@@ -1025,6 +1040,8 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
                       backgroundColor: const Color(0xFF2563EB),
                       foregroundColor: Colors.white,
                       elevation: 0,
+                      minimumSize: const Size(0, 42),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                     ),
@@ -1177,6 +1194,7 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
   // ===========================================================================
   Widget _buildStep2Images() {
     return SingleChildScrollView(
+      primary: false,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1234,38 +1252,6 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
               ),
             ),
           ),
-
-          if (_selectedImages.isEmpty) ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  setState(() {
-                    _selectedImages.addAll([
-                      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600',
-                      'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=600',
-                    ]);
-                    _selectedCaptions.addAll([
-                      'Phòng ngủ máy lạnh',
-                      'Bếp chung rộng',
-                    ]);
-                  });
-                },
-                icon: const Icon(Icons.auto_awesome, size: 16, color: Color(0xFF2563EB)),
-                label: const Text(
-                  'Dùng ảnh phòng đẹp (Phòng ngủ + Bếp)',
-                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Color(0xFF2563EB)),
-                ),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Color(0xFF93C5FD)),
-                  backgroundColor: const Color(0xFFEFF6FF),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  padding: const EdgeInsets.symmetric(vertical: 11),
-                ),
-              ),
-            ),
-          ],
 
           const SizedBox(height: 16),
 

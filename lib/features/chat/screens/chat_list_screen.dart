@@ -239,6 +239,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                     ),
                   )
                 : ListView.separated(
+                    primary: false,
                     itemCount: filteredConversations.length,
                     separatorBuilder: (context, index) => const Divider(height: 1, indent: 76),
                     itemBuilder: (context, index) {

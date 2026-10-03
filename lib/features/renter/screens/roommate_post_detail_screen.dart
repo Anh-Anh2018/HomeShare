@@ -1,8 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../../../core/widgets/room_photo.dart';
 import '../../../data/models/roommate_post_model.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../auth/providers/user_provider.dart';
@@ -80,66 +80,6 @@ class _RoommatePostDetailScreenState extends ConsumerState<RoommatePostDetailScr
       return {'icon': Icons.people_alt_rounded, 'color': const Color(0xFF2563EB), 'bg': const Color(0xFFEFF6FF)};
     }
     return {'icon': Icons.check_circle_outline, 'color': const Color(0xFF2563EB), 'bg': const Color(0xFFEFF6FF)};
-  }
-
-  Widget _buildRoomImage(String imgUrl) {
-    if (imgUrl.isEmpty) {
-      return Container(
-        color: const Color(0xFFF1F5F9),
-        child: const Icon(Icons.image_outlined, color: Color(0xFF94A3B8), size: 48),
-      );
-    }
-    // 1. Ảnh trực tuyến (Firebase Storage / URL công khai)
-    if (imgUrl.startsWith('http://') || imgUrl.startsWith('https://')) {
-      return Image.network(
-        imgUrl,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => Container(
-          color: const Color(0xFFF1F5F9),
-          child: const Icon(Icons.broken_image_outlined, color: Color(0xFF94A3B8), size: 48),
-        ),
-      );
-    }
-    // 2. Ảnh Base64 Data URI
-    if (imgUrl.startsWith('data:image')) {
-      try {
-        final commaIdx = imgUrl.indexOf(',');
-        final base64Data = commaIdx != -1 ? imgUrl.substring(commaIdx + 1) : imgUrl;
-        final bytes = base64Decode(base64Data);
-        return Image.memory(
-          bytes,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => Container(
-            color: const Color(0xFFF1F5F9),
-            child: const Icon(Icons.broken_image_outlined, color: Color(0xFF94A3B8), size: 48),
-          ),
-        );
-      } catch (_) {}
-    }
-    // 3. File nội bộ trên cùng thiết bị
-    try {
-      final file = File(imgUrl);
-      if (file.existsSync()) {
-        return Image.file(
-          file,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => Container(
-            color: const Color(0xFFF1F5F9),
-            child: const Icon(Icons.image_outlined, color: Color(0xFF94A3B8), size: 48),
-          ),
-        );
-      }
-    } catch (_) {}
-
-    // 4. Fallback cho các thiết bị khác khi bài viết cũ lưu file cục bộ từ máy khác
-    return Image.network(
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600',
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) => Container(
-        color: const Color(0xFFF1F5F9),
-        child: const Icon(Icons.image_outlined, color: Color(0xFF94A3B8), size: 48),
-      ),
-    );
   }
 
   void _onToggleBookmark() {
@@ -393,6 +333,157 @@ class _RoommatePostDetailScreenState extends ConsumerState<RoommatePostDetailScr
     );
   }
 
+  Widget _headerAction({
+    required IconData icon,
+    required VoidCallback onTap,
+    required Color iconColor,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8),
+      child: Material(
+        color: const Color(0xE6FFFFFF),
+        shape: const CircleBorder(),
+        elevation: 1,
+        child: InkWell(
+          onTap: onTap,
+          customBorder: const CircleBorder(),
+          child: SizedBox(
+            width: 38,
+            height: 38,
+            child: Icon(icon, size: 18, color: iconColor),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageHeader(List<String> images, List<String> captions) {
+    final topInset = MediaQuery.paddingOf(context).top;
+    return SizedBox(
+      height: topInset + (images.isNotEmpty ? 246 : 108),
+      width: double.infinity,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (images.isNotEmpty)
+            NotificationListener<ScrollNotification>(
+              onNotification: (_) => true,
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: images.length,
+                onPageChanged: (idx) => setState(() => _currentImageIndex = idx),
+                itemBuilder: (ctx, idx) => RoomPhoto(
+                  imageRef: images[idx],
+                  memCacheWidth: 1080,
+                ),
+              ),
+            )
+          else
+            const DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFEFF6FF), Color(0xFFDBEAFE)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.search_rounded, size: 40, color: Color(0xFF2563EB)),
+                  SizedBox(height: 6),
+                  Text(
+                    'Đang tìm phòng ghép cùng',
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                  ),
+                ],
+              ),
+            ),
+          if (images.isNotEmpty)
+            const Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 96,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0x59000000), Color(0x00000000)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+            ),
+          if (images.isNotEmpty &&
+              _currentImageIndex < captions.length &&
+              captions[_currentImageIndex].isNotEmpty)
+            Positioned(
+              left: 16,
+              bottom: 14,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: const Color(0xCC1E293B),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  captions[_currentImageIndex],
+                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          if (images.isNotEmpty)
+            Positioned(
+              right: 16,
+              bottom: 14,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xA6000000),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${_currentImageIndex + 1}/${images.length}',
+                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          Positioned(
+            top: topInset + 8,
+            left: 12,
+            right: 8,
+            child: Row(
+              children: [
+                _headerAction(
+                  icon: Icons.arrow_back_ios_new_rounded,
+                  iconColor: const Color(0xFF0F172A),
+                  onTap: () => Navigator.pop(context),
+                ),
+                const Spacer(),
+                _headerAction(
+                  icon: _isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                  iconColor: _isBookmarked ? const Color(0xFF2563EB) : const Color(0xFF475569),
+                  onTap: _onToggleBookmark,
+                ),
+                _headerAction(
+                  icon: Icons.share_outlined,
+                  iconColor: const Color(0xFF475569),
+                  onTap: _onShare,
+                ),
+                _headerAction(
+                  icon: Icons.flag_outlined,
+                  iconColor: const Color(0xFF64748B),
+                  onTap: _onReport,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final currencyFmt = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
@@ -415,14 +506,7 @@ class _RoommatePostDetailScreenState extends ConsumerState<RoommatePostDetailScr
       if (g.contains('nu') || g.contains('nữ')) authorGenderDisplay = 'Nữ';
     }
 
-    // Danh sách ảnh
-    List<String> images = post.images;
-    if (images.isEmpty && post.hasRoom) {
-      images = [
-        'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600',
-        'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=600',
-      ];
-    }
+    final images = post.images.where((url) => url.trim().isNotEmpty).toList();
 
     final captions = post.imageCaptions.isNotEmpty
         ? post.imageCaptions
@@ -439,185 +523,14 @@ class _RoommatePostDetailScreenState extends ConsumerState<RoommatePostDetailScr
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
-      body: CustomScrollView(
-        slivers: [
-          // 1. Sliver App Bar với Carousel ảnh hoặc Banner
-          SliverAppBar(
-            expandedHeight: images.isNotEmpty ? 290 : 130,
-            pinned: true,
-            elevation: 0,
-            backgroundColor: Colors.white,
-            leading: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: InkWell(
-                onTap: () => Navigator.pop(context),
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 6, offset: const Offset(0, 2)),
-                    ],
-                  ),
-                  child: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: Color(0xFF0F172A)),
-                ),
-              ),
-            ),
-            actions: [
-              // Nút Bookmark
-              Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: InkWell(
-                  onTap: _onToggleBookmark,
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.9),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 6, offset: const Offset(0, 2)),
-                      ],
-                    ),
-                    child: Icon(
-                      _isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-                      color: _isBookmarked ? const Color(0xFF2563EB) : const Color(0xFF475569),
-                      size: 20,
-                    ),
-                  ),
-                ),
-              ),
-              // Nút Share
-              Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: InkWell(
-                  onTap: _onShare,
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.9),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 6, offset: const Offset(0, 2)),
-                      ],
-                    ),
-                    child: const Icon(Icons.share_outlined, color: Color(0xFF475569), size: 19),
-                  ),
-                ),
-              ),
-              // Nút Báo cáo
-              Padding(
-                padding: const EdgeInsets.only(right: 12.0),
-                child: InkWell(
-                  onTap: _onReport,
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.9),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 6, offset: const Offset(0, 2)),
-                      ],
-                    ),
-                    child: const Icon(Icons.flag_outlined, color: Color(0xFF64748B), size: 19),
-                  ),
-                ),
-              ),
-            ],
-            flexibleSpace: FlexibleSpaceBar(
-              background: images.isNotEmpty
-                  ? Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        PageView.builder(
-                          controller: _pageController,
-                          itemCount: images.length,
-                          onPageChanged: (idx) => setState(() => _currentImageIndex = idx),
-                          itemBuilder: (ctx, idx) => _buildRoomImage(images[idx]),
-                        ),
-                        // Gradient bóng mờ phía trên để thấy rõ icon
-                        Positioned(
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          height: 80,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Colors.black.withValues(alpha: 0.35), Colors.transparent],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
-                            ),
-                          ),
-                        ),
-                        // Badge chú thích ảnh ở đáy trái
-                        if (_currentImageIndex < captions.length && captions[_currentImageIndex].isNotEmpty)
-                          Positioned(
-                            left: 16,
-                            bottom: 14,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                              decoration: BoxDecoration(
-                                color: const Color(0xCC1E293B),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                captions[_currentImageIndex],
-                                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ),
-                        // Chỉ số trang ảnh ở đáy phải
-                        Positioned(
-                          right: 16,
-                          bottom: 14,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.65),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              '${_currentImageIndex + 1}/${images.length}',
-                              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  : Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0xFFEFF6FF), Color(0xFFDBEAFE)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                      ),
-                      alignment: Alignment.center,
-                      child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.search_rounded, size: 40, color: Color(0xFF2563EB)),
-                          SizedBox(height: 6),
-                          Text('Đang tìm phòng ghép cùng', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
-                        ],
-                      ),
-                    ),
-            ),
-          ),
-
-          // 2. Nội dung chi tiết
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-              child: Column(
+      body: Column(
+        children: [
+          _buildImageHeader(images, captions),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              children: [
+                Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Hàng Badge Trạng thái & Thời gian & AI Matching
@@ -1098,8 +1011,9 @@ class _RoommatePostDetailScreenState extends ConsumerState<RoommatePostDetailScr
                   ),
                 ],
               ),
-            ),
+            ],
           ),
+        ),
         ],
       ),
 
@@ -1128,6 +1042,8 @@ class _RoommatePostDetailScreenState extends ConsumerState<RoommatePostDetailScr
                   backgroundColor: const Color(0xFFF1F5F9),
                   foregroundColor: const Color(0xFF334155),
                   side: const BorderSide(color: Color(0xFFCBD5E1)),
+                  minimumSize: const Size(0, 44),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),

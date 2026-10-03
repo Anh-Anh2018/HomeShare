@@ -1,9 +1,9 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/widgets/room_photo.dart';
 import '../../../core/services/roommate_service.dart';
 import '../../../data/models/roommate_post_model.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -538,18 +538,23 @@ class _RoommateCommunityScreenState extends ConsumerState<RoommateCommunityScree
 
   /// Danh sách bài đăng & Banner AI Matching
   Widget _buildPostsList(List<RoommatePostModel> posts, int matchingCount) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-      children: [
-        // Banner AI Matching
-        _buildAiMatchBanner(matchingCount),
-
-        const SizedBox(height: 12),
-
-        // Danh sách thẻ bài đăng
-        if (posts.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 40.0, horizontal: 20.0),
+    final isEmpty = posts.isEmpty;
+    final itemCount = 2 + (isEmpty ? 1 : posts.length);
+    return ListView.builder(
+      primary: false,
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 88),
+      itemCount: itemCount,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _buildAiMatchBanner(matchingCount),
+          );
+        }
+        if (isEmpty && index == 1) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -572,15 +577,16 @@ class _RoommateCommunityScreenState extends ConsumerState<RoommateCommunityScree
                 ],
               ),
             ),
-          )
-        else
-          ...posts.map((post) => _buildPostCard(post)),
-
-        const SizedBox(height: 8),
-
-        // Banner CTA Tạo bài đăng cuối danh sách
-        _buildBottomCtaBanner(),
-      ],
+          );
+        }
+        if (index == itemCount - 1) {
+          return Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: _buildBottomCtaBanner(),
+          );
+        }
+        return RepaintBoundary(child: _buildPostCard(posts[index - 1]));
+      },
     );
   }
 
@@ -1031,13 +1037,7 @@ class _RoommateCommunityScreenState extends ConsumerState<RoommateCommunityScree
 
   /// Hiển thị 2 ảnh song song có chú thích chuẩn Figma
   Widget _buildPhotosRow(RoommatePostModel post) {
-    List<String> images = post.images;
-    if (images.isEmpty && post.hasRoom) {
-      images = [
-        'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600',
-        'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=600',
-      ];
-    }
+    final images = post.images.where((url) => url.trim().isNotEmpty).toList();
     if (images.isEmpty) return const SizedBox.shrink();
 
     final captions = post.imageCaptions;
@@ -1075,7 +1075,7 @@ class _RoommateCommunityScreenState extends ConsumerState<RoommateCommunityScree
       child: Stack(
         fit: StackFit.expand,
         children: [
-          _buildRoomImage(imagePath),
+          RoomPhoto(imageRef: imagePath, iconSize: 28, memCacheWidth: 480),
           if (caption.isNotEmpty)
             Positioned(
               left: 8,
@@ -1097,66 +1097,6 @@ class _RoommateCommunityScreenState extends ConsumerState<RoommateCommunityScree
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildRoomImage(String imgUrl) {
-    if (imgUrl.isEmpty) {
-      return Container(
-        color: const Color(0xFFF1F5F9),
-        child: const Icon(Icons.image_outlined, color: Color(0xFF94A3B8), size: 28),
-      );
-    }
-    // 1. Ảnh trực tuyến (Firebase Storage / Web URL)
-    if (imgUrl.startsWith('http://') || imgUrl.startsWith('https://')) {
-      return Image.network(
-        imgUrl,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => Container(
-          color: const Color(0xFFF1F5F9),
-          child: const Icon(Icons.broken_image_outlined, color: Color(0xFF94A3B8), size: 28),
-        ),
-      );
-    }
-    // 2. Ảnh mã hóa Base64 Data URI (hiển thị 100% trên mọi máy)
-    if (imgUrl.startsWith('data:image')) {
-      try {
-        final commaIdx = imgUrl.indexOf(',');
-        final base64Data = commaIdx != -1 ? imgUrl.substring(commaIdx + 1) : imgUrl;
-        final bytes = base64Decode(base64Data);
-        return Image.memory(
-          bytes,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => Container(
-            color: const Color(0xFFF1F5F9),
-            child: const Icon(Icons.broken_image_outlined, color: Color(0xFF94A3B8), size: 28),
-          ),
-        );
-      } catch (_) {}
-    }
-    // 3. File nội bộ trên cùng thiết bị
-    try {
-      final file = File(imgUrl);
-      if (file.existsSync()) {
-        return Image.file(
-          file,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => Container(
-            color: const Color(0xFFF1F5F9),
-            child: const Icon(Icons.image_outlined, color: Color(0xFF94A3B8), size: 28),
-          ),
-        );
-      }
-    } catch (_) {}
-
-    // 4. Fallback cho thiết bị khác khi bài viết cũ lưu file path cục bộ từ máy khác
-    return Image.network(
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600',
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) => Container(
-        color: const Color(0xFFF1F5F9),
-        child: const Icon(Icons.image_outlined, color: Color(0xFF94A3B8), size: 28),
       ),
     );
   }

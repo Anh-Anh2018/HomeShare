@@ -7,13 +7,13 @@ Xây dựng ứng dụng di động **HomeShare** phục vụ đồ án tốt ng
 ### Quyết định kỹ thuật & Chỉ đạo trọng tâm:
 1. **Tập trung hoàn thiện 100% cho Role Người Dùng / Người Thuê / Ở Ghép**, tạm gác lại module chủ trọ để làm người dùng trước.
 2. **Nguồn chân lý dữ liệu (Single Source of Truth):** Toàn bộ cấu trúc thực thể, bảng, khóa chính (PK), khóa ngoại (FK) và tên trường dữ liệu được chuẩn hóa tuyệt đối theo sơ đồ `D:\Database homeShare.drawio`.
-3. **Nguồn chân lý giao diện (Design System):** Chuẩn thiết kế từ Figma "Chuyên đề di động - nhóm 4", màu xanh lục bảo (`#006948`), giao diện 3 trạng thái tìm kiếm (Tìm kiếm cơ bản, Tìm kiếm nâng cao, Hiển thị kết quả tìm kiếm).
+3. **Nguồn chân lý giao diện (Design System):** Theme **Phòng sáng** (`lib/core/theme/phong_sang_theme.dart`), gắn `PhongSangTheme.light`. Nền `#F3F6FB`, chữ Inter `#101828`, nút `#155EEF`, bo góc 8.
 
 ### Tech Stack
 * **Framework:** Flutter 3.44.0 / Dart 3.12.0
 * **State Management:** Flutter Riverpod 3.4.3 (Notifier, StreamProvider, immutable FilterParams)
 * **Backend & Cloud:** Firebase (Firebase Core 4.15.0, Firebase Auth 6.7.0, Cloud Firestore 6.10.0, Firebase Storage 13.6.0)
-* **Design System & Typography:** Google Fonts (Plus Jakarta Sans, Inter), chuẩn màu Emerald Green palette (`#006948`)
+* **Design System & Typography:** Google Fonts (Inter), theme Phòng sáng (`PhongSangTheme.light`, accent `#155EEF`, nền `#F3F6FB`)
 * **Thiết bị chạy thực tế:** Điện thoại vật lý Android 16 (API 36) Xiaomi/Redmi (`25100RA69G` / `lj6hwwwgauugwkci`)
 * **Kiểm thử & Khả năng tiếp cận:** Đạt chuẩn WCAG 2.1 AA (Tương phản >= 4.5:1, Touch Targets >= 48dp, nhãn Semantics)
 
@@ -975,6 +975,65 @@ Thực hiện yêu cầu của người dùng: *"làm phần chi tiết ở ghé
        + [`https://github.com/Anh-Anh2018/HomeShare.git`](https://github.com/Anh-Anh2018/HomeShare)
        + [`https://github.com/Anh-Anh2018/web-react.git`](https://github.com/Anh-Anh2018/web-react) (nhánh `homeshare`)
 
+---
 
+### Phase 2.19: Theme Phòng sáng & Ảnh phòng thật cho mọi tài khoản
+* **Ngày hoàn thành:** 02/10/2026
+* **Yêu cầu người dùng:** Đổi theme theo `phong_sang_theme.dart`, và sửa lỗi ảnh phòng ở bài đăng để tài khoản khác xem được ảnh thật (không còn chỉ thấy ảnh hardcode).
 
+#### 1. Theme Phòng sáng
+* File nguồn được đưa vào [`lib/core/theme/phong_sang_theme.dart`](lib/core/theme/phong_sang_theme.dart).
+* `MaterialApp.theme` gắn `PhongSangTheme.light` (nền `#F3F6FB`, chữ Inter `#101828`, nút `#155EEF`, bo góc 8).
+* [`AppTheme.lightTheme`](lib/core/theme/app_theme.dart) trỏ về cùng theme.
+* [`AppColors`](lib/core/constants/app_colors.dart) map sang token Phòng sáng để các màn đang dùng `AppColors` đổi theo bảng màu mới.
+
+#### 2. Ảnh phòng trên bài đăng
+* **Nguyên nhân:** Ảnh người dùng chọn là file cục bộ. Khi Firebase Storage lỗi hoặc file lớn hơn 300KB, [`ImageStorageService`](lib/core/services/image_storage_service.dart) ghi link Unsplash vào Firestore. Màn cộng đồng và chi tiết bài đăng còn tự chèn ảnh Unsplash khi danh sách ảnh trống hoặc máy xem không có file. Tài khoản khác vì vậy chỉ thấy ảnh mẫu.
+* **Cách lưu mới:**
+  - Ảnh được nén JPEG (rộng tối đa 1280px, khoảng dưới 110KB) trước khi gửi.
+  - Ưu tiên tải lên Storage, lấy `downloadUrl`.
+  - Nếu Storage không dùng được, bài đăng lưu chính ảnh đã nén dạng `data:image/jpeg;base64,...` để tài khoản khác giải mã được từ Firestore.
+  - Không còn thay ảnh người dùng bằng ảnh mẫu. File không tồn tại thì bỏ qua, không ghi link Unsplash.
+  - Tổng Data URI trong một bài được giới hạn khoảng 720KB để không vượt giới hạn tài liệu Firestore.
+* **Cách hiển thị:** [`RoomPhoto`](lib/core/widgets/room_photo.dart) đọc URL, Data URI, hoặc file còn trên máy đăng bài. Đường dẫn máy khác hiện khung trống, không thay bằng ảnh hardcode.
+* **Form đăng tin:** Bỏ nút "Dùng ảnh phòng đẹp". Ảnh chọn từ thư viện được giảm kích thước ngay (`imageQuality: 70`, `maxWidth: 1600`). Bài "đã có phòng" không được gửi nếu không lưu được ảnh thật.
+* **Bài đã đăng trước đó** mà Firestore đang lưu link Unsplash hoặc đường dẫn máy thì không lấy lại được file gốc. Cần đăng lại và chọn ảnh phòng thật.
+
+---
+
+### Phase 2.20: Màn chi tiết bài ở ghép trắng & lag khi lướt danh sách
+* **Ngày hoàn thành:** 02/10/2026
+* **Yêu cầu người dùng:** Nhấn vào chi tiết một bài ở ghép thì màn hình trắng; lướt danh sách bị lag; chạm vào màn trắng thì console báo `Cannot hit test a render box that has never been laid out`.
+
+#### 1. Màn chi tiết trắng
+* Theme Phòng sáng đặt `minimumSize: Size.fromHeight(44)` cho nút. `Size.fromHeight` có chiều rộng là vô cực.
+* Nút **Gọi điện** nằm trực tiếp trong `Row` của thanh dưới, không có chiều rộng hữu hạn. Layout ném `BoxConstraints forces an infinite width`, render box không được layout, cả `Scaffold` không vẽ được nên màn hình trắng. Lần chạm sau đó báo `Cannot hit test a render box that has never been laid out`.
+* Ảnh phòng nằm trong `PageView` bên trong `SliverAppBar` / `FlexibleSpaceBar`, là scrollable lồng scrollable, cùng đường hit-test.
+* **Cách xử lý** trong [`RoommatePostDetailScreen`](lib/features/renter/screens/roommate_post_detail_screen.dart):
+  - Phần đầu bài là khối có chiều cao cố định, `PageView` nằm trong đó, không còn `SliverAppBar`.
+  - Nút Gọi điện dùng `minimumSize: Size(0, 44)` để co theo chữ khi hàng không giới hạn chiều rộng.
+  - Sự kiện cuộn của `PageView` không nổi lên scroll view cha.
+
+#### 2. Lag khi lướt bài ở ghép
+* Danh sách dựng hết mọi thẻ trong một `ListView` thường, và mỗi ảnh giải mã full kích thước ngay trên luồng giao diện.
+* [`RoommateCommunityScreen`](lib/features/renter/screens/roommate_community_screen.dart) chuyển sang `ListView.builder`, mỗi thẻ bọc `RepaintBoundary`.
+* [`RoomPhoto`](lib/core/widgets/room_photo.dart) cache ảnh mạng, giải mã Base64 một lần, và thu nhỏ bitmap theo bề rộng hiển thị (`memCacheWidth` 480 trên danh sách, 1080 trên chi tiết).
+
+---
+
+### Phase 2.21: Tab Đăng tin trắng & Ở ghép đơ khi lướt
+* **Ngày hoàn thành:** 03/10/2026
+* **Yêu cầu người dùng:** Ở ghép lúc đầu ổn, càng lướt xuống càng đơ; lướt xuống dễ nhưng lướt lên phải chạm đúng chỗ; nút trên thẻ bấm không hiện gì thì tạm chấp nhận nếu chưa làm. Tab **Đăng tin** trắng bóc.
+
+#### 1. Tab Đăng tin trắng
+* Theme Phòng sáng dùng `minimumSize: Size.fromHeight(44)`. Chiều rộng của cỡ đó là vô cực.
+* Nút **Thêm** trên form đăng tin nằm trong `Row` cạnh ô nhập, không có bề rộng hữu hạn. Layout ném `BoxConstraints forces an infinite width`, cả tab (đang nằm trong `IndexedStack`) không vẽ được nên trắng.
+* Đã đổi `minimumSize` của nút theme thành `Size(48, 44)` và ép nút Thêm co theo chữ (`Size(0, 42)`). Nút bọc `SizedBox(width: double.infinity)` vẫn full chiều ngang.
+
+#### 2. Ở ghép đơ và khó lướt lên
+* Năm tab dưới cùng `IndexedStack` đều giữ scroll view `primary: true`, nên cùng bám một `PrimaryScrollController`. Cuộn tab đang mở bị kéo theo vị trí tab khác: xuống còn trôi, lên thì phải chạm đúng vùng đã vẽ.
+* Càng xuống càng đơ vì mỗi thẻ mới giải mã JPEG/Base64 ngay trên luồng giao diện.
+* Đã đặt `primary: false` cho danh sách Ở ghép, form Đăng tin, Khám phá, Tin nhắn và Cá nhân.
+* [`RoomPhoto`](lib/core/widgets/room_photo.dart) giải mã Base64 ở isolate nền, khung danh sách hiện placeholder trước, không chặn ngón tay đang kéo.
+* Nút **Nhắn tin** / **Xem hồ sơ** trên thẻ đã có xử lý từ trước (mở chat hoặc chi tiết). Không thêm hành vi mới cho nút chưa được làm.
 

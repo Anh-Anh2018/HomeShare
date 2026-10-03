@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as img;
 import 'package:home_share/data/models/room_model.dart';
 import 'package:home_share/data/models/roommate_post_model.dart';
 import 'package:home_share/data/models/booking_model.dart';
@@ -988,17 +992,40 @@ void main() {
       expect(map['nguoiGuiId'], equals('user_A'));
     });
 
-    test('Tc_SYNC_11 - 15: ImageStorageService có cơ chế fallback ảnh hợp lệ khi file cục bộ không tồn tại', () async {
+    test('Tc_SYNC_11 - 15: Ảnh không tồn tại không bị thay bằng ảnh mẫu', () async {
       final service = ImageStorageService();
-      // File không tồn tại trên thiết bị hiện tại (máy khác xem bài)
       final fallbackUrl = await service.uploadSingleImage(
         filePath: '/data/user/0/com.homeshare/non_existent.jpg',
         folder: 'test',
         fileName: 'test.jpg',
       );
 
-      expect(fallbackUrl.startsWith('http'), isTrue);
-      expect(fallbackUrl, contains('unsplash.com'));
+      expect(fallbackUrl, isEmpty);
+      expect(fallbackUrl, isNot(contains('unsplash.com')));
+    });
+
+    test('Tc_SYNC_11b: Ảnh thật được lưu dạng Data URI khi Storage không dùng được', () async {
+      final service = ImageStorageService();
+      final dir = Directory.systemTemp.createTempSync('homeshare_img_');
+      final file = File('${dir.path}/room.jpg');
+      final jpeg = img.encodeJpg(img.Image(width: 16, height: 12), quality: 80);
+      file.writeAsBytesSync(jpeg);
+
+      final stored = await service.uploadSingleImage(
+        filePath: file.path,
+        folder: 'roommate_posts/test',
+        fileName: 'room.jpg',
+      );
+
+      expect(
+        stored.startsWith('https://') || stored.startsWith('data:image/jpeg;base64,'),
+        isTrue,
+      );
+      expect(stored, isNot(contains('unsplash.com')));
+      if (stored.startsWith('data:image')) {
+        final bytes = base64Decode(stored.split(',').last);
+        expect(img.decodeImage(bytes), isNotNull);
+      }
     });
 
     test('Tc_SYNC_16 - 20: ConversationModel phân giải chính xác partnerName hai chiều giữa 2 người dùng', () {
