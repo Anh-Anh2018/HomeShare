@@ -21,13 +21,15 @@ Xây dựng ứng dụng di động **HomeShare** phục vụ đồ án tốt ng
 
 ## 2. Current Status
 * **Phase:** Hoàn thiện 100% Phase 1 (Xác thực & Core) & Phase 2 (Toàn bộ Role Người dùng / Ở ghép chuẩn Database DrawIO & Figma)
-* **Status:** IN PROGRESS / LIVE RUNNING ON PHYSICAL DEVICE
-* **Progress:** 95%
-* **Chất lượng mã nguồn:**
-  * `flutter analyze`: **0 errors, 0 warnings** trên các tính năng đang phát triển
-  * `flutter test`: **68/68 test cases PASSED 100%** (Bao gồm Data Models chuẩn DrawIO, Serialization 2 chiều, Riverpod Equality, Theme Phòng Sáng, Chat Optimization, và Bộ lọc tìm kiếm)
-  * **Hot Reload / Hot Restart:** Hoạt động ổn định trên điện thoại thật thông qua DTD `ws://127.0.0.1:4667/zzmSBkyMkIg=`.
-  * **Runtime Errors:** `0 runtime errors` (Đã kiểm tra qua MCP `get_runtime_errors`).
+* **Status:** IN PROGRESS / CLEAN REWRITE COMPLETED (ZERO HARDCODE)
+* **Progress:** 98%
+* **Chất lượng mã nguồn & Tiến độ mới nhất:**
+  * **Loại bỏ triệt để Hardcode:** Toàn bộ dữ liệu hồ sơ cá nhân, ảnh đính kèm, danh mục địa giới hành chính toàn quốc (Tỉnh/Thành, Quận/Huyện, Phường/Xã) và bộ lọc kết quả được nạp động 100% từ Firestore, Firebase Storage và `VietnamLocations`.
+  * **Sửa lỗi crash BoxConstraints toàn cục:** Đã chuẩn hóa `minimumSize: const Size(64, 44)` trong `phong_sang_theme.dart`, loại bỏ hoàn toàn lỗi vỡ layout Flex / `BoxConstraints forces an infinite width`.
+  * **Viết lại sạch (Clean Rewrite) `search_filter_screen.dart`:** Chuẩn 3 trạng thái Figma, hỗ trợ mở rộng dropdown nâng cao `#006948`, thanh lọc thu gọn và kết quả thời gian thực.
+  * **Viết lại sạch (Clean Rewrite) `create_roommate_post_screen.dart`:** Thiết kế Stepper 3 bước mượt mà, xác thực dữ liệu đầu vào, liên kết Firebase Storage tự động fallback đa nền tảng.
+  * `flutter analyze`: **0 errors, 0 warnings** trên các tính năng đang phát triển.
+  * `flutter test`: **68/68 test cases PASSED 100%**.
 
 ---
 
