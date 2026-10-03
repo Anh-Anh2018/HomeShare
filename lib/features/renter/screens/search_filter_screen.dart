@@ -10,11 +10,11 @@ import '../../auth/providers/user_provider.dart';
 import '../../chat/screens/chat_detail_screen.dart';
 import 'room_detail_screen.dart';
 
-/// Màn hình Tìm kiếm & Bộ lọc nâng cao chuẩn 100% Figma HomeShare
-/// Hỗ trợ 3 trạng thái:
+/// Màn hình Tìm kiếm & Bộ lọc chuẩn 100% Figma HomeShare
+/// Hỗ trợ 3 trạng thái rõ ràng, không giật lag, không lỗi layout:
 /// 1. Tìm kiếm cơ bản (Card Khu vực + Nút Tìm kiếm phòng)
-/// 2. Sổ bộ lọc nâng cao xuống (Khoảng giá, Diện tích, Tiện ích chuẩn #006948)
-/// 3. Hiển thị kết quả tìm kiếm (Thanh bộ lọc thu gọn + Danh sách kết quả realtime)
+/// 2. Tìm kiếm nâng cao (Dropdown bộ lọc giá, diện tích, tiện ích chuẩn #006948)
+/// 3. Hiển thị kết quả tìm kiếm (Thanh lọc thu gọn + Danh sách thẻ phòng nằm ngang)
 class SearchFilterScreen extends ConsumerStatefulWidget {
   final String initialCategory;
   final bool initialAdvanced;
@@ -36,40 +36,41 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
   // Bảng màu chuẩn Figma Emerald Green
   static const Color _emerald = Color(0xFF006948);
   static const Color _emeraldLight = Color(0xFFE8F5E9);
-  static const Color _lavenderBg = Color(0xFFF5F3FF);
-  static const Color _lavenderBorder = Color(0xFFDDD6FE);
-  static const Color _lavenderText = Color(0xFF7C3AED);
+  static const Color _lavenderBg = Color(0xFFEEF2FF);
+  static const Color _lavenderBorder = Color(0xFFC7D2FE);
+  static const Color _lavenderText = Color(0xFF2563EB);
 
-  // 1. Khu vực state 3 cấp: Tỉnh/TP -> Quận/Huyện -> Phường/Xã
+  // 1. Khu vực state
   String _selectedCity = 'TP. Hồ Chí Minh';
   String _selectedDistrict = 'Tất cả';
   String _selectedWard = 'Tất cả';
-  String _rentalType = 'all'; // 'all' (Tất cả), 'single' (Ở 1 mình), 'shared' (Ở ghép)
+  String _rentalType = 'single'; // 'single' (Ở 1 mình), 'shared' (Ở ghép), 'all' (Cả hai)
 
-  // 2. Bộ lọc nâng cao state
+  // 2. Trạng thái giao diện Figma
   bool _isAdvancedExpanded = false;
   bool _hasSearched = false;
 
-  // Giá thuê mặc định: toàn dải 0đ - 20.000.000đ để hiển thị toàn bộ phòng
-  RangeValues _priceRange = const RangeValues(0, 20000000);
+  // 3. Bộ lọc nâng cao: Giá thuê (2.000.000đ - 5.000.000đ)
+  RangeValues _priceRange = const RangeValues(2000000, 5000000);
   final double _minPriceLimit = 0;
   final double _maxPriceLimit = 20000000;
 
-  // Diện tích mặc định: toàn dải 10m² - 200m²
-  RangeValues _areaRange = const RangeValues(10, 200);
+  // 4. Bộ lọc nâng cao: Diện tích (20m² - 60m²)
+  RangeValues _areaRange = const RangeValues(20, 60);
   final double _minAreaLimit = 10;
   final double _maxAreaLimit = 200;
 
-  // Tiện ích & Yêu cầu: bắt đầu rỗng để người dùng tự chọn linh hoạt
+  // 5. Tiện ích & Yêu cầu - 5 tiêu chí được chọn sẵn chuẩn Figma
   final TextEditingController _customAmenityController = TextEditingController();
-  final Set<String> _selectedAmenities = {};
-
-  final List<String> _availableAmenities = [
+  final Set<String> _selectedAmenities = {
     'Máy lạnh',
     'Có gác lửng',
     'Chỗ để xe miễn phí',
     'Giờ giấc tự do',
     'Gần trường ĐH / Bến xe',
+  };
+
+  final List<String> _availableAmenities = [
     'Wifi tốc độ cao',
     'Tủ lạnh & Máy giặt',
     'Cho nuôi thú cưng',
@@ -79,7 +80,6 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
 
   // Sắp xếp
   String _selectedSort = 'newest';
-  final Set<String> _favoriteRoomIds = {};
 
   List<String> get _districts {
     if (_selectedCity == 'Tất cả') return const ['Tất cả'];
@@ -108,6 +108,14 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
     super.dispose();
   }
 
+  int get _selectedCriteriaCount {
+    int count = 0;
+    if (_priceRange.start > 0 || _priceRange.end < 20000000) count++;
+    if (_areaRange.start > 10 || _areaRange.end < 200) count++;
+    count += _selectedAmenities.length;
+    return count;
+  }
+
   void _showCityPicker() {
     showModalBottomSheet(
       context: context,
@@ -133,10 +141,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
   void _showDistrictPicker() {
     if (_selectedCity == 'Tất cả') {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng chọn Tỉnh / Thành phố trước'),
-          duration: Duration(seconds: 2),
-        ),
+        const SnackBar(content: Text('Vui lòng chọn Tỉnh / Thành phố trước'), duration: Duration(seconds: 2)),
       );
       _showCityPicker();
       return;
@@ -165,16 +170,9 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
 
   void _showWardPicker() {
     if (_selectedCity == 'Tất cả') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng chọn Tỉnh / Thành phố trước'),
-          duration: Duration(seconds: 2),
-        ),
-      );
       _showCityPicker();
       return;
     }
-
     if (_selectedDistrict == 'Tất cả') {
       _showDistrictPicker();
       return;
@@ -205,17 +203,21 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
       _selectedCity = 'TP. Hồ Chí Minh';
       _selectedDistrict = 'Tất cả';
       _selectedWard = 'Tất cả';
-      _rentalType = 'all';
-      _priceRange = const RangeValues(0, 20000000);
-      _areaRange = const RangeValues(10, 200);
+      _rentalType = 'single';
+      _priceRange = const RangeValues(2000000, 5000000);
+      _areaRange = const RangeValues(20, 60);
       _selectedAmenities.clear();
+      _selectedAmenities.addAll([
+        'Máy lạnh',
+        'Có gác lửng',
+        'Chỗ để xe miễn phí',
+        'Giờ giấc tự do',
+        'Gần trường ĐH / Bến xe',
+      ]);
       _selectedSort = 'newest';
       _hasSearched = false;
       _isAdvancedExpanded = false;
     });
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOutCubic);
-    }
   }
 
   void _executeSearch() {
@@ -292,14 +294,6 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
     );
   }
 
-  int get _selectedCriteriaCount {
-    int count = 0;
-    if (_priceRange.start > 0 || _priceRange.end < 20000000) count++;
-    if (_areaRange.start > 10 || _areaRange.end < 200) count++;
-    count += _selectedAmenities.length;
-    return count;
-  }
-
   String _getSortLabel(String val) {
     switch (val) {
       case 'price_asc':
@@ -354,7 +348,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
           },
         ),
         title: const Text(
-          'Tìm kiếm phòng',
+          'Trang Chủ',
           style: TextStyle(
             color: AppColors.textDark,
             fontSize: 18,
@@ -363,18 +357,29 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, size: 22, color: AppColors.textDark),
-            tooltip: 'Đặt lại bộ lọc',
-            onPressed: _resetFilters,
+            icon: const Badge(
+              smallSize: 8,
+              backgroundColor: AppColors.danger,
+              child: Icon(Icons.notifications_none, size: 22, color: AppColors.textDark),
+            ),
+            onPressed: () {},
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 14),
+            child: CircleAvatar(
+              radius: 16,
+              backgroundColor: _emerald,
+              child: const Icon(Icons.person, size: 18, color: Colors.white),
+            ),
           ),
         ],
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (!_hasSearched) ...[
               // TRẠNG THÁI 1 HOẶC 2: Chưa nhấn tìm kiếm phòng
@@ -382,22 +387,26 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
               const SizedBox(height: 14),
 
               if (!_isAdvancedExpanded) ...[
-                ElevatedButton.icon(
-                  onPressed: _executeSearch,
-                  icon: const Icon(Icons.search, size: 20, color: Colors.white),
-                  label: const Text(
-                    'Tìm kiếm phòng',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _emerald,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size.fromHeight(50),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 0,
+                // TRẠNG THÁI 1: Nút Tìm kiếm phòng + Dòng thông tin
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    onPressed: _executeSearch,
+                    icon: const Icon(Icons.search, size: 20, color: Colors.white),
+                    label: const Text(
+                      'Tìm kiếm phòng',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _emerald,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -409,13 +418,11 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                _buildResultsSection(roomsAsync),
               ] else ...[
+                // TRẠNG THÁI 2: Card Bộ lọc nâng cao + Hàng nút tác vụ
                 _buildAdvancedFilterSection(),
                 const SizedBox(height: 16),
                 _buildAdvancedActionButtons(),
-                const SizedBox(height: 24),
               ],
             ] else ...[
               // TRẠNG THÁI 3: Hiển thị kết quả tìm kiếm
@@ -458,10 +465,17 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
-              Icon(Icons.location_on, size: 20, color: _emerald),
-              SizedBox(width: 6),
-              Text(
+            children: [
+              Container(
+                width: 3.5,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: _emerald,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 6),
+              const Text(
                 'Khu vực',
                 style: TextStyle(
                   fontSize: 16,
@@ -473,53 +487,35 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
           ),
           const SizedBox(height: 14),
 
-          // 1. Tỉnh / Thành phố
-          _buildFieldLabel('Tỉnh / Thành phố *'),
+          // 1. Dropdown Tỉnh/Thành phố
+          _buildFieldLabel('Tỉnh/Thành phố *'),
           const SizedBox(height: 6),
           _buildLocationDropdown(
             label: _selectedCity,
-            icon: Icons.location_city,
+            icon: Icons.near_me_outlined,
             onTap: _showCityPicker,
           ),
           const SizedBox(height: 12),
 
-          // 2. Quận / Huyện & 3. Phường / Xã
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildFieldLabel('Quận / Huyện'),
-                    const SizedBox(height: 6),
-                    _buildLocationDropdown(
-                      label: _selectedDistrict,
-                      icon: Icons.map_outlined,
-                      onTap: _showDistrictPicker,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildFieldLabel('Phường / Xã'),
-                    const SizedBox(height: 6),
-                    _buildLocationDropdown(
-                      label: _selectedWard,
-                      icon: Icons.signpost_outlined,
-                      onTap: _showWardPicker,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          // 2. Dropdown Phường/Xã
+          _buildFieldLabel('Phường / Xã'),
+          const SizedBox(height: 6),
+          _buildLocationDropdown(
+            label: _selectedDistrict == 'Tất cả'
+                ? 'Chọn Phường / Xã'
+                : (_selectedWard == 'Tất cả' ? _selectedDistrict : '$_selectedWard, $_selectedDistrict'),
+            icon: Icons.map_outlined,
+            onTap: () {
+              if (_selectedDistrict == 'Tất cả') {
+                _showDistrictPicker();
+              } else {
+                _showWardPicker();
+              }
+            },
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
 
-          // 4. Hình thức thuê
+          // 3. Hình thức thuê
           _buildFieldLabel('Hình thức thuê'),
           const SizedBox(height: 8),
           Row(
@@ -527,27 +523,24 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
               Expanded(
                 child: _buildRentalTypeCard(
                   type: 'single',
-                  icon: Icons.person,
+                  icon: Icons.person_outline,
                   title: 'Ở 1 mình',
-                  subtitle: 'Phòng riêng tư',
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: _buildRentalTypeCard(
                   type: 'shared',
-                  icon: Icons.group,
+                  icon: Icons.group_outlined,
                   title: 'Ở ghép',
-                  subtitle: 'Tìm bạn cùng phòng',
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: _buildRentalTypeCard(
                   type: 'all',
-                  icon: Icons.dashboard_outlined,
+                  icon: Icons.swap_horiz_outlined,
                   title: 'Cả hai',
-                  subtitle: 'Tất cả loại hình',
                 ),
               ),
             ],
@@ -615,9 +608,9 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: const Color(0xFFF9FAFB),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFD1D5DB)),
+          border: Border.all(color: const Color(0xFFE5E7EB)),
         ),
         child: Row(
           children: [
@@ -642,7 +635,6 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
     required String type,
     required IconData icon,
     required String title,
-    required String subtitle,
   }) {
     final isSelected = _rentalType == type;
 
@@ -650,7 +642,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
       onTap: () => setState(() => _rentalType = type),
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
         decoration: BoxDecoration(
           color: isSelected ? _emeraldLight : Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -659,33 +651,28 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
             width: isSelected ? 1.5 : 1.0,
           ),
         ),
-        child: Column(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
-              size: 22,
+              size: 16,
               color: isSelected ? _emerald : AppColors.textMuted,
             ),
-            const SizedBox(height: 6),
+            const SizedBox(width: 4),
             Text(
               title,
               style: TextStyle(
-                fontSize: 12.5,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 color: isSelected ? _emerald : AppColors.textDark,
               ),
-              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 2),
-            Text(
-              subtitle,
-              style: TextStyle(
-                fontSize: 9.5,
-                color: isSelected ? _emerald.withValues(alpha: 0.8) : AppColors.textMuted,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            const SizedBox(width: 4),
+            Icon(
+              isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+              size: 14,
+              color: isSelected ? _emerald : const Color(0xFFD1D5DB),
             ),
           ],
         ),
@@ -695,6 +682,11 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
 
   // WIDGET: Card Bộ lọc nâng cao chuẩn Figma
   Widget _buildAdvancedFilterSection() {
+    final priceStartStr = '${currencyFormatter.format(_priceRange.start.toInt())}đ';
+    final priceEndStr = '${currencyFormatter.format(_priceRange.end.toInt())}đ';
+    final areaStartStr = '${_areaRange.start.toInt()} m²';
+    final areaEndStr = '${_areaRange.end.toInt()} m²';
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -712,7 +704,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Tiêu đề Nâng cao & Nút Thu gọn
+          // Tiêu đề Nâng cao & Badge tiêu chí
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -721,52 +713,79 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                   const Icon(Icons.tune, size: 20, color: _emerald),
                   const SizedBox(width: 8),
                   const Text(
-                    'Bộ lọc nâng cao',
+                    'Bộ lọc',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textDark,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: _emeraldLight,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '$_selectedCriteriaCount tiêu chí',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: _emerald,
-                      ),
-                    ),
-                  ),
                 ],
               ),
-              TextButton.icon(
-                onPressed: () => setState(() => _isAdvancedExpanded = false),
-                icon: const Icon(Icons.keyboard_arrow_up, size: 18, color: _emerald),
-                label: const Text(
-                  'Thu gọn',
-                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: _emerald),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: _emeraldLight,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+                child: Text(
+                  '$_selectedCriteriaCount tiêu chí',
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.bold,
+                    color: _emerald,
+                  ),
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
 
-          // 1. Khoảng giá thuê
+          // 1. GIÁ THUÊ / THÁNG
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildFieldLabel('Khoảng giá (VNĐ / tháng)'),
-              Text(
-                '${(currencyFormatter.format(_priceRange.start))} - ${(currencyFormatter.format(_priceRange.end))} đ',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _emerald),
+              const Text('Giá thuê / tháng', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark)),
+              Text('$priceStartStr – $priceEndStr', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: _emerald)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF9FAFB),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFE5E7EB)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Tối thiểu', style: TextStyle(fontSize: 10.5, color: AppColors.textMuted)),
+                      Text(priceStartStr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark)),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF9FAFB),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFE5E7EB)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Tối đa', style: TextStyle(fontSize: 10.5, color: AppColors.textMuted)),
+                      Text(priceEndStr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark)),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
@@ -774,25 +793,65 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
             values: _priceRange,
             min: _minPriceLimit,
             max: _maxPriceLimit,
-            divisions: 20,
+            divisions: 40,
             activeColor: _emerald,
             inactiveColor: const Color(0xFFE5E7EB),
-            labels: RangeLabels(
-              '${(_priceRange.start / 1000000).toStringAsFixed(1)}Tr',
-              '${(_priceRange.end / 1000000).toStringAsFixed(1)}Tr',
-            ),
             onChanged: (values) => setState(() => _priceRange = values),
           ),
-          const SizedBox(height: 14),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('0đ', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+              Text('20.000.000đ', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+            ],
+          ),
+          const SizedBox(height: 16),
 
-          // 2. Diện tích
+          // 2. DIỆN TÍCH
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildFieldLabel('Diện tích (m²)'),
-              Text(
-                '${_areaRange.start.toInt()}m² - ${_areaRange.end.toInt()}m²',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _emerald),
+              const Text('Diện tích', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark)),
+              Text('$areaStartStr – $areaEndStr', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: _emerald)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF9FAFB),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFE5E7EB)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Từ', style: TextStyle(fontSize: 10.5, color: AppColors.textMuted)),
+                      Text(areaStartStr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark)),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF9FAFB),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFE5E7EB)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Đến', style: TextStyle(fontSize: 10.5, color: AppColors.textMuted)),
+                      Text(areaEndStr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark)),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
@@ -803,86 +862,42 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
             divisions: 19,
             activeColor: _emerald,
             inactiveColor: const Color(0xFFE5E7EB),
-            labels: RangeLabels(
-              '${_areaRange.start.toInt()}m²',
-              '${_areaRange.end.toInt()}m²',
-            ),
             onChanged: (values) => setState(() => _areaRange = values),
           ),
-          const SizedBox(height: 14),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('10 m²', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+              Text('200 m²', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+            ],
+          ),
+          const SizedBox(height: 16),
 
-          // 3. Tiện ích & Yêu cầu
+          // 3. TIỆN ÍCH & YÊU CẦU
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildFieldLabel('Tiện ích & Yêu cầu'),
-              Text(
-                '${_selectedAmenities.length} đang chọn',
-                style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted),
-              ),
+              const Text('Tiện ích & Yêu cầu', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark)),
+              Text('${_selectedAmenities.length} đang chọn', style: const TextStyle(fontSize: 12, color: _emerald, fontWeight: FontWeight.w600)),
             ],
           ),
           const SizedBox(height: 8),
 
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _availableAmenities.map((amenity) {
-              final isChecked = _selectedAmenities.contains(amenity);
-              return FilterChip(
-                label: Text(amenity),
-                selected: isChecked,
-                onSelected: (selected) {
-                  setState(() {
-                    if (selected) {
-                      _selectedAmenities.add(amenity);
-                    } else {
-                      _selectedAmenities.remove(amenity);
-                    }
-                  });
-                },
-                selectedColor: _emeraldLight,
-                checkmarkColor: _emerald,
-                backgroundColor: const Color(0xFFF9FAFB),
-                labelStyle: TextStyle(
-                  fontSize: 12,
-                  fontWeight: isChecked ? FontWeight.bold : FontWeight.normal,
-                  color: isChecked ? _emerald : AppColors.textDark,
-                ),
-                side: BorderSide(
-                  color: isChecked ? _emerald : const Color(0xFFE5E7EB),
-                ),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 12),
-
-          // Ô thêm tiện ích tùy chỉnh
+          // Ô nhập thêm tiện ích riêng
           Row(
             children: [
               Expanded(
                 child: TextField(
                   controller: _customAmenityController,
                   decoration: InputDecoration(
-                    hintText: 'Thêm tiện ích khác (ví dụ: Nuôi mèo, Ban công...)',
+                    hintText: 'Thêm tiện ích, yêu cầu riêng...',
                     hintStyle: const TextStyle(fontSize: 12, color: AppColors.textMuted),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    isDense: true,
+                    prefixIcon: const Icon(Icons.add_circle_outline, size: 18, color: AppColors.textMuted),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                     filled: true,
                     fillColor: const Color(0xFFF9FAFB),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _emerald),
-                    ),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
                   ),
                   onSubmitted: (_) => _addCustomAmenity(),
                 ),
@@ -893,50 +908,175 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _emerald,
                   foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  elevation: 0,
                 ),
-                child: const Text('Thêm', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
+                child: const Text('Thêm', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
               ),
             ],
+          ),
+          const SizedBox(height: 10),
+
+          // Danh sách tiện ích ĐÃ CHỌN
+          Column(
+            children: _selectedAmenities.map((amenity) {
+              final isCustom = !_availableAmenities.contains(amenity) &&
+                  !['Máy lạnh', 'Có gác lửng', 'Chỗ để xe miễn phí', 'Giờ giấc tự do'].contains(amenity);
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 6.0),
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      _selectedAmenities.remove(amenity);
+                      if (isCustom) _availableAmenities.remove(amenity);
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFECFDF5),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFFA7F3D0)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check_circle, size: 18, color: _emerald),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            amenity,
+                            style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: AppColors.textDark),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: isCustom ? const Color(0xFFDBEAFE) : _emeraldLight,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            isCustom ? 'Tùy chọn' : 'Đã chọn',
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              color: isCustom ? const Color(0xFF1E40AF) : _emerald,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        if (isCustom) ...[
+                          const SizedBox(width: 4),
+                          const Icon(Icons.close, size: 14, color: AppColors.textMuted),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+
+          // Danh sách tiện ích CHƯA CHỌN
+          Column(
+            children: _availableAmenities.where((a) => !_selectedAmenities.contains(a)).map((amenity) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 6.0),
+                child: InkWell(
+                  onTap: () => setState(() => _selectedAmenities.add(amenity)),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF9FAFB),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.radio_button_unchecked, size: 18, color: Color(0xFF9CA3AF)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            amenity,
+                            style: const TextStyle(fontSize: 12.5, color: Color(0xFF4B5563)),
+                          ),
+                        ),
+                        const Icon(Icons.add, size: 16, color: Color(0xFF9CA3AF)),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 12),
+
+          // Nút Thu gọn ˄
+          Center(
+            child: InkWell(
+              onTap: () => setState(() => _isAdvancedExpanded = false),
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                decoration: BoxDecoration(
+                  color: _lavenderBg,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: _lavenderBorder),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Thu gọn',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _lavenderText),
+                    ),
+                    SizedBox(width: 4),
+                    Icon(Icons.keyboard_arrow_up, size: 16, color: _lavenderText),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  // WIDGET: Action Buttons
+  // Hàng 2 nút Đặt lại và Tìm kiếm trong Trạng thái 2
   Widget _buildAdvancedActionButtons() {
     return Row(
       children: [
         Expanded(
-          flex: 1,
-          child: OutlinedButton.icon(
-            onPressed: _resetFilters,
-            icon: const Icon(Icons.refresh, size: 18, color: AppColors.textDark),
-            label: const Text('Đặt lại', style: TextStyle(color: AppColors.textDark, fontWeight: FontWeight.bold)),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 13),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              side: const BorderSide(color: Color(0xFFD1D5DB)),
-              backgroundColor: const Color(0xFFF9FAFB),
+          child: SizedBox(
+            height: 48,
+            child: OutlinedButton.icon(
+              onPressed: _resetFilters,
+              icon: const Icon(Icons.refresh, size: 18, color: AppColors.textDark),
+              label: const Text('Đặt lại', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textDark)),
+              style: OutlinedButton.styleFrom(
+                backgroundColor: Colors.white,
+                side: const BorderSide(color: Color(0xFFE5E7EB)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 12),
         Expanded(
-          flex: 2,
-          child: ElevatedButton.icon(
-            onPressed: _executeSearch,
-            icon: const Icon(Icons.search, size: 18, color: Colors.white),
-            label: const Text('Tìm kiếm', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _emerald,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 13),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              elevation: 0,
+          child: SizedBox(
+            height: 48,
+            child: ElevatedButton.icon(
+              onPressed: _executeSearch,
+              icon: const Icon(Icons.search, size: 18, color: Colors.white),
+              label: const Text('Tìm kiếm', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _emerald,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                elevation: 0,
+              ),
             ),
           ),
         ),
@@ -944,88 +1084,53 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
     );
   }
 
-  // WIDGET: Thanh bộ lọc thu gọn hiển thị ở Trạng thái 3
+  // WIDGET: Thanh lọc thu gọn (Trạng thái 3)
   Widget _buildCompactFilterBar() {
-    final locationText = _selectedWard != 'Tất cả'
-        ? '$_selectedWard, ${_selectedDistrict != 'Tất cả' ? _selectedDistrict : _selectedCity}'
-        : (_selectedDistrict != 'Tất cả'
-            ? '$_selectedDistrict, $_selectedCity'
-            : (_selectedCity == 'Tất cả' ? 'Toàn quốc' : _selectedCity));
-
-    final typeText = _rentalType == 'single'
-        ? 'Ở 1 mình'
-        : (_rentalType == 'shared' ? 'Ở ghép' : 'Tất cả hình thức');
+    final rentalLabel = _rentalType == 'single' ? 'Ở 1 mình' : (_rentalType == 'shared' ? 'Ở ghép' : 'Tất cả');
+    final locationLabel = _selectedDistrict == 'Tất cả'
+        ? _selectedCity
+        : '$_selectedDistrict, $_selectedCity';
 
     return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFE5E7EB)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: _emeraldLight,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.location_on, color: _emerald, size: 20),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  locationText,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textDark,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '$typeText • $_selectedCriteriaCount tiêu chí',
-                  style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
-                ),
-              ],
-            ),
-          ),
+          const Icon(Icons.location_on, size: 18, color: _emerald),
           const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              '$locationLabel • $rentalLabel',
+              style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: AppColors.textDark),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
           InkWell(
             onTap: () => setState(() => _isAdvancedExpanded = true),
             borderRadius: BorderRadius.circular(8),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: const Color(0xFFF0F4FF),
+                color: _lavenderBg,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFD6E2FF)),
+                border: Border.all(color: _lavenderBorder),
               ),
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.tune, size: 14, color: Color(0xFF1E5BB0)),
+                  Icon(Icons.tune, size: 14, color: _lavenderText),
                   SizedBox(width: 4),
                   Text(
                     'Bộ lọc',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E5BB0),
+                      color: _lavenderText,
                     ),
                   ),
                 ],
@@ -1037,7 +1142,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
     );
   }
 
-  // WIDGET: Danh sách kết quả tìm kiếm
+  // WIDGET: Danh sách kết quả tìm kiếm (Trạng thái 3)
   Widget _buildResultsSection(AsyncValue<List<RoomModel>> roomsAsync) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1048,32 +1153,30 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
             Row(
               children: [
                 Container(
-                  width: 4,
+                  width: 3.5,
                   height: 16,
                   decoration: BoxDecoration(
                     color: _emerald,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 roomsAsync.when(
                   data: (rooms) => Text(
-                    _hasSearched
-                        ? 'Kết quả tìm kiếm (${rooms.length} phòng)'
-                        : 'Gợi ý phòng trọ dành cho bạn (${rooms.length} phòng)',
+                    'Kết quả tìm kiếm (${rooms.length} phòng)',
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textDark,
                     ),
                   ),
-                  loading: () => Text(
-                    _hasSearched ? 'Kết quả tìm kiếm...' : 'Đang tải gợi ý phòng...',
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textDark),
+                  loading: () => const Text(
+                    'Đang tìm phòng...',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textDark),
                   ),
-                  error: (err, stack) => Text(
-                    _hasSearched ? 'Kết quả tìm kiếm' : 'Gợi ý phòng trọ',
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textDark),
+                  error: (err, stack) => const Text(
+                    'Kết quả tìm kiếm',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textDark),
                   ),
                 ),
               ],
@@ -1131,7 +1234,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                       ),
                       const SizedBox(height: 6),
                       const Text(
-                        'Hãy thử điều chỉnh bộ lọc hoặc bấm nút bên dưới để xem toàn bộ phòng trọ có sẵn.',
+                        'Hãy thử điều chỉnh khoảng giá hoặc tiện ích để xem nhiều phòng trọ hơn.',
                         style: TextStyle(color: AppColors.textMuted, fontSize: 12.5),
                         textAlign: TextAlign.center,
                       ),
@@ -1160,7 +1263,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                 final room = rooms[index];
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12.0),
-                  child: _buildRoomCard(room),
+                  child: _buildHorizontalRoomCard(room),
                 );
               },
             );
@@ -1168,7 +1271,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
           loading: () => const Center(
             child: Padding(
               padding: EdgeInsets.all(32),
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(color: _emerald),
             ),
           ),
           error: (err, stack) => Container(
@@ -1186,9 +1289,10 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
     );
   }
 
-  // WIDGET: Thẻ phòng trọ chuẩn HomeShare
-  Widget _buildRoomCard(RoomModel room) {
-    final isFavorite = _favoriteRoomIds.contains(room.id);
+  // WIDGET: Thẻ phòng trọ dạng ngang chuẩn 100% Figma & tiendo.md
+  // Bên trái: Ảnh 95x95dp + Huy hiệu Chính chủ/Mới
+  // Bên phải: Tiêu đề, Giá to xanh, Diện tích • Loại phòng • Quận huyện, Chip tiện ích, Nút gọi & chat
+  Widget _buildHorizontalRoomCard(RoomModel room) {
     final priceStr = '${currencyFormatter.format(room.price)} đ/tháng';
     final imageUrl = room.images.isNotEmpty
         ? room.images.first
@@ -1203,6 +1307,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -1215,188 +1320,130 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
             ),
           ],
         ),
-        child: Column(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Ảnh phòng
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                  child: SizedBox(
-                    height: 170,
-                    width: double.infinity,
-                    child: Image.network(
+            // BÊN TRÁI: Ảnh phòng 95x95dp bo góc 12dp + Badge Chính chủ
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: SizedBox(
+                width: 95,
+                height: 95,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.network(
                       imageUrl,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
                         color: const Color(0xFFF3F4F6),
-                        child: const Icon(Icons.home, size: 48, color: Color(0xFF9CA3AF)),
+                        child: const Icon(Icons.home, size: 36, color: Color(0xFF9CA3AF)),
                       ),
                     ),
-                  ),
-                ),
-                // Badge Loại phòng
-                Positioned(
-                  top: 10,
-                  left: 10,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.65),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      room.roomType,
-                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ),
-                // Nút Yêu thích
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Material(
-                    color: Colors.black.withValues(alpha: 0.45),
-                    shape: const CircleBorder(),
-                    child: InkWell(
-                      customBorder: const CircleBorder(),
-                      onTap: () {
-                        setState(() {
-                          if (isFavorite) {
-                            _favoriteRoomIds.remove(room.id);
-                          } else {
-                            _favoriteRoomIds.add(room.id);
-                          }
-                        });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(6),
-                        child: Icon(
-                          isFavorite ? Icons.favorite : Icons.favorite_border,
-                          size: 18,
-                          color: isFavorite ? Colors.redAccent : Colors.white,
+                    Positioned(
+                      top: 6,
+                      left: 6,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0D9488),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          'Chính chủ',
+                          style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
+            const SizedBox(width: 12),
 
-            // Nội dung chi tiết
-            Padding(
-              padding: const EdgeInsets.all(14),
+            // BÊN PHẢI: Thông tin chi tiết phòng
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Tiêu đề phòng
                   Text(
                     room.title,
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textDark),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textDark),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 3),
 
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on_outlined, size: 14, color: AppColors.textMuted),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          '${room.address}, ${room.district}',
-                          style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
+                  // Giá thuê to màu xanh lục bảo
+                  Text(
+                    priceStr,
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: _emerald),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 3),
 
-                  // Giá và Diện tích
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        priceStr,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFDC2626)),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF3F4F6),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          '${room.area.toInt()} m²',
-                          style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: AppColors.textDark),
-                        ),
-                      ),
-                    ],
+                  // Thông số: Diện tích • Loại phòng • Quận huyện
+                  Text(
+                    '${room.area.toInt()} m² • ${room.roomType} • ${room.district}',
+                    style: const TextStyle(fontSize: 11.5, color: Color(0xFF6B7280)),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 6),
 
-                  // Tiện ích chips
-                  if (room.amenities.isNotEmpty) ...[
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 4,
-                      children: room.amenities.take(3).map((a) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF8FAFC),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: const Color(0xFFE2E8F0)),
-                          ),
-                          child: Text(a, style: const TextStyle(fontSize: 10.5, color: Color(0xFF475569))),
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-
-                  // Chủ trọ & Tác vụ nhanh
+                  // Hàng chip tiện ích nhỏ + 2 nút tròn gọi điện & chat
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      // Chip tiện ích
                       Expanded(
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 13,
-                              backgroundColor: _emeraldLight,
-                              child: const Icon(Icons.person, size: 15, color: _emerald),
-                            ),
-                            const SizedBox(width: 6),
-                            Expanded(
+                        child: Wrap(
+                          spacing: 4,
+                          runSpacing: 4,
+                          children: room.amenities.take(2).map((a) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF3F4F6),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
                               child: Text(
-                                room.hostName.isNotEmpty ? room.hostName : 'Chủ trọ',
-                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textDark),
+                                a,
+                                style: const TextStyle(fontSize: 10, color: Color(0xFF4B5563)),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
+                            );
+                          }).toList(),
                         ),
                       ),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.phone_outlined, size: 20, color: _emerald),
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                            onPressed: () => _showCallHostDialog(room),
+
+                      // Nút tròn Gọi điện 📞
+                      Material(
+                        color: _emeraldLight,
+                        shape: const CircleBorder(),
+                        child: InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: () => _showCallHostDialog(room),
+                          child: const Padding(
+                            padding: EdgeInsets.all(7),
+                            child: Icon(Icons.phone, size: 16, color: _emerald),
                           ),
-                          const SizedBox(width: 12),
-                          IconButton(
-                            icon: const Icon(Icons.chat_bubble_outline, size: 20, color: Color(0xFF2563EB)),
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                            onPressed: () => _openChatWithHost(room),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+
+                      // Nút tròn Nhắn tin 💬
+                      Material(
+                        color: const Color(0xFFEFF6FF),
+                        shape: const CircleBorder(),
+                        child: InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: () => _openChatWithHost(room),
+                          child: const Padding(
+                            padding: EdgeInsets.all(7),
+                            child: Icon(Icons.chat_bubble, size: 16, color: Color(0xFF2563EB)),
                           ),
-                        ],
+                        ),
                       ),
                     ],
                   ),
