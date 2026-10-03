@@ -24,6 +24,11 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
   String _selectedFilter = 'all'; // 'all', 'landlord', 'roommate', 'unread'
   Timer? _searchDebounce;
 
+  // Quản lý trạng thái tương tác cuộc trò chuyện: Ghim, Tắt thông báo, Xóa
+  final Set<String> _pinnedIds = {};
+  final Set<String> _mutedIds = {};
+  final Set<String> _deletedIds = {};
+
   @override
   void dispose() {
     _searchDebounce?.cancel();
@@ -127,8 +132,16 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       }
     }
 
-    final allConversations = mergedMap.values.toList()
-      ..sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
+    final allConversations = mergedMap.values
+        .where((c) => !_deletedIds.contains(c.id))
+        .toList()
+      ..sort((a, b) {
+        final aPinned = _pinnedIds.contains(a.id);
+        final bPinned = _pinnedIds.contains(b.id);
+        if (aPinned && !bPinned) return -1;
+        if (!aPinned && bPinned) return 1;
+        return b.lastMessageTime.compareTo(a.lastMessageTime);
+      });
 
     // Lọc theo tìm kiếm và tab phân loại
     final filteredConversations = allConversations.where((conv) {
@@ -157,13 +170,13 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
         title: const Text('Tin nhắn & Trao đổi'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.done_all),
-            tooltip: 'Đánh dấu tất cả đã đọc',
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Đã đánh dấu tất cả tin nhắn là đã đọc')),
-              );
-            },
+            icon: const Badge(
+              smallSize: 8,
+              backgroundColor: AppColors.danger,
+              child: Icon(Icons.notifications_none_outlined),
+            ),
+            tooltip: 'Thông báo',
+            onPressed: () => _showNotificationSheet(context),
           ),
         ],
       ),
@@ -266,75 +279,99 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                       final item = filteredConversations[index];
                       final isUnread = item.unreadCount > 0 || !item.isRead;
                       final displayUnreadCount = item.unreadCount > 0 ? item.unreadCount : (isUnread ? 1 : 0);
+                      final isPinned = _pinnedIds.contains(item.id);
+                      final isMuted = _mutedIds.contains(item.id);
 
-                      return Material(
-                        color: isUnread ? AppColors.primaryContainer.withValues(alpha: 0.15) : Colors.transparent,
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          leading: Stack(
-                            children: [
-                              CircleAvatar(
-                                radius: 26,
-                                backgroundColor: isUnread ? AppColors.primary : AppColors.primaryContainer,
-                                child: Text(
-                                  item.partnerName.isNotEmpty ? item.partnerName[0] : 'U',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: isUnread ? Colors.white : AppColors.primary,
-                                    fontSize: 18,
+                      return _SwipeableConversationItem(
+                        key: ValueKey(item.id),
+                        isPinned: isPinned,
+                        isMuted: isMuted,
+                        onDelete: () => _confirmDeleteConversation(context, item.id, item.partnerName),
+                        onTogglePin: () => _togglePin(item.id, item.partnerName),
+                        onToggleMute: () => _toggleMute(item.id, item.partnerName),
+                        child: Material(
+                          color: isPinned
+                              ? const Color(0xFFF0FDF4)
+                              : (isUnread ? const Color(0xFFF8FAFC) : Colors.white),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            leading: Stack(
+                              children: [
+                                CircleAvatar(
+                                  radius: 26,
+                                  backgroundColor: isUnread ? AppColors.primary : AppColors.primaryContainer,
+                                  child: Text(
+                                    item.partnerName.isNotEmpty ? item.partnerName[0] : 'U',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: isUnread ? Colors.white : AppColors.primary,
+                                      fontSize: 18,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: Container(
-                                  width: 12,
-                                  height: 12,
-                                  decoration: BoxDecoration(
-                                    color: Colors.green,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.white, width: 2),
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: Container(
+                                    width: 12,
+                                    height: 12,
+                                    decoration: BoxDecoration(
+                                      color: Colors.green,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: Colors.white, width: 2),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        item.partnerName,
-                                        style: TextStyle(
-                                          fontWeight: isUnread ? FontWeight.w900 : FontWeight.w600,
-                                          fontSize: isUnread ? 15.5 : 14,
-                                          color: isUnread ? const Color(0xFF0F172A) : AppColors.textDark,
+                              ],
+                            ),
+                            title: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      if (isPinned) ...[
+                                        const Icon(Icons.push_pin_rounded, color: Color(0xFF2563EB), size: 14),
+                                        const SizedBox(width: 4),
+                                      ],
+                                      Flexible(
+                                        child: Text(
+                                          item.partnerName,
+                                          style: TextStyle(
+                                            fontWeight: isUnread ? FontWeight.w900 : FontWeight.w600,
+                                            fontSize: isUnread ? 15.5 : 14,
+                                            color: isUnread ? const Color(0xFF0F172A) : AppColors.textDark,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      if (item.isLandlord) ...[
+                                        const SizedBox(width: 4),
+                                        const Icon(Icons.verified, color: AppColors.primary, size: 14),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (isMuted) ...[
+                                      const Icon(Icons.notifications_off_outlined, size: 13, color: Color(0xFF94A3B8)),
+                                      const SizedBox(width: 4),
+                                    ],
+                                    Text(
+                                      _formatTime(item.lastMessageTime),
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: isUnread ? AppColors.primary : AppColors.textMuted,
+                                        fontWeight: isUnread ? FontWeight.w900 : FontWeight.normal,
                                       ),
                                     ),
-                                    if (item.isLandlord) ...[
-                                      const SizedBox(width: 4),
-                                      const Icon(Icons.verified, color: AppColors.primary, size: 14),
-                                    ],
                                   ],
                                 ),
-                              ),
-                              Text(
-                                _formatTime(item.lastMessageTime),
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: isUnread ? AppColors.primary : AppColors.textMuted,
-                                  fontWeight: isUnread ? FontWeight.w900 : FontWeight.normal,
-                                ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -451,8 +488,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                           );
                         },
                       ),
-                    );
-                  },
+                    ),
+                  );
+                },
                 ),
               ),
             ),
@@ -497,5 +535,506 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
     } else {
       return DateFormat('dd/MM').format(time);
     }
+  }
+
+  // --- CÁC HÀM THAO TÁC HỘI THOẠI: GHIM, TẮT THÔNG BÁO, XÓA ---
+  void _togglePin(String id, String name) {
+    final isPinned = _pinnedIds.contains(id);
+    setState(() {
+      if (isPinned) {
+        _pinnedIds.remove(id);
+      } else {
+        _pinnedIds.add(id);
+      }
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 2),
+        content: Text(isPinned ? 'Đã bỏ ghim cuộc trò chuyện với $name' : 'Đã ghim cuộc trò chuyện với $name lên đầu'),
+      ),
+    );
+  }
+
+  void _toggleMute(String id, String name) {
+    final isMuted = _mutedIds.contains(id);
+    setState(() {
+      if (isMuted) {
+        _mutedIds.remove(id);
+      } else {
+        _mutedIds.add(id);
+      }
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 2),
+        content: Text(isMuted ? 'Đã bật thông báo cho $name' : 'Đã tắt thông báo cho $name'),
+      ),
+    );
+  }
+
+  void _confirmDeleteConversation(BuildContext context, String id, String name) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.delete_outline_rounded, color: AppColors.danger, size: 22),
+            SizedBox(width: 8),
+            Text('Xóa cuộc trò chuyện?', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: Text(
+          'Bạn có chắc chắn muốn xóa cuộc trò chuyện với "$name"? Lịch sử trò chuyện sẽ được ẩn khỏi danh sách của bạn.',
+          style: const TextStyle(fontSize: 13, color: Color(0xFF475569)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Hủy', style: TextStyle(color: Color(0xFF64748B))),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              setState(() {
+                _deletedIds.add(id);
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Đã xóa cuộc trò chuyện với $name'),
+                  action: SnackBarAction(
+                    label: 'Hoàn tác',
+                    textColor: Colors.amber,
+                    onPressed: () {
+                      setState(() {
+                        _deletedIds.remove(id);
+                      });
+                    },
+                  ),
+                ),
+              );
+            },
+            child: const Text('Xóa'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- MODAL BOTTOM SHEET: TRUNG TÂM THÔNG BÁO ---
+  void _showNotificationSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 10, bottom: 8),
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: const Color(0xFFCBD5E1),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 16, 12),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primarySurface,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.notifications_outlined, color: AppColors.primary, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Thông báo',
+                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                        ),
+                        Text(
+                          'Cập nhật tin nhắn & lịch xem phòng mới nhất',
+                          style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEE2E2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Text(
+                      '3 mới',
+                      style: TextStyle(color: Color(0xFFEF4444), fontSize: 11, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                children: [
+                  _buildNotificationItem(
+                    icon: Icons.calendar_month_rounded,
+                    iconBg: const Color(0xFFDCFCE7),
+                    iconColor: const Color(0xFF16A34A),
+                    title: 'Xác nhận lịch hẹn xem phòng',
+                    content: 'Cô Lan Nhà Trọ đã đồng ý lịch hẹn xem phòng #LT-104 vào lúc 15:00 ngày mai.',
+                    time: '15 phút trước',
+                    isUnread: true,
+                  ),
+                  _buildNotificationItem(
+                    icon: Icons.chat_bubble_outline_rounded,
+                    iconBg: const Color(0xFFDBEAFE),
+                    iconColor: const Color(0xFF2563EB),
+                    title: 'Tin nhắn mới từ Chú Ba Linh Trung',
+                    content: 'Phòng 101 còn trống nha cháu, cháu qua xem lúc mấy giờ?',
+                    time: '45 phút trước',
+                    isUnread: true,
+                  ),
+                  _buildNotificationItem(
+                    icon: Icons.verified_user_outlined,
+                    iconBg: AppColors.primarySurface,
+                    iconColor: AppColors.primary,
+                    title: 'Bảo vệ tiền cọc an toàn',
+                    content: 'Giao dịch đặt cọc giữ phòng của bạn được bảo vệ 100% qua HomeShare Escrow.',
+                    time: '2 giờ trước',
+                    isUnread: true,
+                  ),
+                  _buildNotificationItem(
+                    icon: Icons.people_outline_rounded,
+                    iconBg: const Color(0xFFF3E8FF),
+                    iconColor: const Color(0xFF7C3AED),
+                    title: 'Gợi ý bạn ở ghép phù hợp',
+                    content: 'Nguyễn Văn Nam có lối sống và ngân sách tương thích 95% vừa gửi lời kết nối.',
+                    time: '1 ngày trước',
+                    isUnread: false,
+                  ),
+                ],
+              ),
+            ),
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Đã đánh dấu đọc tất cả thông báo')),
+                      );
+                    },
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    child: const Text('Đánh dấu đọc tất cả', style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotificationItem({
+    required IconData icon,
+    required Color iconBg,
+    required Color iconColor,
+    required String title,
+    required String content,
+    required String time,
+    required bool isUnread,
+  }) {
+    return Container(
+      color: isUnread ? const Color(0xFFF8FAFC) : Colors.transparent,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: iconBg,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 18, color: iconColor),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: isUnread ? FontWeight.bold : FontWeight.w600,
+                          color: const Color(0xFF0F172A),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(time, style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
+                  ],
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  content,
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF475569), height: 1.35),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          if (isUnread) ...[
+            const SizedBox(width: 8),
+            Container(
+              margin: const EdgeInsets.only(top: 4),
+              width: 8,
+              height: 8,
+              decoration: const BoxDecoration(
+                color: AppColors.primary,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Widget hỗ trợ trượt sang trái (Swipe Left) để lộ các nút tính năng: Ghim, Tắt TB, Xóa
+class _SwipeableConversationItem extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onDelete;
+  final VoidCallback onTogglePin;
+  final VoidCallback onToggleMute;
+  final bool isPinned;
+  final bool isMuted;
+
+  const _SwipeableConversationItem({
+    super.key,
+    required this.child,
+    required this.onDelete,
+    required this.onTogglePin,
+    required this.onToggleMute,
+    required this.isPinned,
+    required this.isMuted,
+  });
+
+  @override
+  State<_SwipeableConversationItem> createState() => _SwipeableConversationItemState();
+}
+
+class _SwipeableConversationItemState extends State<_SwipeableConversationItem>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+  double _dragExtent = 0.0;
+  static const double _maxDragDistance = 210.0; // 3 nút x 70dp
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _animation = Tween<double>(begin: 0.0, end: 0.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    )..addListener(() {
+        setState(() {
+          _dragExtent = _animation.value;
+        });
+      });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _animateTo(double target) {
+    _animation = Tween<double>(begin: _dragExtent, end: target).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
+    _controller.reset();
+    _controller.forward();
+  }
+
+  void _open() => _animateTo(-_maxDragDistance);
+  void _close() => _animateTo(0.0);
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRect(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onHorizontalDragUpdate: (details) {
+          setState(() {
+            _dragExtent = (_dragExtent + (details.primaryDelta ?? 0.0)).clamp(-_maxDragDistance, 0.0);
+          });
+        },
+        onHorizontalDragEnd: (details) {
+          final velocity = details.primaryVelocity ?? 0.0;
+          if (_dragExtent < -(_maxDragDistance / 3) || velocity < -300) {
+            _open();
+          } else {
+            _close();
+          }
+        },
+        child: Stack(
+          children: [
+            // Các nút chức năng xuất hiện khi kéo sang trái (chỉ hiển thị khi đang kéo sang trái)
+            if (_dragExtent < 0)
+              Positioned.fill(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: SizedBox(
+                    width: _maxDragDistance,
+                    height: double.infinity,
+                    child: Row(
+                      children: [
+                        // 1. Ghim / Bỏ ghim
+                        Expanded(
+                          child: InkWell(
+                            onTap: () {
+                              _close();
+                              widget.onTogglePin();
+                            },
+                            child: Container(
+                              color: const Color(0xFF2563EB),
+                              alignment: Alignment.center,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    widget.isPinned ? Icons.push_pin_outlined : Icons.push_pin_rounded,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    widget.isPinned ? 'Bỏ ghim' : 'Ghim',
+                                    style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        // 2. Tắt / Bật thông báo
+                        Expanded(
+                          child: InkWell(
+                            onTap: () {
+                              _close();
+                              widget.onToggleMute();
+                            },
+                            child: Container(
+                              color: const Color(0xFF7C3AED),
+                              alignment: Alignment.center,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    widget.isMuted ? Icons.notifications_active_outlined : Icons.notifications_off_outlined,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    widget.isMuted ? 'Bật TB' : 'Tắt TB',
+                                    style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        // 3. Xóa cuộc trò chuyện
+                        Expanded(
+                          child: InkWell(
+                            onTap: () {
+                              _close();
+                              widget.onDelete();
+                            },
+                            child: Container(
+                              color: const Color(0xFFEF4444),
+                              alignment: Alignment.center,
+                              child: const Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.delete_outline_rounded, color: Colors.white, size: 20),
+                                  SizedBox(height: 3),
+                                  Text(
+                                    'Xóa',
+                                    style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            // Lớp giao diện cuộc trò chuyện phía trước (đảm bảo 100% đục để không bị nhìn xuyên)
+            Transform.translate(
+              offset: Offset(_dragExtent, 0),
+              child: Material(
+                color: widget.isPinned ? const Color(0xFFF0FDF4) : Colors.white,
+                child: GestureDetector(
+                  onTap: () {
+                    if (_dragExtent < -10) {
+                      _close();
+                    }
+                  },
+                  behavior: _dragExtent < -10 ? HitTestBehavior.opaque : HitTestBehavior.translucent,
+                  child: widget.child,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

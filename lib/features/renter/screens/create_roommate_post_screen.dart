@@ -385,7 +385,7 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
 
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       child: Row(
         children: List.generate(steps.length, (idx) {
           final isPassed = idx < _currentStep;
@@ -394,29 +394,36 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
 
           return Expanded(
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 CircleAvatar(
-                  radius: 12,
+                  radius: 11,
                   backgroundColor: color,
                   child: Text(
                     '${idx + 1}',
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                    style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                 ),
-                const SizedBox(width: 6),
-                Text(
-                  steps[idx],
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
-                    color: isCurrent ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      steps[idx],
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
+                        color: isCurrent ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+                      ),
+                    ),
                   ),
                 ),
                 if (idx < steps.length - 1)
                   Expanded(
                     child: Container(
                       height: 2,
-                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                      margin: const EdgeInsets.symmetric(horizontal: 6),
                       color: isPassed ? AppColors.primary : const Color(0xFFE2E8F0),
                     ),
                   ),
@@ -469,8 +476,9 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
                       const Text('Giới tính *', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 6),
                       DropdownButtonFormField<String>(
+                        isExpanded: true,
                         initialValue: _authorGender,
-                        items: ['Nam', 'Nữ', 'Khác'].map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
+                        items: ['Nam', 'Nữ', 'Khác'].map((g) => DropdownMenuItem(value: g, child: Text(g, style: const TextStyle(fontSize: 12.5)))).toList(),
                         onChanged: (val) => setState(() => _authorGender = val ?? 'Nữ'),
                         decoration: _inputDecoration(),
                       ),
@@ -552,9 +560,10 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
                 const Text('Tỉnh / Thành phố *', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
+                  isExpanded: true,
                   key: ValueKey('province_$_selectedProvince'),
                   initialValue: provinces.contains(_selectedProvince) ? _selectedProvince : provinces.first,
-                  items: provinces.map((p) => DropdownMenuItem(value: p, child: Text(p, overflow: TextOverflow.ellipsis))).toList(),
+                  items: provinces.map((p) => DropdownMenuItem(value: p, child: Text(p, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12.5)))).toList(),
                   onChanged: (val) {
                     if (val != null) {
                       setState(() {
@@ -580,9 +589,10 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
                       const Text('Quận / Huyện *', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 6),
                       DropdownButtonFormField<String>(
+                        isExpanded: true,
                         key: ValueKey('district_${_selectedProvince}_$_selectedDistrict'),
                         initialValue: districts.contains(_selectedDistrict) ? _selectedDistrict : (districts.isNotEmpty ? districts.first : null),
-                        items: districts.map((d) => DropdownMenuItem(value: d, child: Text(d, overflow: TextOverflow.ellipsis))).toList(),
+                        items: districts.map((d) => DropdownMenuItem(value: d, child: Text(d, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12.5)))).toList(),
                         onChanged: (val) {
                           setState(() {
                             _selectedDistrict = val ?? districts.first;
@@ -603,9 +613,10 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
                       const Text('Phường / Xã', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 6),
                       DropdownButtonFormField<String>(
+                        isExpanded: true,
                         key: ValueKey('ward_${_selectedDistrict}_$_selectedWard'),
                         initialValue: wards.contains(_selectedWard) ? _selectedWard : (wards.isNotEmpty ? wards.first : 'Linh Trung'),
-                        items: wards.map((w) => DropdownMenuItem(value: w, child: Text(w, overflow: TextOverflow.ellipsis))).toList(),
+                        items: wards.map((w) => DropdownMenuItem(value: w, child: Text(w, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12.5)))).toList(),
                         onChanged: (val) => setState(() => _selectedWard = val ?? 'Linh Trung'),
                         decoration: _inputDecoration(),
                       ),
@@ -624,8 +635,9 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
                       const Text('Loại hình nhà ở *', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 6),
                       DropdownButtonFormField<String>(
+                        isExpanded: true,
                         initialValue: _selectedPropertyType,
-                        items: _propertyTypes.map((t) => DropdownMenuItem(value: t, child: Text(t, overflow: TextOverflow.ellipsis))).toList(),
+                        items: _propertyTypes.map((t) => DropdownMenuItem(value: t, child: Text(t, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12.5)))).toList(),
                         onChanged: (val) => setState(() => _selectedPropertyType = val ?? _propertyTypes.first),
                         decoration: _inputDecoration(),
                       ),
@@ -640,8 +652,9 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
                       const Text('Giới tính tìm kiếm *', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 6),
                       DropdownButtonFormField<String>(
+                        isExpanded: true,
                         initialValue: _targetGender,
-                        items: ['Nữ', 'Nam', 'Tất cả'].map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
+                        items: ['Nữ', 'Nam', 'Tất cả'].map((g) => DropdownMenuItem(value: g, child: Text(g, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12.5)))).toList(),
                         onChanged: (val) => setState(() => _targetGender = val ?? 'Nữ'),
                         decoration: _inputDecoration(),
                       ),
@@ -965,7 +978,7 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
     return InputDecoration(
       hintText: hint,
       hintStyle: const TextStyle(fontSize: 12.5, color: Color(0xFF94A3B8)),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       isDense: true,
       filled: true,
       fillColor: const Color(0xFFF8FAFC),

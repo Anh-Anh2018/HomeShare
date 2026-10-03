@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../data/models/chat_model.dart';
@@ -45,6 +48,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
   bool _showScrollToBottom = false;
   bool _isRecordingAudio = false;
   final Set<String> _deletedForMeIds = {};
+  final Set<String> _revokedIds = {};
 
   @override
   void initState() {
@@ -556,11 +560,11 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                 children: [
                   _buildAttachOption(
                     icon: Icons.photo_library_outlined,
-                    label: 'Gửi ảnh (1-5)',
+                    label: 'Gửi ảnh Album',
                     color: Colors.blue,
                     onTap: () {
                       Navigator.pop(ctx);
-                      _sendSampleImage();
+                      _pickAndSendImageFromAlbum();
                     },
                   ),
                   _buildAttachOption(
@@ -572,24 +576,28 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                       _sendLocationMessage();
                     },
                   ),
-                  _buildAttachOption(
-                    icon: Icons.calendar_today_outlined,
-                    label: 'Hẹn xem phòng',
-                    color: Colors.green,
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      _showAppointmentDialog();
-                    },
-                  ),
-                  _buildAttachOption(
-                    icon: Icons.group_add_outlined,
-                    label: 'Mời ở ghép',
-                    color: Colors.orange,
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      _showRoommateInviteDialog();
-                    },
-                  ),
+                  // Chỉ hiển thị 'Hẹn xem phòng' khi trao đổi với Chủ trọ
+                  if (widget.isLandlord)
+                    _buildAttachOption(
+                      icon: Icons.calendar_today_outlined,
+                      label: 'Hẹn xem phòng',
+                      color: Colors.green,
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        _showAppointmentDialog();
+                      },
+                    ),
+                  // CHỈ hiển thị 'Mời ở ghép' khi trao đổi với Người dùng / Bạn tìm ở ghép (!isLandlord)
+                  if (!widget.isLandlord)
+                    _buildAttachOption(
+                      icon: Icons.group_add_outlined,
+                      label: 'Mời ở ghép',
+                      color: Colors.orange,
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        _showRoommateInviteDialog();
+                      },
+                    ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -626,12 +634,88 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
     );
   }
 
-  void _sendSampleImage() {
-    _sendRichMessage(
-      text: '[Hình ảnh đính kèm]',
-      messageType: 'image',
-      attachmentUrl: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600',
-    );
+  // Chọn và gửi ảnh thật từ thư viện Album ảnh (Gallery)
+  Future<void> _pickAndSendImageFromAlbum() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? pickedImage = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+        maxWidth: 1600,
+      );
+
+      if (pickedImage == null) return;
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            duration: Duration(seconds: 1),
+            content: Row(
+              children: [
+                SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
+                SizedBox(width: 12),
+                Text('Đang tải và gửi ảnh từ album...'),
+              ],
+            ),
+          ),
+        );
+      }
+
+      String attachmentUrl = '';
+      try {
+        final fileName = '${DateTime.now().millisecondsSinceEpoch}_${pickedImage.name}';
+        final storageRef = FirebaseStorage.instance
+            .ref()
+            .child('chat_media')
+            .child(widget.currentUserId)
+            .child(fileName);
+
+        final uploadTask = storageRef.putFile(
+          File(pickedImage.path),
+          SettableMetadata(contentType: 'image/jpeg'),
+        );
+        final snapshot = await uploadTask;
+        attachmentUrl = await snapshot.ref.getDownloadURL();
+      } catch (storageError) {
+        debugPrint('Firebase Storage default bucket error, trying fallback bucket: $storageError');
+        try {
+          final fallbackStorage = FirebaseStorage.instanceFor(bucket: 'gs://homeshare-fe18e.appspot.com');
+          final fileName = '${DateTime.now().millisecondsSinceEpoch}_${pickedImage.name}';
+          final storageRef = fallbackStorage
+              .ref()
+              .child('chat_media')
+              .child(widget.currentUserId)
+              .child(fileName);
+
+          final uploadTask = storageRef.putFile(
+            File(pickedImage.path),
+            SettableMetadata(contentType: 'image/jpeg'),
+          );
+          final snapshot = await uploadTask;
+          attachmentUrl = await snapshot.ref.getDownloadURL();
+        } catch (e2) {
+          debugPrint('Firebase Storage unavailable, using local path fallback: $e2');
+          attachmentUrl = pickedImage.path;
+        }
+      }
+
+      await _sendRichMessage(
+        text: '[Hình ảnh từ album]',
+        messageType: 'image',
+        attachmentUrl: attachmentUrl,
+        extraData: {
+          'localPath': pickedImage.path,
+          'fileName': pickedImage.name,
+        },
+      );
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Không thể chọn ảnh từ album: $e')),
+        );
+      }
+    }
   }
 
   void _sendLocationMessage() {
@@ -737,6 +821,13 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
   }
 
   void _showRoommateInviteDialog() {
+    if (widget.isLandlord) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tính năng mời ở ghép chỉ áp dụng khi trao đổi với người dùng tìm phòng / ở ghép.')),
+      );
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -827,6 +918,8 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
 
   // Menu thao tác khi nhấn giữ tin nhắn (Long Press Context Menu - TC 40, 41)
   void _showMessageContextMenu(ChatMessageModel msg, bool isMe) {
+    final isRevoked = msg.messageType == 'revoked' || msg.status == 'revoked' || _revokedIds.contains(msg.id);
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
@@ -834,17 +927,47 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (!isRevoked)
+              ListTile(
+                leading: const Icon(Icons.copy_outlined, color: AppColors.primary),
+                title: const Text('Sao chép nội dung tin nhắn'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _copyMessage(msg.text);
+                },
+              ),
+            // Thu hồi tin nhắn ở cả 2 phía (chỉ người gửi tin nhắn mới được thu hồi)
+            if (isMe && !isRevoked)
+              ListTile(
+                leading: const Icon(Icons.undo_rounded, color: Colors.orange),
+                title: const Text(
+                  'Thu hồi tin nhắn (Cả 2 bên)',
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange),
+                ),
+                subtitle: const Text('Hiển thị "Tin nhắn đã được thu hồi" cho cả hai người', style: TextStyle(fontSize: 11)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _confirmRevokeMessage(msg);
+                },
+              ),
+            // Xóa tin nhắn ở cả 2 phía (Xóa vĩnh viễn khỏi cuộc trò chuyện của cả 2)
+            if (isMe)
+              ListTile(
+                leading: const Icon(Icons.delete_forever_outlined, color: AppColors.danger),
+                title: const Text(
+                  'Xóa tin nhắn ở cả 2 bên',
+                  style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.danger),
+                ),
+                subtitle: const Text('Xóa hoàn toàn tin nhắn này khỏi cuộc trò chuyện của cả hai người', style: TextStyle(fontSize: 11)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _confirmDeleteForEveryone(msg);
+                },
+              ),
             ListTile(
-              leading: const Icon(Icons.copy_outlined, color: AppColors.primary),
-              title: const Text('Sao chép nội dung tin nhắn'),
-              onTap: () {
-                Navigator.pop(ctx);
-                _copyMessage(msg.text);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete_outline, color: AppColors.danger),
-              title: const Text('Xóa ở phía tôi (Delete for Me)'),
+              leading: const Icon(Icons.delete_outline, color: Color(0xFF64748B)),
+              title: const Text('Xóa ở phía tôi (Chỉ mình tôi)'),
+              subtitle: const Text('Chỉ ẩn tin nhắn này trên thiết bị của bạn', style: TextStyle(fontSize: 11)),
               onTap: () {
                 Navigator.pop(ctx);
                 _deleteForMe(msg.id);
@@ -854,6 +977,128 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
         ),
       ),
     );
+  }
+
+  // Xác nhận thu hồi tin nhắn ở cả 2 bên
+  void _confirmRevokeMessage(ChatMessageModel msg) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.undo_rounded, color: Colors.orange),
+            SizedBox(width: 8),
+            Text('Thu hồi tin nhắn?', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: const Text(
+          'Tin nhắn này sẽ bị thu hồi và hiển thị "Tin nhắn đã được thu hồi" ở cả phía bạn và đối phương.',
+          style: TextStyle(fontSize: 13, color: Color(0xFF475569)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Hủy', style: TextStyle(color: Color(0xFF64748B))),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              _revokeMessage(msg.id);
+            },
+            child: const Text('Thu hồi'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Xác nhận xóa tin nhắn ở cả 2 bên (xóa vĩnh viễn)
+  void _confirmDeleteForEveryone(ChatMessageModel msg) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.delete_forever_outlined, color: AppColors.danger),
+            SizedBox(width: 8),
+            Text('Xóa tin nhắn ở cả 2 bên?', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: const Text(
+          'Tin nhắn này sẽ bị xóa hoàn toàn khỏi cuộc trò chuyện của cả phía bạn và phía đối phương.',
+          style: TextStyle(fontSize: 13, color: Color(0xFF475569)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Hủy', style: TextStyle(color: Color(0xFF64748B))),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              _deleteForEveryone(msg.id);
+            },
+            child: const Text('Xóa cả 2 bên'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _revokeMessage(String messageId) async {
+    setState(() {
+      _revokedIds.add(messageId);
+    });
+
+    try {
+      await ref.read(chatServiceProvider).revokeMessageForEveryone(
+        senderId: widget.currentUserId,
+        receiverId: widget.receiverId,
+        messageId: messageId,
+      );
+    } catch (e) {
+      debugPrint('Error revoking message: $e');
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đã thu hồi tin nhắn ở cả 2 bên')),
+      );
+    }
+  }
+
+  Future<void> _deleteForEveryone(String messageId) async {
+    setState(() {
+      _deletedForMeIds.add(messageId);
+    });
+
+    try {
+      await ref.read(chatServiceProvider).deleteMessagePermanently(
+        senderId: widget.currentUserId,
+        receiverId: widget.receiverId,
+        messageId: messageId,
+      );
+    } catch (e) {
+      debugPrint('Error deleting message for everyone: $e');
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đã xóa vĩnh viễn tin nhắn ở cả 2 bên')),
+      );
+    }
   }
 
   @override
@@ -1190,13 +1435,19 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
 
   // Widget Thanh câu hỏi gợi ý nhanh (Tc_CHAT_12 -> 14)
   Widget _buildQuickChipsBar() {
-    final chips = [
-      'Phòng này còn trống không?',
-      'Có chỗ để xe không?',
-      'Giờ giấc như thế nào?',
-      'Hẹn lịch xem phòng',
-      '+ Mời vào ở ghép',
-    ];
+    final chips = widget.isLandlord
+        ? [
+            'Phòng này còn trống không?',
+            'Có chỗ để xe không?',
+            'Giờ giấc như thế nào?',
+            'Hẹn lịch xem phòng',
+          ]
+        : [
+            'Chào bạn, bạn đã tìm được phòng chưa?',
+            'Ngân sách phòng trọ bạn dự kiến bao nhiêu?',
+            'Thói quen sinh hoạt của bạn như thế nào?',
+            '+ Mời vào ở ghép',
+          ];
 
     return Container(
       height: 40,
@@ -1259,6 +1510,13 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
               tooltip: 'Đính kèm',
               icon: const Icon(Icons.add_circle_outline, color: AppColors.primary, size: 26),
               onPressed: _showAttachmentMenu,
+            ),
+
+            // Nút Chọn ảnh từ Album nhanh (Tc_CHAT_30)
+            IconButton(
+              tooltip: 'Chọn ảnh từ Album',
+              icon: const Icon(Icons.photo_library_outlined, color: AppColors.primary, size: 24),
+              onPressed: _pickAndSendImageFromAlbum,
             ),
 
             // Ô nhập liệu văn bản (Tc_CHAT_21, 22)
@@ -1383,6 +1641,35 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
   }
 
   Widget _buildMessageBubbleBody(ChatMessageModel msg, bool isMe) {
+    final isRevoked = msg.messageType == 'revoked' || msg.status == 'revoked' || _revokedIds.contains(msg.id);
+
+    // 0. Tin nhắn đã được thu hồi (Xóa ở cả 2 phía)
+    if (isRevoked) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.block_outlined, size: 14, color: Color(0xFF94A3B8)),
+            SizedBox(width: 6),
+            Text(
+              'Tin nhắn đã được thu hồi',
+              style: TextStyle(
+                fontSize: 12.5,
+                fontStyle: FontStyle.italic,
+                color: Color(0xFF94A3B8),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     // 1. Thẻ Lịch hẹn xem phòng (Appointment Card - SRS 2.10 line 1090)
     if (msg.messageType == 'appointment') {
       return Container(
@@ -1627,6 +1914,38 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
 
     // 5. Thẻ Hình ảnh đính kèm (Tc_CHAT_30 -> 33)
     if (msg.messageType == 'image') {
+      final isLocalFile = msg.attachmentUrl.isNotEmpty &&
+          !msg.attachmentUrl.startsWith('http://') &&
+          !msg.attachmentUrl.startsWith('https://');
+      final localFallbackPath = msg.extraData['localPath']?.toString() ?? '';
+
+      Widget buildImageWidget({BoxFit fit = BoxFit.cover}) {
+        if (isLocalFile && File(msg.attachmentUrl).existsSync()) {
+          return Image.file(
+            File(msg.attachmentUrl),
+            fit: fit,
+            errorBuilder: (_, __, ___) => const Center(
+              child: Icon(Icons.broken_image, color: Colors.grey, size: 40),
+            ),
+          );
+        } else if (localFallbackPath.isNotEmpty && File(localFallbackPath).existsSync()) {
+          return Image.file(
+            File(localFallbackPath),
+            fit: fit,
+            errorBuilder: (_, __, ___) => const Center(
+              child: Icon(Icons.broken_image, color: Colors.grey, size: 40),
+            ),
+          );
+        }
+        return Image.network(
+          msg.attachmentUrl,
+          fit: fit,
+          errorBuilder: (_, __, ___) => const Center(
+            child: Icon(Icons.broken_image, color: Colors.grey, size: 40),
+          ),
+        );
+      }
+
       return ClipRRect(
         borderRadius: BorderRadius.circular(14),
         child: InkWell(
@@ -1636,16 +1955,9 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
               context: context,
               builder: (ctx) => Dialog(
                 backgroundColor: Colors.transparent,
+                insetPadding: const EdgeInsets.all(12),
                 child: InteractiveViewer(
-                  child: Image.network(
-                    msg.attachmentUrl,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      color: Colors.black54,
-                      height: 200,
-                      child: const Center(child: Icon(Icons.broken_image, color: Colors.white, size: 48)),
-                    ),
-                  ),
+                  child: buildImageWidget(fit: BoxFit.contain),
                 ),
               ),
             );
@@ -1653,13 +1965,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
           child: Container(
             constraints: const BoxConstraints(maxHeight: 180, maxWidth: 220),
             color: Colors.grey.shade200,
-            child: Image.network(
-              msg.attachmentUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => const Center(
-                child: Icon(Icons.broken_image, color: Colors.grey, size: 40),
-              ),
-            ),
+            child: buildImageWidget(fit: BoxFit.cover),
           ),
         ),
       );

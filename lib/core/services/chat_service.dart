@@ -194,6 +194,91 @@ class ChatService {
         .set({'extraData': extraData}, SetOptions(merge: true));
   }
 
+  /// Thu hồi tin nhắn ở cả 2 phía (Xóa nội dung tin nhắn và chuyển sang trạng thái đã thu hồi)
+  Future<void> revokeMessageForEveryone({
+    required String senderId,
+    required String receiverId,
+    required String messageId,
+  }) async {
+    final chatId = getChatId(senderId, receiverId);
+    final msgDoc = _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .doc(messageId);
+
+    await msgDoc.set({
+      'text': 'Tin nhắn đã được thu hồi',
+      'noiDung': 'Tin nhắn đã được thu hồi',
+      'attachmentUrl': '',
+      'duongDan': '',
+      'messageType': 'revoked',
+      'loaiTinNhan_id': 'revoked',
+      'status': 'revoked',
+      'trangThaiTinNhan_id': 'revoked',
+      'isRevoked': true,
+      'revokedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+
+    // Cập nhật tóm tắt cuộc trò chuyện
+    try {
+      final chatDoc = _firestore.collection('chats').doc(chatId);
+      final chatSnap = await chatDoc.get();
+      if (chatSnap.exists) {
+        final data = chatSnap.data();
+        if (data?['lastSenderId'] == senderId) {
+          await chatDoc.set({
+            'lastMessage': 'Tin nhắn đã được thu hồi',
+            'noiDungCuoi': 'Tin nhắn đã được thu hồi',
+          }, SetOptions(merge: true));
+        }
+      }
+    } catch (e) {
+      debugPrint('Error updating lastMessage on revoke: $e');
+    }
+  }
+
+  /// Xóa tin nhắn hoàn toàn khỏi database ở cả 2 phía
+  Future<void> deleteMessagePermanently({
+    required String senderId,
+    required String receiverId,
+    required String messageId,
+  }) async {
+    final chatId = getChatId(senderId, receiverId);
+    final chatDoc = _firestore.collection('chats').doc(chatId);
+
+    // 1. Xóa vĩnh viễn tin nhắn khỏi subcollection messages
+    await chatDoc
+        .collection('messages')
+        .doc(messageId)
+        .delete();
+
+    // 2. Cập nhật lại thông tin lastMessage cho cuộc hội thoại
+    try {
+      final latestMsgs = await chatDoc
+          .collection('messages')
+          .orderBy('timestamp', descending: true)
+          .limit(1)
+          .get();
+
+      if (latestMsgs.docs.isNotEmpty) {
+        final lastData = latestMsgs.docs.first.data();
+        await chatDoc.set({
+          'lastMessage': lastData['text'] ?? lastData['noiDung'] ?? '',
+          'noiDungCuoi': lastData['text'] ?? lastData['noiDung'] ?? '',
+          'lastSenderId': lastData['senderId'] ?? lastData['nguoiGuiId'] ?? '',
+        }, SetOptions(merge: true));
+      } else {
+        await chatDoc.set({
+          'lastMessage': '',
+          'noiDungCuoi': '',
+        }, SetOptions(merge: true));
+      }
+    } catch (e) {
+      debugPrint('Error updating lastMessage on permanent delete: $e');
+    }
+  }
+
   // Stream tin nhắn an toàn, chỉ truy vấn đúng cuộc hội thoại giữa 2 người
   Stream<List<ChatMessageModel>> getMessagesStream(String userA, String userB) {
     final cleanA = userA.trim();

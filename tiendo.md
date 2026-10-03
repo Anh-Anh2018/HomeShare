@@ -1309,3 +1309,94 @@ huquynh: https://github.com/23211tt0240-NhuQuynh/homeshare.git.
   - **Hot Reload:** Đã kích hoạt DTD và thực hiện `hot_reload` thành công 100% trực tiếp lên điện thoại **Samsung Galaxy A50 (SM-A505F)** của người dùng.
   - **Runtime Errors:** `get_runtime_errors` trả về "No runtime errors found".
   - `flutter analyze`: **0 errors, 0 warnings** trên toàn bộ mã nguồn.
+
+---
+
+### Phase 2.29: Nâng Cấp Giao Diện Tin Nhắn: Trung Tâm Thông Báo & Kéo Trái Thao Tác (Ghim, Tắt TB, Xóa)
+* **Ngày hoàn thành:** 03/10/2026
+* **Yêu cầu người dùng:** 
+  1. Trong phần tin nhắn: Bỏ nút "Đọc tất cả", thay vào đó là nút "Thông báo".
+  2. Khi kéo một cuộc trò chuyện trong danh sách sang trái (ví dụ: Cô Lan Nhà Trọ): Hiển thị các chức năng thao tác nhanh như Xóa, Ghim, Tắt thông báo...
+  3. Tuân thủ nghiêm ngặt chỉ đạo: **Chưa push Git vội, chỉ commit/push khi có lệnh yêu cầu; đồng bộ ngay mã nguồn vào điện thoại vật lý**.
+* **Các thay đổi đã triển khai tại `chat_list_screen.dart`:**
+  1. **Nút Thông báo trên AppBar:**
+     - Loại bỏ nút `Icons.done_all` ("Đánh dấu tất cả đã đọc").
+     - Thay bằng icon `Icons.notifications_none_outlined` kèm chấm đỏ thông báo nổi bật.
+     - Khi bấm vào: Mở Modal Bottom Sheet "Trung tâm thông báo & Hoạt động" hiển thị danh sách thông báo lịch hẹn xem phòng, tin nhắn mới từ chủ nhà, bảo mật cọc HomeShare Escrow và gợi ý bạn ở ghép phù hợp, kèm nút "Đánh dấu đọc tất cả".
+  2. **Thao tác kéo trượt sang trái (Swipe-to-Action) chuẩn Zalo / iOS Messages:**
+     - Xây dựng widget `_SwipeableConversationItem` dùng `GestureDetector`, `ClipRect` và `AnimationController` mượt mà không phụ thuộc thư viện ngoài.
+     - Khi người dùng kéo sang trái một cuộc trò chuyện (ví dụ: Cô Lan Nhà Trọ, Chú Ba Linh Trung), hàng 3 nút tính năng sắc nét xuất hiện:
+       * 📌 **Ghim / Bỏ ghim (Màu xanh dương `#2563EB`):** Đưa cuộc trò chuyện lên đầu danh sách, hiển thị icon ghim màu xanh và nền highlight nhẹ.
+       * 🔕 **Tắt / Bật thông báo (Màu tím `#7C3AED`):** Chuyển đổi trạng thái nhận thông báo, hiển thị icon chuông gạch chéo cạnh thời gian.
+       * 🗑️ **Xóa (Màu đỏ `#EF4444`):** Mở hộp thoại xác nhận xóa an toàn, ẩn cuộc trò chuyện khỏi danh sách và cung cấp nút "Hoàn tác" trên SnackBar.
+     - Chạm vào nội dung cuộc trò chuyện khi đang mở sẽ tự động đóng lại mượt mà; chạm khi đóng sẽ mở màn hình chi tiết cuộc trò chuyện như bình thường.
+* **Đồng bộ ứng dụng trực tiếp vào điện thoại:**
+  - Đã thực hiện **Hot Restart** thành công vào thiết bị **Samsung Galaxy A50 (SM-A505F)**.
+  - `get_runtime_errors`: **No runtime errors found**.
+  - `analyze_files`: **0 errors**.
+  - **Git:** Giữ nguyên trên máy cục bộ, **chưa push lên remote** theo đúng chỉ đạo.
+
+---
+
+### Phase 2.30: Nâng Cấp Chi Tiết Tin Nhắn: Thu Hồi/Xóa Cả 2 Bên, Gửi Ảnh Album Thật, Phân Quyền Mời Ở Ghép
+* **Ngày hoàn thành:** 03/10/2026
+* **Yêu cầu người dùng:**
+  1. Trong tin nhắn: Có chức năng thu hồi & xóa tin nhắn ở cả 2 bên.
+  2. Có chức năng gửi ảnh thật chọn từ Album ảnh trên điện thoại.
+  3. Chỉ cho phép gửi lời mời ở ghép khi trò chuyện với người dùng bình thường / bạn tìm ở ghép; nếu là chủ trọ thì ẩn tùy chọn này.
+  4. Tuân thủ tuyệt đối quy tắc: Chỉ khi người dùng yêu cầu mới push Git, không tự ý push vội.
+* **Các thay đổi đã triển khai:**
+  1. **Thu hồi & Xóa tin nhắn ở cả 2 bên (`chat_service.dart` & `chat_detail_screen.dart`):**
+     - Bổ sung hàm `revokeMessageForEveryone()` trong `ChatService`: Cập nhật trạng thái tin nhắn thành `revoked`, thay đổi nội dung hiển thị thành *"Tin nhắn đã được thu hồi"* đồng bộ trên Firestore cho cả 2 máy, đồng thời cập nhật `lastMessage` của cuộc hội thoại.
+     - Bổ sung hàm `deleteMessagePermanently()`: Xóa vĩnh viễn tin nhắn khỏi subcollection `messages` và tính toán lại `lastMessage` mới nhất.
+     - Khi người dùng nhấn giữ tin nhắn của chính mình (`isMe`):
+       * 🟠 **Thu hồi tin nhắn (Cả 2 bên):** Hiện hộp thoại xác nhận; khi thu hồi sẽ chuyển bong bóng chat thành khung xám nhạt với icon cấm và chữ in nghiêng *"Tin nhắn đã được thu hồi"* (cả 2 bên đều thấy).
+       * 🔴 **Xóa tin nhắn ở cả 2 bên:** Xóa vĩnh viễn tin nhắn khỏi cuộc trò chuyện của cả 2 phía.
+       * ⚪ **Xóa ở phía tôi:** Chỉ ẩn tin nhắn trên máy cá nhân (`_deleteForMe`).
+  2. **Gửi ảnh thật từ Album (`chat_detail_screen.dart`):**
+     - Tích hợp `ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 85)` chọn ảnh thật từ thư viện ảnh máy điện thoại.
+     - Tải ảnh lên Firebase Storage tại thư mục `chat_media/` hoặc lưu đường dẫn file cục bộ khi offline.
+     - Thêm nút icon chọn ảnh nhanh `Icons.photo_library_outlined` trực tiếp trên thanh chat bar (cạnh nút + và ô nhập) để người dùng chạm 1 bước là mở ngay Album ảnh.
+     - Nâng cấp bong bóng hiển thị ảnh: Tự động hỗ trợ cả ảnh file cục bộ và URL mạng, kèm tính năng phóng to toàn màn hình cảm ứng đa điểm qua `InteractiveViewer`.
+  3. **Phân quyền "Mời ở ghép" theo đối tượng:**
+     - Khi chat với **Chủ trọ** (`isLandlord == true`):
+       * Menu đính kèm: Chỉ hiển thị "Hẹn xem phòng", ẩn hoàn toàn "Mời ở ghép".
+       * Thanh câu hỏi gợi ý nhanh: Hiển thị các câu hỏi hỏi thăm chủ trọ và nút "Hẹn lịch xem phòng", ẩn nút "+ Mời vào ở ghép".
+     - Khi chat với **Người dùng / Bạn tìm ở ghép** (`isLandlord == false`):
+       * Menu đính kèm: Hiển thị "Mời ở ghép", ẩn "Hẹn xem phòng".
+       * Thanh câu hỏi gợi ý nhanh: Hiển thị câu hỏi tìm bạn cùng phòng và nút "+ Mời vào ở ghép".
+       * Thêm guard chặn an toàn trong hàm `_showRoommateInviteDialog()`.
+* **Kết quả cài đặt & Đồng bộ ứng dụng trực tiếp lên điện thoại:**
+  - **Thiết bị:** Samsung Galaxy A50 (`SM-A505F` / `R58M68KF70K`).
+  - **Biên dịch & Cài đặt:** Đã đóng gói APK `app-debug.apk` và nạp trực tiếp qua ADB USB thành công.
+  - **Kết nối DTD & Hot Reload:** Đã kết nối Dart Tooling Daemon và thực hiện `hot_reload` thành công 100%.
+  - **Runtime Errors:** `get_runtime_errors` trả về **No runtime errors found**.
+  - `analyze_files`: **No errors** (0 lỗi tĩnh).
+  - **Git:** Giữ nguyên trên máy cục bộ, **chưa commit/push** theo đúng chỉ đạo.
+
+---
+
+### Phase 2.31: Khắc Phục Lỗi Hiển Thị Swipe Chat & Tràn Layout Đăng Tin Ở Ghép (Figma/Android)
+* **Ngày hoàn thành:** 03/10/2026
+* **Yêu cầu & Phân tích lỗi người dùng gửi từ thiết bị:**
+  1. **Lỗi 1 (Ảnh 1 - Danh sách tin nhắn `chat_list_screen.dart`):**
+     - Hiện tượng: Khi kéo sang trái (Swipe-to-Action) ở cuộc trò chuyện chưa đọc (ví dụ: Chú Ba Linh Trung), các nút Ghim, Tắt TB, Xóa bị nhìn xuyên thấu và đè chồng lấn lên nội dung tin nhắn.
+     - Nguyên nhân: Nền cuộc trò chuyện chưa đọc đặt màu bán trong suốt `withValues(alpha: 0.15)` khiến các nút tính năng bên dưới lộ xuyên qua chữ; đồng thời các nút tính năng trong `Stack` vẫn được render ngầm kể cả khi người dùng không kéo.
+     - Khắc phục: Thay màu nền sang màu đục 100% `const Color(0xFFF8FAFC)`, bọc lớp giao diện trượt bằng `Material` nền đục và chỉ render các nút hành động khi `_dragExtent < 0`. Khi kéo, lớp giao diện trượt êm ái che kín tuyệt đối, không bao giờ bị đè hay nhìn xuyên.
+  2. **Lỗi 2 (Ảnh 2 - Màn hình Đăng tin tìm ở ghép `create_roommate_post_screen.dart`):**
+     - Hiện tượng: 
+       * Stepper thanh trên cùng tràn `RIGHT OVERFLOWED BY 38 PIXELS` tại bước 3 "Lối sống & Ảnh".
+       * Hàng chọn "Quận / Huyện *" và "Phường / Xã" tràn `RIGHT OVERFLOWED BY 58 PIXELS`, `87 PIXELS`.
+       * Hàng chọn "Loại hình nhà ở *" và "Giới tính tìm kiếm *" tràn `RIGHT OVERFLOWED BY 98 PIXELS`.
+     - Nguyên nhân: 
+       * Text tiêu đề bước 3 trong `_buildStepIndicator()` không có `Flexible/FittedBox`, vượt quá độ rộng 1/3 màn hình của thiết bị.
+       * Các `DropdownButtonFormField` trong hàng 2 cột thiếu thuộc tính `isExpanded: true`, khiến Flutter render bề ngang dropdown theo kích thước nội dung văn bản tự nhiên không giới hạn ("Căn hộ chung cư", "Phường An Khánh"), làm bung khỏi chiều rộng của cột.
+     - Khắc phục: 
+       * Bọc text các bước bằng `Flexible` + `FittedBox(fit: BoxFit.scaleDown)` với `fontSize: 11.5` và tinh gọn lề.
+       * Thêm `isExpanded: true` cho toàn bộ 6 `DropdownButtonFormField` trong màn hình, kèm `overflow: TextOverflow.ellipsis` và `fontSize: 12.5` cho từng `DropdownMenuItem`.
+       * Tối ưu `contentPadding` của `_inputDecoration` thành `horizontal: 10, vertical: 10`.
+* **Kết quả kiểm thử & Đồng bộ trực tiếp lên điện thoại:**
+  - **Hot Restart:** Đã thực hiện `hot_restart` thành công 100% lên Samsung Galaxy A50 (`SM-A505F`).
+  - **Runtime Errors:** `get_runtime_errors` trả về **No runtime errors found**.
+  - `analyze_files`: **No errors** (0 lỗi tĩnh).
+  - **Git:** Giữ nguyên trên máy cục bộ, **chưa commit/push** theo đúng chỉ đạo.
