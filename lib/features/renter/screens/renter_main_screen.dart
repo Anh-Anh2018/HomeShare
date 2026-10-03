@@ -53,24 +53,32 @@ class _RenterMainScreenState extends ConsumerState<RenterMainScreen> {
         },
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.explore_outlined),
-            activeIcon: Icon(Icons.explore),
-            label: 'Khám phá',
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'Trang chủ',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            activeIcon: Icon(Icons.chat_bubble),
+            icon: Badge(
+              smallSize: 8,
+              backgroundColor: AppColors.danger,
+              child: Icon(Icons.chat_bubble_outline),
+            ),
+            activeIcon: Badge(
+              smallSize: 8,
+              backgroundColor: AppColors.danger,
+              child: Icon(Icons.chat_bubble),
+            ),
             label: 'Tin nhắn',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle_outline),
-            activeIcon: Icon(Icons.add_circle),
-            label: 'Đăng tin',
+            icon: Icon(Icons.add_circle, color: Color(0xFF155EEF), size: 28),
+            activeIcon: Icon(Icons.add_circle, color: Color(0xFF155EEF), size: 28),
+            label: 'Đăng bài',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.group_outlined),
             activeIcon: Icon(Icons.group),
-            label: 'Ở ghép',
+            label: 'Tìm ở ghép',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),

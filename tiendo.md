@@ -22,10 +22,10 @@ Xây dựng ứng dụng di động **HomeShare** phục vụ đồ án tốt ng
 ## 2. Current Status
 * **Phase:** Hoàn thiện 100% Phase 1 (Xác thực & Core) & Phase 2 (Toàn bộ Role Người dùng / Ở ghép chuẩn Database DrawIO & Figma)
 * **Status:** IN PROGRESS / LIVE RUNNING ON PHYSICAL DEVICE
-* **Progress:** 90%
+* **Progress:** 95%
 * **Chất lượng mã nguồn:**
-  * `flutter analyze`: **0 issues found** (Không có lỗi, cảnh báo hay deprecated linter)
-  * `flutter test`: **12/12 test cases PASSED** (Bao gồm Data Models chuẩn DrawIO, Serialization 2 chiều, Riverpod Equality, Theme Smoke Tests)
+  * `flutter analyze`: **0 errors, 0 warnings** trên các tính năng đang phát triển
+  * `flutter test`: **68/68 test cases PASSED 100%** (Bao gồm Data Models chuẩn DrawIO, Serialization 2 chiều, Riverpod Equality, Theme Phòng Sáng, Chat Optimization, và Bộ lọc tìm kiếm)
   * **Hot Reload / Hot Restart:** Hoạt động ổn định trên điện thoại thật thông qua DTD `ws://127.0.0.1:4667/zzmSBkyMkIg=`.
   * **Runtime Errors:** `0 runtime errors` (Đã kiểm tra qua MCP `get_runtime_errors`).
 
@@ -1150,3 +1150,45 @@ huquynh: https://github.com/23211tt0240-NhuQuynh/homeshare.git.
      - Cài đặt trực tiếp lên thiết bị Android thật (`lj6hwwwgauugwkci`, package `com.homeshare.app.home_share` cập nhật thành công lúc `20:49:54`).
 * **Quy tắc phân nhánh Git:**
   - Commit và push CHỈ TRÊN NHÁNH `homeshare` của `origin` (HomeShare repo chính). Tuyệt đối KHÔNG đụng đến nhánh `main` và KHÔNG push vào repo NhuQuynh.
+
+---
+
+### Phase 2.24: Đồng Bộ 100% Giao Diện Lọc & Tìm Kiếm Nâng Cao Theo Mockup Figma (Sửa Triệt Để Lỗi 1)
+* **Ngày hoàn thành:** 03/10/2026
+* **Yêu cầu người dùng:** "vào app và đọc tiến độ trong HomeShare để fix lỗi và ghi vào đó nhung nếu đã fix song lỗi 1 trang chủ lọc nhấn nâng cao chưa đúng với mô tả" kèm ảnh thiết kế Figma (`media_1790991489901.png`).
+* **Phân tích đối chiếu giao diện & Nguyên nhân gốc rễ:**
+  1. **AppBar chưa khớp bản vẽ Figma:**
+     - Bản vẽ Figma yêu cầu nút quay lại `<` + tiêu đề `Trang Chủ` in đậm (`AppColors.textDark`) + chuông thông báo có badge + Avatar tròn nền xanh (`AppColors.primary`) có icon `person` hoặc ảnh đại diện người dùng. Bản cũ hiển thị logo HomeShare và slogan.
+  2. **Card Khu vực hiển thị thừa cấp Quận/Huyện:**
+     - Thiết kế Figma màn hình tìm kiếm chỉ có 2 trường chọn: `Tỉnh/Thành phố *` (có dấu sao đỏ, icon `near_me_outlined`) và `Phường/Xã` (icon `map_outlined`). Việc hiển thị thêm ô Quận/Huyện riêng biệt làm layout cồng kềnh, không đúng với bản vẽ.
+  3. **Hành vi nút `+ Nâng cao`:**
+     - Ở Trạng thái 1 (tìm kiếm cơ bản): Nút `+ Nâng cao` nền xanh nhạt (`Color(0xFFF0F4FF)`), viền `Color(0xFFD6E2FF)`, chữ xanh dương đậm (`Color(0xFF1E5BB0)`) nằm ở đáy Card Khu vực.
+     - Khi bấm chuyển sang Trạng thái 2 (tìm kiếm nâng cao): Nút `+ Nâng cao` **biến mất hoàn toàn** khỏi Card 1, nhường chỗ cho Card 2 (Bộ lọc nâng cao) mở ra bên dưới.
+  4. **Tách biệt 3 trạng thái tìm kiếm (Không hiển thị danh sách phòng khi chưa tìm):**
+     - Ở Trạng thái 1: Hiển thị Card Khu vực + Nút lớn xanh lục `🔍 Tìm kiếm phòng` + dòng phụ `• Hơn 12.400+ phòng trọ chính chủ đang sẵn sàng`. **Tuyệt đối không hiển thị danh sách phòng kết quả** ở trạng thái này.
+     - Ở Trạng thái 2: Hiển thị Card Khu vực (đã ẩn nút Nâng cao) + Card Bộ lọc nâng cao (Giá, Diện tích, Tiện ích, nút oval `Thu gọn ˄`) + Hàng nút tác vụ ngoài Card: `🔄 Đặt lại` (Outlined) & `🔍 Tìm kiếm` (Elevated xanh lục). **Không hiển thị danh sách phòng kết quả**.
+     - Ở Trạng thái 3: Khi người dùng bấm `🔍 Tìm kiếm`, màn hình chuyển sang trạng thái hiển thị kết quả: Thu gọn bộ lọc thành thanh tóm tắt `_buildCompactFilterBar()` kèm nút `Bộ lọc` (nhấn vào mở lại Trạng thái 2) và hiển thị danh sách kết quả `| Kết quả tìm kiếm (X phòng)`.
+  5. **Chi tiết Tiện ích & Yêu cầu:**
+     - Tiện ích đặc biệt `Gần trường ĐH / Bến xe`: Hiển thị checkbox xanh dương, nhãn `Tùy chọn` màu xanh dương (`Color(0xFF2563EB)`) và nút `x` xóa.
+     - Các tiện ích khác đã chọn: Checkbox xanh lá (`check_circle_rounded`), nhãn badge `Đã chọn`.
+  6. **Đồng bộ thanh điều hướng BottomNavigationBar 5 tab:**
+     - Cả 2 màn hình đều có BottomNav 5 tab: `Trang chủ`, `Tin nhắn` (có badge đỏ), `Đăng bài` (nút tròn xanh icon `+`), `Tìm ở ghép`, `Cá nhân`.
+* **Công việc kỹ thuật đã thực hiện:**
+  1. **Tái cấu trúc giao diện `SearchFilterScreen`:**
+     - Chuẩn hóa AppBar: `< Trang Chủ` + Notification Bell badge + CircleAvatar người dùng.
+     - Tinh giản Card Khu vực chỉ gồm 2 dropdown `Tỉnh/Thành phố *` và `Phường/Xã` (tự động mở bottom sheet liên kết mượt mà).
+     - Điều chỉnh `_rentalType = 'single'` ("Ở 1 mình") làm mặc định với radio tròn xanh.
+     - Tách biệt hiển thị 3 trạng thái thông qua 2 cờ state `_isAdvancedExpanded` và `_hasSearched`.
+     - Tách hàng nút tác vụ `_buildAdvancedActionButtons()` (`Đặt lại` & `Tìm kiếm`) ra ngoài Card 2.
+     - Ẩn nút `+ Nâng cao` khi `_isAdvancedExpanded == true`.
+     - Thêm nút oval `Thu gọn ˄` ở đáy Card Bộ lọc.
+     - Định kiểu riêng biệt cho tiện ích `Gần trường ĐH / Bến xe` (checkbox xanh, nhãn `Tùy chọn` + nút `x`).
+     - Tích hợp BottomNavigationBar 5 tab đồng bộ với `RenterMainScreen`.
+  2. **Dọn dẹp mã nguồn & Xử lý linter:**
+     - Loại bỏ phương thức thừa `_showDistrictPicker` không được tham chiếu.
+     - Tận dụng `profile?.avatarUrl` vào `CircleAvatar` để hiển thị avatar người dùng thật.
+     - Đạt chuẩn `flutter analyze`: **0 errors, 0 warnings** trên các file chỉnh sửa.
+  3. **Kiểm thử tự động & Độ tin cậy:**
+     - Chạy toàn bộ test suite `flutter test`: **68/68 test cases PASSED 100%**.
+* **Quy tắc phân nhánh Git:**
+  - Cam kết nghiêm ngặt: **CHỈ COMMIT VÀ PUSH TRÊN NHÁNH `homeshare`** của repository origin (`https://github.com/Anh-Anh2018/HomeShare.git`). Tuyệt đối **KHÔNG ĐỤNG ĐẾN NHÁNH `main`** và **KHÔNG PUSH VÀO REPO NHUQUYNH**.
