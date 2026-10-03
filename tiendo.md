@@ -1288,3 +1288,24 @@ huquynh: https://github.com/23211tt0240-NhuQuynh/homeshare.git.
   - `flutter test`: **68/68 test cases PASSED 100%**.
 * **Quy tắc phân nhánh Git:**
   - Cam kết nghiêm ngặt: **CHỈ COMMIT VÀ PUSH TRÊN NHÁNH `homeshare`** của repository origin (`https://github.com/Anh-Anh2018/HomeShare.git`). Tuyệt đối **KHÔNG ĐỤNG ĐẾN NHÁNH `main`** và **KHÔNG PUSH VÀO REPO NHUQUYNH**.
+
+---
+
+### Phase 2.28: Khắc Phục Lỗi Format & RenderFlex Overflow Trên Màn Hình Điện Thoại Thật (Samsung SM-A505F)
+* **Ngày hoàn thành:** 03/10/2026
+* **Yêu cầu & Phản hồi người dùng:** "fix lại lỗi format" kèm 3 ảnh chụp thực tế màn hình điện thoại Samsung Galaxy A50 (chiều rộng hẹp, hiển thị các sọc vàng đen và thanh cảnh báo đỏ tràn viền RenderFlex).
+* **Vị trí và nguyên nhân gốc rễ (Root Causes):**
+  1. **Ảnh 1 - `search_filter_screen.dart` (`OVERFLOWED BY 7.5 PIXELS`):**
+     - Tại `_buildRentalTypeCard` ("Hình thức thuê: Ở 1 mình, Ở ghép, Cả hai"): Row chứa fixed icon (16dp), text in đậm không co giãn và radio icon (14dp) với padding ngang 6dp. Khi item được chọn ("Ở 1 mình"), font chữ in đậm khiến nội dung vượt quá kích thước ô của `Expanded` con.
+     - **Giải pháp:** Sử dụng `Flexible` bọc `FittedBox(fit: BoxFit.scaleDown)` cho text `title`, giảm icon xuống 15dp/13dp, giảm khoảng cách và padding ngang xuống 4dp giúp nội dung luôn co giãn mượt mà không bao giờ bị vỡ layout trên bất kỳ kích cỡ màn hình nào.
+  2. **Ảnh 2 - `room_booking_detail_screen.dart` (`RIGHT OVERFLOWED BY 8.7 PIXELS`):**
+     - Tại phần chọn "Thời hạn thuê" và "Số lượng người ở": Widget dùng `IconButton` mặc định của Material có kích thước tối thiểu 48x48dp kết hợp với `Spacer()` và nhãn text cố định không co giãn, làm hàng stepper bị tràn 8.7px sang cạnh phải của màn hình thiết bị.
+     - **Giải pháp:** Bọc nhãn text vào `Expanded`, thay `IconButton` cồng kềnh bằng custom button `InkWell` kích thước chuẩn 28x28dp bo góc 6dp, giúp giao diện thanh thoát, chuẩn nét và triệt tiêu hoàn toàn lỗi tràn layout.
+  3. **Ảnh 3 - `room_booking_detail_screen.dart` (`RIGHT OVERFLOWED BY 29 PIXELS`):**
+     - Tại tiêu đề Card "Phương thức thanh toán": Row chứa icon, text `Phương thức thanh toán` không co giãn, `const Spacer()` và badge `An toàn qua ứng dụng` khiến tổng chiều rộng vượt quá container và tràn sang phải 29 pixels.
+     - Đồng thời tại Card "Thông tin người thuê" và "Lời nhắn cho chủ nhà": Các text tiêu đề cũng chưa có `Expanded` khiến chúng có nguy cơ bị đè hoặc tràn khi tên chủ nhà dài.
+     - **Giải pháp:** Bọc tiêu đề `Phương thức thanh toán` vào `Expanded(child: Text(..., maxLines: 1, overflow: TextOverflow.ellipsis))`, thay `Spacer()` bằng `SizedBox(width: 8)`, tinh gọn padding badge `An toàn qua ứng dụng`. Đồng thời bọc `Expanded` bảo vệ cho tiêu đề người thuê và lời nhắn chủ nhà.
+* **Kết quả kiểm thử & Đồng bộ ứng dụng trực tiếp:**
+  - **Hot Reload:** Đã kích hoạt DTD và thực hiện `hot_reload` thành công 100% trực tiếp lên điện thoại **Samsung Galaxy A50 (SM-A505F)** của người dùng.
+  - **Runtime Errors:** `get_runtime_errors` trả về "No runtime errors found".
+  - `flutter analyze`: **0 errors, 0 warnings** trên toàn bộ mã nguồn.

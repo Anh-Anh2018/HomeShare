@@ -642,7 +642,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
       onTap: () => setState(() => _rentalType = type),
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
         decoration: BoxDecoration(
           color: isSelected ? _emeraldLight : Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -656,22 +656,28 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
           children: [
             Icon(
               icon,
-              size: 16,
+              size: 15,
               color: isSelected ? _emerald : AppColors.textMuted,
             ),
-            const SizedBox(width: 4),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                color: isSelected ? _emerald : AppColors.textDark,
+            const SizedBox(width: 3),
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                    color: isSelected ? _emerald : AppColors.textDark,
+                  ),
+                ),
               ),
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: 3),
             Icon(
               isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-              size: 14,
+              size: 13,
               color: isSelected ? _emerald : const Color(0xFFD1D5DB),
             ),
           ],
