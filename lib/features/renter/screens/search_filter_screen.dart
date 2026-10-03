@@ -222,7 +222,6 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
   void _executeSearch() {
     setState(() {
       _hasSearched = true;
-      _isAdvancedExpanded = false;
     });
   }
 
@@ -452,57 +451,41 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
               _buildLocationCard(),
               const SizedBox(height: 14),
 
-              AnimatedCrossFade(
-                duration: const Duration(milliseconds: 320),
-                firstCurve: Curves.easeInOutCubic,
-                secondCurve: Curves.easeInOutCubic,
-                sizeCurve: Curves.easeInOutCubic,
-                crossFadeState: _isAdvancedExpanded
-                    ? CrossFadeState.showSecond
-                    : CrossFadeState.showFirst,
-                firstChild: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+              if (!_isAdvancedExpanded) ...[
+                ElevatedButton.icon(
+                  onPressed: _executeSearch,
+                  icon: const Icon(Icons.search, size: 20, color: Colors.white),
+                  label: const Text(
+                    'Tìm kiếm phòng',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _emerald,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size.fromHeight(50),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 0,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    ElevatedButton.icon(
-                      onPressed: _executeSearch,
-                      icon: const Icon(Icons.search, size: 20, color: Colors.white),
-                      label: const Text(
-                        'Tìm kiếm phòng',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _emerald,
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size.fromHeight(50),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        elevation: 0,
-                      ),
+                    Icon(Icons.circle, size: 6, color: _emerald),
+                    SizedBox(width: 6),
+                    Text(
+                      'Hơn 12.400+ phòng trọ chính chủ đang sẵn sàng',
+                      style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                     ),
-                    const SizedBox(height: 10),
-                    const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.circle, size: 6, color: _emerald),
-                        SizedBox(width: 6),
-                        Text(
-                          'Hơn 12.400+ phòng trọ chính chủ đang sẵn sàng',
-                          style: TextStyle(fontSize: 12, color: AppColors.textMuted),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
                   ],
                 ),
-                secondChild: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildAdvancedFilterSection(),
-                    const SizedBox(height: 16),
-                    _buildAdvancedActionButtons(),
-                    const SizedBox(height: 24),
-                  ],
-                ),
-              ),
+                const SizedBox(height: 20),
+              ] else ...[
+                _buildAdvancedFilterSection(),
+                const SizedBox(height: 16),
+                _buildAdvancedActionButtons(),
+                const SizedBox(height: 24),
+              ],
             ] else ...[
               // TRẠNG THÁI 3: Hiển thị kết quả tìm kiếm
               if (_isAdvancedExpanded) ...[
@@ -805,7 +788,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
               Expanded(
                 child: _buildRentalTypeCard(
                   type: 'all',
-                  label: 'Khác',
+                  label: 'Cả hai',
                   icon: Icons.swap_horiz_rounded,
                 ),
               ),
@@ -813,23 +796,12 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
           ),
 
           // Nút + Nâng cao (Figma: hiển thị dưới 3 lựa chọn hình thức thuê khi chưa mở rộng bộ lọc)
-          AnimatedCrossFade(
-            duration: const Duration(milliseconds: 250),
-            crossFadeState: _isAdvancedExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-            firstChild: Padding(
+          if (!_isAdvancedExpanded)
+            Padding(
               padding: const EdgeInsets.only(top: 14),
               child: InkWell(
                 onTap: () {
                   setState(() => _isAdvancedExpanded = true);
-                  Future.delayed(const Duration(milliseconds: 100), () {
-                    if (_scrollController.hasClients) {
-                      _scrollController.animateTo(
-                        220,
-                        duration: const Duration(milliseconds: 350),
-                        curve: Curves.easeInOutCubic,
-                      );
-                    }
-                  });
                 },
                 borderRadius: BorderRadius.circular(10),
                 child: Container(
@@ -858,8 +830,6 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                 ),
               ),
             ),
-            secondChild: const SizedBox.shrink(),
-          ),
         ],
       ),
     );
@@ -1295,9 +1265,6 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
           InkWell(
             onTap: () {
               setState(() => _isAdvancedExpanded = false);
-              if (_scrollController.hasClients) {
-                _scrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOutCubic);
-              }
             },
             borderRadius: BorderRadius.circular(10),
             child: Container(

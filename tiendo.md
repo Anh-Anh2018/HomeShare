@@ -1224,3 +1224,25 @@ huquynh: https://github.com/23211tt0240-NhuQuynh/homeshare.git.
   - `flutter test`: **68/68 test cases PASSED 100%**.
 * **Quy tắc phân nhánh Git:**
   - Cam kết nghiêm ngặt: **CHỈ COMMIT VÀ PUSH TRÊN NHÁNH `homeshare`** của repository origin (`https://github.com/Anh-Anh2018/HomeShare.git`). Tuyệt đối **KHÔNG ĐỤNG ĐẾN NHÁNH `main`** và **KHÔNG PUSH VÀO REPO NHUQUYNH**.
+
+---
+
+### Phase 2.26: Khắc Phục Tổ Chức Trạng Thái _isAdvancedExpanded & Loại Bỏ animateTo() Gây Nhảy Vị Trí
+* **Ngày hoàn thành:** 03/10/2026
+* **Phản hồi từ người dùng:**
+  - Lỗi nằm ở cách tổ chức trạng thái `_isAdvancedExpanded` và việc `animateTo()` chạy ngay sau `setState()`.
+  - Nút `Nâng cao` đổi `_isAdvancedExpanded = true`, sau đó gọi `Future.delayed(... animateTo(220))` làm giao diện nhảy vị trí không mong muốn.
+  - Phần nâng cao được render trực tiếp khi `_isAdvancedExpanded == true`.
+  - `_executeSearch()` trước đó vô tình set `_isAdvancedExpanded = false` làm đóng bộ lọc nâng cao ngay lập tức.
+* **Các thay đổi & Tối ưu hóa:**
+  1. Loại bỏ toàn bộ `Future.delayed` và `animateTo(220)` khi bấm nút `+ Nâng cao` và `Thu gọn ^`, giao diện hiển thị ngay lập tức không bị khựng, giật hay nhảy vị trí.
+  2. Bỏ gán `_isAdvancedExpanded = false` trong hàm `_executeSearch()`, giữ nguyên trạng thái mở rộng của bộ lọc khi người dùng bấm tìm kiếm.
+  3. Loại bỏ hoàn toàn `AnimatedCrossFade` bên trong `SingleChildScrollView` (tránh lỗi assertion `RenderBox hasSize`).
+  4. Đổi nhãn lựa chọn hình thức thuê từ `Khác` sang `Cả hai` khớp 100% hình ảnh thực tế của người dùng và Figma.
+* **Kết quả kiểm định:**
+  - `flutter analyze`: **0 errors, 0 warnings**.
+  - `flutter test`: **68/68 test cases PASSED 100%**.
+  - **Runtime Errors:** `0 runtime errors` trên màn hình tìm kiếm.
+  - **Hot reload & Hot restart:** Đã áp dụng thành công lên ứng dụng đang chạy trên thiết bị vật lý qua DTD.
+* **Quy tắc phân nhánh Git:**
+  - Cam kết nghiêm ngặt: **CHỈ COMMIT VÀ PUSH TRÊN NHÁNH `homeshare`** của repository origin (`https://github.com/Anh-Anh2018/HomeShare.git`). Tuyệt đối **KHÔNG ĐỤNG ĐẾN NHÁNH `main`** và **KHÔNG PUSH VÀO REPO NHUQUYNH**.
