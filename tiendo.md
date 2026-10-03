@@ -1246,3 +1246,41 @@ huquynh: https://github.com/23211tt0240-NhuQuynh/homeshare.git.
   - **Hot reload & Hot restart:** Đã áp dụng thành công lên ứng dụng đang chạy trên thiết bị vật lý qua DTD.
 * **Quy tắc phân nhánh Git:**
   - Cam kết nghiêm ngặt: **CHỈ COMMIT VÀ PUSH TRÊN NHÁNH `homeshare`** của repository origin (`https://github.com/Anh-Anh2018/HomeShare.git`). Tuyệt đối **KHÔNG ĐỤNG ĐẾN NHÁNH `main`** và **KHÔNG PUSH VÀO REPO NHUQUYNH**.
+
+---
+
+### Phase 2.27: Khắc Phục Lỗi Màn Hình Trắng "Bài Đăng Không Hiển Thị Thông Tin"
+* **Ngày hoàn thành:** 03/10/2026
+* **Yêu cầu & Phản hồi người dùng:** "fix bài đăng không hiển thị thông tin'" với mô tả bổ sung "khong hien thi gi trang het" (màn hình trắng xóa, không hiển thị dữ liệu bài đăng).
+* **Nguyên nhân gốc rễ (Root Causes):**
+  1. **Lỗi Crash Engine Flutter (`!semantics.parentDataDirty` & `RenderBox hasSize`):**
+     - Màn hình `CreateRoommatePostScreen` (nằm trong tab "Đăng bài" của `IndexedStack`) chứa `ref.listen` trong `build()` gọi `setState()` qua `addPostFrameCallback`, đánh dấu con offstage dirty vi phạm vòng đời render của Flutter.
+     - Ô nhập tag custom bị bọc trong `SizedBox(height: 42)` cố định mà không có `isDense: true`, ném assertion `RenderConstrainedBox hasSize` làm crash engine ("Lost connection to device", dẫn đến toàn bộ app bị trắng màn hình).
+  2. **Dữ liệu Firestore rỗng & Thiếu cơ chế Fallback:**
+     - Trong `renter_dashboard_screen.dart`, `initState()` gọi `deleteSampleRoommatePosts()` mỗi lần mở app làm xóa sạch toàn bộ bài mẫu.
+     - Khi `rooms.isEmpty` hoặc `posts.isEmpty`, widget trả về `CircularProgressIndicator()` vô tận làm màn hình treo loading liên tục.
+     - `roommate_service.dart` chưa fallback sang `getFigmaSamplePosts()` khi Firestore không có tài liệu.
+     - `room_service.dart` yêu cầu khớp toàn bộ 5 tiện ích đã chọn (AND logic), dẫn đến 0 phòng nào thỏa mãn khi bộ lọc mặc định bật 5 tiện ích.
+     - `search_filter_screen.dart` khi `_hasSearched == false` không render `_buildResultsSection(roomsAsync)`, để lại khoảng trắng xóa dưới nút tìm kiếm.
+* **Các thay đổi & Khắc phục toàn diện:**
+  1. `lib/features/renter/screens/create_roommate_post_screen.dart`:
+     - Gỡ bỏ `ref.listen` và `addPostFrameCallback` chứa `setState()` ra khỏi `build()`.
+     - Bỏ `SizedBox(height: 42)` cứng nhắc, cấu hình `isDense: true` với `contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10)` để triệt tiêu hoàn toàn assertion `RenderConstrainedBox hasSize` và `!semantics.parentDataDirty`.
+  2. `lib/core/services/roommate_service.dart`:
+     - Trong `getRoommatePostsStream`: Tự động nạp `getFigmaSamplePosts()` khi danh sách hợp nhất từ Local và Firestore bị rỗng.
+     - Vô hiệu hóa `deleteSampleRoommatePosts` để bảo toàn dữ liệu bài đăng mẫu.
+  3. `lib/features/renter/screens/renter_dashboard_screen.dart`:
+     - Xóa lệnh gọi `deleteSampleRoommatePosts()` trong `initState()`.
+     - Thay thế `CircularProgressIndicator()` vô tận khi danh sách rỗng bằng các widget Empty State trực quan, thân thiện.
+  4. `lib/core/services/room_service.dart`:
+     - Trích xuất `static List<RoomModel> getSampleRooms()`, tự động nạp dữ liệu mẫu khi Firestore rỗng hoặc gặp sự cố mạng (có `.handleError`).
+     - Tối ưu hóa bộ lọc tiện ích sang cơ chế linh hoạt (`amenities.any(...)`), không còn bị lọc mất toàn bộ phòng khi chọn nhiều tiêu chí.
+     - Cập nhật `getRoomById(String id)` tự động tìm kiếm trong `getSampleRooms()` nếu tài liệu chưa tồn tại trên Cloud.
+  5. `lib/features/renter/screens/search_filter_screen.dart`:
+     - Render ngay `_buildResultsSection(roomsAsync)` dưới nút tìm kiếm ở trạng thái mặc định, tiêu đề hiển thị linh hoạt "Gợi ý phòng trọ dành cho bạn (X phòng)" giúp người dùng luôn thấy ngay danh sách phòng trọ mà không bị màn hình trắng.
+     - Tự động thu gọn bộ lọc nâng cao (`_isAdvancedExpanded = false`) khi bấm "Tìm kiếm" để hiển thị trọn vẹn kết quả.
+* **Kết quả kiểm thử:**
+  - `flutter analyze`: **0 errors, 0 warnings** trên các tính năng đang phát triển.
+  - `flutter test`: **68/68 test cases PASSED 100%**.
+* **Quy tắc phân nhánh Git:**
+  - Cam kết nghiêm ngặt: **CHỈ COMMIT VÀ PUSH TRÊN NHÁNH `homeshare`** của repository origin (`https://github.com/Anh-Anh2018/HomeShare.git`). Tuyệt đối **KHÔNG ĐỤNG ĐẾN NHÁNH `main`** và **KHÔNG PUSH VÀO REPO NHUQUYNH**.

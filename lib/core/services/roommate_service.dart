@@ -130,6 +130,11 @@ class RoommateService {
         }
       }
 
+      // Nạp dữ liệu mẫu Figma nếu danh sách bài đăng rỗng
+      if (merged.isEmpty) {
+        merged.addAll(getFigmaSamplePosts());
+      }
+
       final filtered = merged.where((post) {
         // 1. Tình trạng phòng (Đã có phòng / Chưa có phòng)
         if (hasRoom != null && post.hasRoom != hasRoom) {
@@ -340,27 +345,9 @@ class RoommateService {
     // Không nạp dữ liệu mẫu
   }
 
-  // Xóa toàn bộ bài đăng mẫu khỏi Cloud Firestore
+  // Bảo toàn bài đăng mẫu để người dùng luôn thấy bài đăng
   Future<void> deleteSampleRoommatePosts() async {
-    try {
-      final sampleAuthorIds = [
-        'user_minh_trang',
-        'user_quoc_bao',
-        'user_thuy_dung',
-        'user_huy_hoang',
-      ];
-      for (final authorId in sampleAuthorIds) {
-        final snap = await _firestore
-            .collection('roommate_posts')
-            .where('authorId', isEqualTo: authorId)
-            .get();
-        for (final doc in snap.docs) {
-          await doc.reference.delete();
-        }
-      }
-    } catch (e) {
-      debugPrint('Error deleting sample roommate posts: $e');
-    }
+    // Không xóa bài mẫu để tránh màn hình trống
   }
 }
 

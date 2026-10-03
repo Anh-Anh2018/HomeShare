@@ -27,7 +27,6 @@ class _RenterDashboardScreenState extends ConsumerState<RenterDashboardScreen> {
     // Tự động nạp dữ liệu mẫu vào Cloud Firestore nếu database trống
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(roomServiceProvider).seedInitialRoomsIfEmpty();
-      ref.read(roommateServiceProvider).deleteSampleRoommatePosts();
     });
   }
 
@@ -324,7 +323,22 @@ class _RenterDashboardScreenState extends ConsumerState<RenterDashboardScreen> {
               roomsAsync.when(
                 data: (rooms) {
                   if (rooms.isEmpty) {
-                    return const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()));
+                    return Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFF0F2F5)),
+                      ),
+                      child: const Column(
+                        children: [
+                          Icon(Icons.home_outlined, size: 36, color: AppColors.textMuted),
+                          SizedBox(height: 8),
+                          Text('Đang cập nhật danh sách phòng mới...', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
+                        ],
+                      ),
+                    );
                   }
                   return Column(
                     children: rooms.take(3).map((room) {
@@ -364,7 +378,22 @@ class _RenterDashboardScreenState extends ConsumerState<RenterDashboardScreen> {
               roommatePostsAsync.when(
                 data: (posts) {
                   if (posts.isEmpty) {
-                    return const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()));
+                    return Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFF0F2F5)),
+                      ),
+                      child: const Column(
+                        children: [
+                          Icon(Icons.group_outlined, size: 36, color: AppColors.textMuted),
+                          SizedBox(height: 8),
+                          Text('Chưa có bài đăng tìm ở ghép mới', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
+                        ],
+                      ),
+                    );
                   }
                   return Column(
                     children: posts.take(2).map((post) {

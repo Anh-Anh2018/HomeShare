@@ -382,19 +382,6 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<AsyncValue<UserProfile?>>(userProfileProvider, (prev, next) {
-      final p = next.value;
-      if (p != null && mounted) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            setState(() {
-              _syncFromProfile(p, force: false);
-            });
-          }
-        });
-      }
-    });
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: _buildFigmaAppBar(),
@@ -985,47 +972,42 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
             Row(
               children: [
                 Expanded(
-                  child: SizedBox(
-                    height: 42,
-                    child: TextField(
-                      controller: _customHabitController,
-                      decoration: InputDecoration(
-                        hintText: 'Nhập tiêu chí khác (ví dụ: Không nhậu nhẹt, WFH...)',
-                        hintStyle: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                        filled: true,
-                        fillColor: const Color(0xFFF8FAFC),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.2),
-                        ),
+                  child: TextField(
+                    controller: _customHabitController,
+                    decoration: InputDecoration(
+                      hintText: 'Nhập tiêu chí khác (ví dụ: Không nhậu nhẹt, WFH...)',
+                      hintStyle: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      isDense: true,
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                       ),
-                      onSubmitted: (_) => _addCustomHabit(),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.2),
+                      ),
                     ),
+                    onSubmitted: (_) => _addCustomHabit(),
                   ),
                 ),
                 const SizedBox(width: 8),
-                SizedBox(
-                  height: 42,
-                  child: ElevatedButton.icon(
-                    onPressed: _addCustomHabit,
-                    icon: const Icon(Icons.add, size: 16),
-                    label: const Text('Thêm', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2563EB),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                    ),
+                ElevatedButton.icon(
+                  onPressed: _addCustomHabit,
+                  icon: const Icon(Icons.add, size: 16),
+                  label: const Text('Thêm', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2563EB),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   ),
                 ),
               ],

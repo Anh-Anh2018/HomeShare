@@ -222,6 +222,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
   void _executeSearch() {
     setState(() {
       _hasSearched = true;
+      _isAdvancedExpanded = false;
     });
   }
 
@@ -480,6 +481,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                   ],
                 ),
                 const SizedBox(height: 20),
+                _buildResultsSection(roomsAsync),
               ] else ...[
                 _buildAdvancedFilterSection(),
                 const SizedBox(height: 16),
@@ -1318,20 +1320,22 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                 const SizedBox(width: 8),
                 roomsAsync.when(
                   data: (rooms) => Text(
-                    'Kết quả tìm kiếm (${rooms.length} phòng)',
+                    _hasSearched
+                        ? 'Kết quả tìm kiếm (${rooms.length} phòng)'
+                        : 'Gợi ý phòng trọ dành cho bạn (${rooms.length} phòng)',
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textDark,
                     ),
                   ),
-                  loading: () => const Text(
-                    'Kết quả tìm kiếm...',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textDark),
+                  loading: () => Text(
+                    _hasSearched ? 'Kết quả tìm kiếm...' : 'Đang tải gợi ý phòng...',
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textDark),
                   ),
-                  error: (err, stack) => const Text(
-                    'Kết quả tìm kiếm',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textDark),
+                  error: (err, stack) => Text(
+                    _hasSearched ? 'Kết quả tìm kiếm' : 'Gợi ý phòng trọ',
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textDark),
                   ),
                 ),
               ],
