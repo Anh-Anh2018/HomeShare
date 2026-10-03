@@ -7,6 +7,7 @@ class AppColors {
   static const Color primaryLight = Color(0xFF2E90FA);        // Xanh sáng phụ trợ
   static const Color primaryDark = Color(0xFF175CD3);         // Xanh đậm
   static const Color primaryContainer = PhongSangColors.accentSoft; // Nền chip/badge nhấn (--accent-soft #E8F0FE)
+  static const Color primarySurface = Color(0xFFE8F5E9);       // Nền xanh ngọc bích nhạt dịu mắt cho card/chip selected
   
   static const Color textDark = PhongSangColors.ink;          // Chữ tiêu đề, giá (--ink #101828)
   static const Color textPrimary = PhongSangColors.ink;       // Màu chữ chính

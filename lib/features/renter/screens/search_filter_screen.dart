@@ -36,9 +36,9 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
   // Bảng màu chuẩn Figma Emerald Green
   static const Color _emerald = Color(0xFF006948);
   static const Color _emeraldLight = Color(0xFFE8F5E9);
-  static const Color _lavenderBg = Color(0xFFEEF2FF);
-  static const Color _lavenderBorder = Color(0xFFC7D2FE);
-  static const Color _lavenderText = Color(0xFF2563EB);
+  static const Color _lavenderBg = Color(0xFFE8F5E9);
+  static const Color _lavenderBorder = Color(0xFFA5D6A7);
+  static const Color _lavenderText = Color(0xFF006948);
 
   // 1. Khu vực state
   String _selectedCity = 'TP. Hồ Chí Minh';
@@ -1434,14 +1434,14 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
 
                       // Nút tròn Nhắn tin 💬
                       Material(
-                        color: const Color(0xFFEFF6FF),
+                        color: const Color(0xFFE8F5E9),
                         shape: const CircleBorder(),
                         child: InkWell(
                           customBorder: const CircleBorder(),
                           onTap: () => _openChatWithHost(room),
                           child: const Padding(
                             padding: EdgeInsets.all(7),
-                            child: Icon(Icons.chat_bubble, size: 16, color: Color(0xFF2563EB)),
+                            child: Icon(Icons.chat_bubble, size: 16, color: _emerald),
                           ),
                         ),
                       ),

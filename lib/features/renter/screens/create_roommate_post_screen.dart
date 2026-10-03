@@ -154,10 +154,10 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Đã đồng bộ thông tin từ tài khoản của bạn ✓'),
-        backgroundColor: Color(0xFF2563EB),
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: const Text('Đã đồng bộ thông tin từ tài khoản của bạn ✓'),
+        backgroundColor: AppColors.primary,
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -324,7 +324,7 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2563EB),
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
@@ -351,8 +351,8 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
           if (_currentStep == 0)
             TextButton.icon(
               onPressed: _syncFromProfile,
-              icon: const Icon(Icons.sync, size: 16, color: Color(0xFF2563EB)),
-              label: const Text('Đồng bộ', style: TextStyle(color: Color(0xFF2563EB), fontWeight: FontWeight.bold)),
+              icon: const Icon(Icons.sync, size: 16, color: AppColors.primary),
+              label: const Text('Đồng bộ', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
             ),
         ],
       ),
@@ -390,7 +390,7 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
         children: List.generate(steps.length, (idx) {
           final isPassed = idx < _currentStep;
           final isCurrent = idx == _currentStep;
-          final color = isPassed || isCurrent ? const Color(0xFF2563EB) : const Color(0xFFCBD5E1);
+          final color = isPassed || isCurrent ? AppColors.primary : const Color(0xFFCBD5E1);
 
           return Expanded(
             child: Row(
@@ -417,7 +417,7 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
                     child: Container(
                       height: 2,
                       margin: const EdgeInsets.symmetric(horizontal: 8),
-                      color: isPassed ? const Color(0xFF2563EB) : const Color(0xFFE2E8F0),
+                      color: isPassed ? AppColors.primary : const Color(0xFFE2E8F0),
                     ),
                   ),
               ],
@@ -696,15 +696,15 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
                       }
                     });
                   },
-                  selectedColor: const Color(0xFFDBEAFE),
-                  checkmarkColor: const Color(0xFF2563EB),
+                  selectedColor: AppColors.primarySurface,
+                  checkmarkColor: AppColors.primary,
                   backgroundColor: const Color(0xFFF1F5F9),
                   labelStyle: TextStyle(
                     fontSize: 12,
-                    color: isSelected ? const Color(0xFF1E40AF) : const Color(0xFF334155),
+                    color: isSelected ? AppColors.primaryDark : const Color(0xFF334155),
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                   ),
-                  side: BorderSide(color: isSelected ? const Color(0xFF93C5FD) : const Color(0xFFE2E8F0)),
+                  side: BorderSide(color: isSelected ? AppColors.primary.withValues(alpha: 0.3) : const Color(0xFFE2E8F0)),
                 );
               }).toList(),
             ),
@@ -722,7 +722,7 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
                 ElevatedButton(
                   onPressed: _addCustomHabit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
@@ -840,7 +840,7 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2563EB),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -876,7 +876,7 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
         children: [
           Row(
             children: [
-              Icon(icon, size: 20, color: const Color(0xFF2563EB)),
+              Icon(icon, size: 20, color: AppColors.primary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -907,10 +907,10 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFEFF6FF) : Colors.white,
+          color: isSelected ? AppColors.primarySurface : Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? const Color(0xFF2563EB) : const Color(0xFFCBD5E1),
+            color: isSelected ? AppColors.primary : const Color(0xFFCBD5E1),
             width: isSelected ? 1.5 : 1.0,
           ),
         ),
@@ -920,7 +920,7 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
               title,
               style: TextStyle(
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                color: isSelected ? const Color(0xFF2563EB) : const Color(0xFF0F172A),
+                color: isSelected ? AppColors.primary : const Color(0xFF0F172A),
                 fontSize: 13.5,
               ),
             ),
@@ -929,7 +929,7 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
               subtitle,
               style: TextStyle(
                 fontSize: 11,
-                color: isSelected ? const Color(0xFF3B82F6) : const Color(0xFF64748B),
+                color: isSelected ? AppColors.primary : const Color(0xFF64748B),
               ),
               textAlign: TextAlign.center,
             ),
@@ -979,7 +979,7 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
       ),
     );
   }
