@@ -1192,3 +1192,35 @@ huquynh: https://github.com/23211tt0240-NhuQuynh/homeshare.git.
      - Chạy toàn bộ test suite `flutter test`: **68/68 test cases PASSED 100%**.
 * **Quy tắc phân nhánh Git:**
   - Cam kết nghiêm ngặt: **CHỈ COMMIT VÀ PUSH TRÊN NHÁNH `homeshare`** của repository origin (`https://github.com/Anh-Anh2018/HomeShare.git`). Tuyệt đối **KHÔNG ĐỤNG ĐẾN NHÁNH `main`** và **KHÔNG PUSH VÀO REPO NHUQUYNH**.
+
+---
+
+### Phase 2.25: Hoàn Thiện Hiệu Ứng Sổ Bộ Lọc Xuống Khi Bấm "Nâng Cao" & Đồng Bộ Màu Emerald Green Figma 100%
+* **Ngày hoàn thành:** 03/10/2026
+* **Yêu cầu người dùng:** "hình 1 là sản phẩm m làm và hình 2 là sản phẩm t muốn m làm khi nhấn vào nâng cao thì sổ những boouj lojv xuống" kèm 2 ảnh đối chiếu thực tế vs Figma.
+* **Các điểm nâng cấp & chuẩn hóa chi tiết theo Hình 2 Figma:**
+  1. **Hiệu ứng "Sổ bộ lọc xuống" (Smooth Animated Dropdown & Auto-scroll):**
+     - Sử dụng `AnimatedCrossFade` mượt mà (320ms, curve `easeInOutCubic`) giữa nút `🔍 Tìm kiếm phòng` (khi chưa mở) và Card Bộ lọc nâng cao (khi bấm `+ Nâng cao`).
+     - Khi bấm `+ Nâng cao`, `ScrollController` tự động cuộn xuống 220dp để người dùng nhìn thấy ngay toàn bộ bộ lọc mở ra mà không bị khựng màn hình.
+     - Khi bấm `Thu gọn ^`, giao diện cuộn êm ái về đầu trang và thu gọn trở lại trạng thái tìm kiếm cơ bản.
+  2. **Chuẩn hóa màu Emerald Green Figma (`#006948`) xuyên suốt toàn màn hình:**
+     - Icon định vị `Icons.location_on` màu xanh lục `#006948` cạnh tiêu đề `Khu vực`.
+     - Icon ô `Tỉnh/Thành phố *` màu `#006948`.
+     - Thẻ hình thức thuê (`Ở 1 mình`, `Ở ghép`, `Khác`) sử dụng viền `#006948`, nền `#E8F5E9` và radio checked `#006948`.
+     - Slider giá thuê và slider diện tích dùng màu `#006948`.
+     - Các tiện ích đã chọn (`Máy lạnh`, `Có gác lửng`, `Chỗ để xe miễn phí`, `Giờ giấc tự do`) hiển thị checkbox và badge `Đã chọn` màu `#006948`.
+     - Nút `🔍 Tìm kiếm phòng` (cơ bản) và nút `🔍 Tìm kiếm` (nâng cao) đồng bộ màu xanh `#006948`.
+     - Avatar tròn trên AppBar và chấm tròn dưới nút tìm kiếm đồng bộ `#006948`.
+  3. **Đồng bộ giá trị mặc định chuẩn Figma Hình 2:**
+     - Giá thuê mặc định: `2.000.000đ – 5.000.000đ` (hiển thị trong 2 ô Tối thiểu / Tối đa và thanh slider).
+     - Diện tích mặc định: `20 m² – 60 m²` (hiển thị trong 2 ô Từ / Đến và thanh slider).
+     - 5 tiện ích chọn sẵn: `Máy lạnh`, `Có gác lửng`, `Chỗ để xe miễn phí`, `Giờ giấc tự do`, `Gần trường ĐH / Bến xe`.
+     - Huy hiệu `6 tiêu chí` và `5 đang chọn` khớp hoàn toàn thiết kế Hình 2.
+  4. **Thanh BottomNavigationBar 5 tab:**
+     - Tab `Tin nhắn` có badge đỏ mang số `1` nổi bật đúng như Hình 2.
+     - Tab `Trang chủ` được chọn với màu `#006948`.
+* **Kết quả kiểm thử:**
+  - `flutter analyze`: **0 errors, 0 warnings** trên các file đang làm việc.
+  - `flutter test`: **68/68 test cases PASSED 100%**.
+* **Quy tắc phân nhánh Git:**
+  - Cam kết nghiêm ngặt: **CHỈ COMMIT VÀ PUSH TRÊN NHÁNH `homeshare`** của repository origin (`https://github.com/Anh-Anh2018/HomeShare.git`). Tuyệt đối **KHÔNG ĐỤNG ĐẾN NHÁNH `main`** và **KHÔNG PUSH VÀO REPO NHUQUYNH**.

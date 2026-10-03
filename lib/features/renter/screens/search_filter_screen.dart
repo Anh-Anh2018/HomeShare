@@ -11,6 +11,13 @@ import '../../auth/providers/auth_provider.dart';
 import '../../auth/providers/user_provider.dart';
 import 'renter_main_screen.dart';
 
+// Bảng màu chuẩn Figma Emerald Green & Lavender
+const Color _emerald = Color(0xFF006948);
+const Color _emeraldLight = Color(0xFFE8F5E9);
+const Color _lavenderBg = Color(0xFFF0F4FF);
+const Color _lavenderBorder = Color(0xFFD6E2FF);
+const Color _lavenderText = Color(0xFF1E5BB0);
+
 class SearchFilterScreen extends ConsumerStatefulWidget {
   final String initialCategory;
   final bool initialAdvanced;
@@ -27,30 +34,37 @@ class SearchFilterScreen extends ConsumerStatefulWidget {
 
 class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
   final currencyFormatter = NumberFormat('#,###', 'vi_VN');
+  final ScrollController _scrollController = ScrollController();
 
   // 1. Khu vực state 3 cấp đầy đủ: Tỉnh/TP -> Quận/Huyện -> Phường/Xã
   String _selectedCity = 'TP. Hồ Chí Minh';
   String _selectedDistrict = 'Tất cả';
   String _selectedWard = 'Tất cả';
-  String _rentalType = 'single'; // 'single' (Ở 1 mình), 'shared' (Ở ghép), 'all' (Cả hai)
+  String _rentalType = 'single'; // 'single' (Ở 1 mình), 'shared' (Ở ghép), 'all' (Khác)
 
   // 2. Bộ lọc nâng cao state
   bool _isAdvancedExpanded = false;
   bool _hasSearched = false;
 
-  // Giá thuê mặc định mở rộng tối đa (0 - 20.000.000đ) để không lọc mất dữ liệu phòng
-  RangeValues _priceRange = const RangeValues(0, 20000000);
+  // Giá thuê mặc định chuẩn Figma: 2.000.000đ - 5.000.000đ
+  RangeValues _priceRange = const RangeValues(2000000, 5000000);
   final double _minPriceLimit = 0;
   final double _maxPriceLimit = 20000000;
 
-  // Diện tích
-  RangeValues _areaRange = const RangeValues(10, 200);
+  // Diện tích mặc định chuẩn Figma: 20m² - 60m²
+  RangeValues _areaRange = const RangeValues(20, 60);
   final double _minAreaLimit = 10;
   final double _maxAreaLimit = 200;
 
-  // Tiện ích & Yêu cầu - Mặc định RỖNG để luôn hiển thị các phòng hiện có
+  // Tiện ích & Yêu cầu - 5 tiêu chí được chọn sẵn chuẩn Figma
   final TextEditingController _customAmenityController = TextEditingController();
-  final Set<String> _selectedAmenities = {};
+  final Set<String> _selectedAmenities = {
+    'Máy lạnh',
+    'Có gác lửng',
+    'Chỗ để xe miễn phí',
+    'Giờ giấc tự do',
+    'Gần trường ĐH / Bến xe',
+  };
 
   final List<String> _availableAmenities = [
     'Máy lạnh',
@@ -182,6 +196,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _customAmenityController.dispose();
     super.dispose();
   }
@@ -199,6 +214,9 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
       _hasSearched = false;
       _isAdvancedExpanded = false;
     });
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOutCubic);
+    }
   }
 
   void _executeSearch() {
@@ -341,7 +359,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
           IconButton(
             icon: const Badge(
               smallSize: 8,
-              backgroundColor: AppColors.primary,
+              backgroundColor: _emerald,
               child: Icon(Icons.notifications_none_outlined, color: AppColors.textDark, size: 24),
             ),
             tooltip: 'Thông báo',
@@ -351,7 +369,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
             padding: const EdgeInsets.only(right: 16.0),
             child: CircleAvatar(
               radius: 16,
-              backgroundColor: AppColors.primary,
+              backgroundColor: _emerald,
               backgroundImage: (profile?.avatarUrl != null && profile!.avatarUrl.isNotEmpty)
                   ? NetworkImage(profile.avatarUrl)
                   : null,
@@ -365,7 +383,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 0,
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primary,
+        selectedItemColor: _emerald,
         unselectedItemColor: AppColors.textMuted,
         selectedFontSize: 11,
         unselectedFontSize: 11,
@@ -394,12 +412,12 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
           ),
           BottomNavigationBarItem(
             icon: Badge(
-              smallSize: 8,
+              label: Text('1', style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold)),
               backgroundColor: AppColors.danger,
               child: Icon(Icons.chat_bubble_outline),
             ),
             activeIcon: Badge(
-              smallSize: 8,
+              label: Text('1', style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold)),
               backgroundColor: AppColors.danger,
               child: Icon(Icons.chat_bubble),
             ),
@@ -423,6 +441,8 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
         ],
       ),
       body: SingleChildScrollView(
+        controller: _scrollController,
+        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -432,42 +452,57 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
               _buildLocationCard(),
               const SizedBox(height: 14),
 
-              if (_isAdvancedExpanded) ...[
-                // TRẠNG THÁI 2: Tìm kiếm nâng cao
-                _buildAdvancedFilterSection(),
-                const SizedBox(height: 16),
-                _buildAdvancedActionButtons(),
-                const SizedBox(height: 24),
-              ] else ...[
-                // TRẠNG THÁI 1: Tìm kiếm cơ bản
-                ElevatedButton.icon(
-                  onPressed: _executeSearch,
-                  icon: const Icon(Icons.search, size: 20),
-                  label: const Text(
-                    'Tìm kiếm phòng',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size.fromHeight(50),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+              AnimatedCrossFade(
+                duration: const Duration(milliseconds: 320),
+                firstCurve: Curves.easeInOutCubic,
+                secondCurve: Curves.easeInOutCubic,
+                sizeCurve: Curves.easeInOutCubic,
+                crossFadeState: _isAdvancedExpanded
+                    ? CrossFadeState.showSecond
+                    : CrossFadeState.showFirst,
+                firstChild: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Icon(Icons.circle, size: 6, color: AppColors.primary),
-                    SizedBox(width: 6),
-                    Text(
-                      'Hơn 12.400+ phòng trọ chính chủ đang sẵn sàng',
-                      style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                    ElevatedButton.icon(
+                      onPressed: _executeSearch,
+                      icon: const Icon(Icons.search, size: 20, color: Colors.white),
+                      label: const Text(
+                        'Tìm kiếm phòng',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _emerald,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size.fromHeight(50),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        elevation: 0,
+                      ),
                     ),
+                    const SizedBox(height: 10),
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.circle, size: 6, color: _emerald),
+                        SizedBox(width: 6),
+                        Text(
+                          'Hơn 12.400+ phòng trọ chính chủ đang sẵn sàng',
+                          style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
                   ],
                 ),
-                const SizedBox(height: 20),
-              ],
+                secondChild: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildAdvancedFilterSection(),
+                    const SizedBox(height: 16),
+                    _buildAdvancedActionButtons(),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
             ] else ...[
               // TRẠNG THÁI 3: Hiển thị kết quả tìm kiếm
               if (_isAdvancedExpanded) ...[
@@ -593,9 +628,10 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
             icon: const Icon(Icons.refresh, size: 18, color: AppColors.textDark),
             label: const Text('Đặt lại', style: TextStyle(color: AppColors.textDark, fontWeight: FontWeight.bold)),
             style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.symmetric(vertical: 13),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               side: const BorderSide(color: Color(0xFFD1D5DB)),
+              backgroundColor: const Color(0xFFF9FAFB),
             ),
           ),
         ),
@@ -604,13 +640,14 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
           flex: 2,
           child: ElevatedButton.icon(
             onPressed: _executeSearch,
-            icon: const Icon(Icons.search, size: 18),
-            label: const Text('Tìm kiếm', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            icon: const Icon(Icons.search, size: 18, color: Colors.white),
+            label: const Text('Tìm kiếm', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
+              backgroundColor: _emerald,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.symmetric(vertical: 13),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 0,
             ),
           ),
         ),
@@ -637,19 +674,12 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Tiêu đề | Khu vực
+          // Tiêu đề | Khu vực với icon định vị màu xanh chuẩn Figma
           Row(
-            children: [
-              Container(
-                width: 4,
-                height: 16,
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Text(
+            children: const [
+              Icon(Icons.location_on, size: 20, color: _emerald),
+              SizedBox(width: 6),
+              Text(
                 'Khu vực',
                 style: TextStyle(
                   fontSize: 16,
@@ -686,7 +716,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                   Icon(
                     _selectedCity == 'Tất cả' ? Icons.location_on_outlined : Icons.near_me_outlined,
                     size: 18,
-                    color: AppColors.primary,
+                    color: _emerald,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -775,51 +805,67 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
               Expanded(
                 child: _buildRentalTypeCard(
                   type: 'all',
-                  label: 'Cả hai',
+                  label: 'Khác',
                   icon: Icons.swap_horiz_rounded,
                 ),
               ),
             ],
           ),
 
-          // Nút + Nâng cao (CHỈ HIỂN THỊ KHI CHƯA MỞ RỘNG BỘ LỌC NÂNG CAO)
-          if (!_isAdvancedExpanded) ...[
-            const SizedBox(height: 14),
-            InkWell(
-              onTap: () => setState(() => _isAdvancedExpanded = true),
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 11),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0F4FF),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFD6E2FF)),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.add, size: 18, color: Color(0xFF1E5BB0)),
-                    SizedBox(width: 6),
-                    Text(
-                      'Nâng cao',
-                      style: TextStyle(
-                        color: Color(0xFF1E5BB0),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
+          // Nút + Nâng cao (Figma: hiển thị dưới 3 lựa chọn hình thức thuê khi chưa mở rộng bộ lọc)
+          AnimatedCrossFade(
+            duration: const Duration(milliseconds: 250),
+            crossFadeState: _isAdvancedExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            firstChild: Padding(
+              padding: const EdgeInsets.only(top: 14),
+              child: InkWell(
+                onTap: () {
+                  setState(() => _isAdvancedExpanded = true);
+                  Future.delayed(const Duration(milliseconds: 100), () {
+                    if (_scrollController.hasClients) {
+                      _scrollController.animateTo(
+                        220,
+                        duration: const Duration(milliseconds: 350),
+                        curve: Curves.easeInOutCubic,
+                      );
+                    }
+                  });
+                },
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 11),
+                  decoration: BoxDecoration(
+                    color: _lavenderBg,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: _lavenderBorder),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.add, size: 18, color: _lavenderText),
+                      SizedBox(width: 6),
+                      Text(
+                        'Nâng cao',
+                        style: TextStyle(
+                          color: _lavenderText,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ],
+            secondChild: const SizedBox.shrink(),
+          ),
         ],
       ),
     );
   }
 
-  // WIDGET: Thẻ lựa chọn Hình thức thuê
+  // WIDGET: Thẻ lựa chọn Hình thức thuê chuẩn màu Emerald Figma
   Widget _buildRentalTypeCard({
     required String type,
     required String label,
@@ -833,10 +879,10 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFE8F5E9) : Colors.white,
+          color: isSelected ? _emeraldLight : Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? AppColors.primary : const Color(0xFFE5E7EB),
+            color: isSelected ? _emerald : const Color(0xFFE5E7EB),
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -848,7 +894,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                 Icon(
                   icon,
                   size: 16,
-                  color: isSelected ? AppColors.primary : AppColors.textMuted,
+                  color: isSelected ? _emerald : AppColors.textMuted,
                 ),
                 const SizedBox(width: 4),
                 Text(
@@ -856,7 +902,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    color: isSelected ? AppColors.primary : AppColors.textDark,
+                    color: isSelected ? _emerald : AppColors.textDark,
                   ),
                 ),
               ],
@@ -865,7 +911,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
             Icon(
               isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
               size: 14,
-              color: isSelected ? AppColors.primary : Colors.grey.shade400,
+              color: isSelected ? _emerald : Colors.grey.shade400,
             ),
           ],
         ),
@@ -892,13 +938,13 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header Bộ lọc + Badge số tiêu chí
+          // Header Bộ lọc + Số tiêu chí chuẩn Figma
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
-                children: [
-                  Icon(Icons.tune, size: 20, color: AppColors.primary),
+              Row(
+                children: const [
+                  Icon(Icons.tune, size: 20, color: _emerald),
                   SizedBox(width: 8),
                   Text(
                     'Bộ lọc',
@@ -906,16 +952,9 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                   ),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF3F4F6),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '$_selectedCriteriaCount tiêu chí',
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textMuted),
-                ),
+              Text(
+                '$_selectedCriteriaCount tiêu chí',
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _emerald),
               ),
             ],
           ),
@@ -931,7 +970,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
               ),
               Text(
                 '${currencyFormatter.format(_priceRange.start)}đ - ${currencyFormatter.format(_priceRange.end)}đ',
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.primary),
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: _emerald),
               ),
             ],
           ),
@@ -942,7 +981,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0F4FF),
+                    color: _lavenderBg,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -962,7 +1001,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0F4FF),
+                    color: _lavenderBg,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -984,7 +1023,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
             min: _minPriceLimit,
             max: _maxPriceLimit,
             divisions: 40,
-            activeColor: AppColors.primary,
+            activeColor: _emerald,
             inactiveColor: const Color(0xFFE5E7EB),
             onChanged: (values) {
               setState(() => _priceRange = values);
@@ -1009,7 +1048,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
               ),
               Text(
                 '${_areaRange.start.toInt()} m² - ${_areaRange.end.toInt()} m²',
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.primary),
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: _emerald),
               ),
             ],
           ),
@@ -1020,7 +1059,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0F4FF),
+                    color: _lavenderBg,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -1040,7 +1079,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0F4FF),
+                    color: _lavenderBg,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -1062,7 +1101,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
             min: _minAreaLimit,
             max: _maxAreaLimit,
             divisions: 38,
-            activeColor: AppColors.primary,
+            activeColor: _emerald,
             inactiveColor: const Color(0xFFE5E7EB),
             onChanged: (values) {
               setState(() => _areaRange = values);
@@ -1081,9 +1120,9 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
-                children: [
-                  Icon(Icons.checklist, size: 18, color: AppColors.primary),
+              Row(
+                children: const [
+                  Icon(Icons.tune, size: 18, color: _emerald),
                   SizedBox(width: 6),
                   Text(
                     'Tiện ích & Yêu cầu',
@@ -1093,7 +1132,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
               ),
               Text(
                 '${_selectedAmenities.length} đang chọn',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primary),
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _emerald),
               ),
             ],
           ),
@@ -1114,6 +1153,14 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                       borderRadius: BorderRadius.circular(10),
                       borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
                     ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: _emerald),
+                    ),
                     filled: true,
                     fillColor: Colors.grey.shade50,
                   ),
@@ -1124,10 +1171,11 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
               ElevatedButton(
                 onPressed: _addCustomAmenity,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: _emerald,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  elevation: 0,
                 ),
                 child: const Text('Thêm', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
               ),
@@ -1139,6 +1187,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
           Column(
             children: _availableAmenities.map((amenity) {
               final isSelected = _selectedAmenities.contains(amenity);
+              final isNearCampus = amenity == 'Gần trường ĐH / Bến xe';
 
               void toggleAmenity() {
                 setState(() {
@@ -1153,11 +1202,13 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
               return Container(
                 margin: const EdgeInsets.only(bottom: 8),
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFFE8F5E9) : Colors.white,
+                  color: isSelected
+                      ? (isNearCampus ? const Color(0xFFEFF6FF) : _emeraldLight)
+                      : Colors.white,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: isSelected
-                        ? (amenity == 'Gần trường ĐH / Bến xe' ? const Color(0xFF2563EB) : AppColors.primary)
+                        ? (isNearCampus ? const Color(0xFF2563EB) : _emerald)
                         : const Color(0xFFE5E7EB),
                     width: isSelected ? 1.5 : 1,
                   ),
@@ -1171,13 +1222,13 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                       children: [
                         Icon(
                           isSelected
-                              ? (amenity == 'Gần trường ĐH / Bến xe'
+                              ? (isNearCampus
                                   ? Icons.check_box_rounded
                                   : Icons.check_circle_rounded)
                               : Icons.check_box_outline_blank_rounded,
                           size: 20,
                           color: isSelected
-                              ? (amenity == 'Gần trường ĐH / Bến xe' ? const Color(0xFF2563EB) : AppColors.primary)
+                              ? (isNearCampus ? const Color(0xFF2563EB) : _emerald)
                               : AppColors.textMuted,
                         ),
                         const SizedBox(width: 10),
@@ -1188,13 +1239,13 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                               fontSize: 13,
                               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                               color: isSelected
-                                  ? (amenity == 'Gần trường ĐH / Bến xe' ? const Color(0xFF2563EB) : AppColors.primary)
+                                  ? (isNearCampus ? const Color(0xFF2563EB) : _emerald)
                                   : AppColors.textDark,
                             ),
                           ),
                         ),
                         if (isSelected)
-                          if (amenity == 'Gần trường ĐH / Bến xe')
+                          if (isNearCampus)
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -1217,7 +1268,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF3F4F6),
+                                color: _emeraldLight,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: const Text(
@@ -1225,7 +1276,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.textDark,
+                                  color: _emerald,
                                 ),
                               ),
                             )
@@ -1240,16 +1291,36 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
           ),
           const SizedBox(height: 12),
 
-          // Nút Thu gọn ˄
-          Center(
-            child: TextButton.icon(
-              onPressed: () => setState(() => _isAdvancedExpanded = false),
-              icon: const Text('Thu gọn', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textMuted)),
-              label: const Icon(Icons.keyboard_arrow_up, size: 18, color: AppColors.textMuted),
-              style: TextButton.styleFrom(
-                backgroundColor: const Color(0xFFF3F4F6),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          // Nút Thu gọn ˄ chuẩn Figma (Container full-width bo góc màu lavender nhạt)
+          InkWell(
+            onTap: () {
+              setState(() => _isAdvancedExpanded = false);
+              if (_scrollController.hasClients) {
+                _scrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOutCubic);
+              }
+            },
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 11),
+              decoration: BoxDecoration(
+                color: _lavenderBg,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Thu gọn',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: _lavenderText,
+                    ),
+                  ),
+                  SizedBox(width: 4),
+                  Icon(Icons.keyboard_arrow_up, size: 18, color: _lavenderText),
+                ],
               ),
             ),
           ),
@@ -1709,7 +1780,7 @@ class _LocationSearchBottomSheetState extends State<_LocationSearchBottomSheet> 
                   decoration: InputDecoration(
                     hintText: widget.searchHint,
                     hintStyle: const TextStyle(fontSize: 14, color: AppColors.textMuted),
-                    icon: const Icon(Icons.search, size: 20, color: AppColors.primary),
+                    icon: const Icon(Icons.search, size: 20, color: _emerald),
                     border: InputBorder.none,
                     suffixIcon: _query.isNotEmpty
                         ? IconButton(
@@ -1751,7 +1822,7 @@ class _LocationSearchBottomSheetState extends State<_LocationSearchBottomSheet> 
                               width: 36,
                               height: 36,
                               decoration: BoxDecoration(
-                                color: isSelected ? const Color(0xFFE8F5E9) : const Color(0xFFF3F4F6),
+                                color: isSelected ? _emeraldLight : const Color(0xFFF3F4F6),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -1759,7 +1830,7 @@ class _LocationSearchBottomSheetState extends State<_LocationSearchBottomSheet> 
                                     ? Icons.location_on_outlined
                                     : Icons.near_me_outlined,
                                 size: 18,
-                                color: isSelected ? AppColors.primary : AppColors.textMuted,
+                                color: isSelected ? _emerald : AppColors.textMuted,
                               ),
                             ),
                             title: Text(
@@ -1767,11 +1838,11 @@ class _LocationSearchBottomSheetState extends State<_LocationSearchBottomSheet> 
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                                color: isSelected ? AppColors.primary : AppColors.textDark,
+                                color: isSelected ? _emerald : AppColors.textDark,
                               ),
                             ),
                             trailing: isSelected
-                                ? const Icon(Icons.check_circle, color: AppColors.primary, size: 20)
+                                ? const Icon(Icons.check_circle, color: _emerald, size: 20)
                                 : null,
                             onTap: () {
                               widget.onSelected(item);
