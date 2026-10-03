@@ -1059,7 +1059,8 @@ Thực hiện yêu cầu của người dùng: *"làm phần chi tiết ở ghé
 * **Phân tích yêu cầu & Định hướng triển khai:**
   1. **Tái thiết kế Màn hình Đăng Ký ([RegisterScreen](file:///D:/app/HomeShare/lib/features/auth/screens/register_screen.dart)):**
      - Hỗ trợ chọn 2 vai trò trực quan bằng thẻ Card tương tác:
-       + **Người thuê (enter)**: Icon person_search_rounded, mô tả "Tìm phòng, căn hộ & bạn ở ghép".
+       + **Người thuê (
+enter)**: Icon person_search_rounded, mô tả "Tìm phòng, căn hộ & bạn ở ghép".
        + **Chủ trọ (host)**: Icon domain_rounded, mô tả "Đăng tin phòng & tìm khách thuê".
        + Có viền highlight màu xanh #155EEF (AppColors.primary), nền mềm #E8F0FE (AppColors.primaryContainer) và radio indicator khi được kích hoạt.
      - Form thông tin chuẩn phong cách Phòng Sáng:
@@ -1070,7 +1071,8 @@ Thực hiện yêu cầu của người dùng: *"làm phần chi tiết ở ghé
        + Checkbox đồng ý Điều khoản dịch vụ & Chính sách của HomeShare
      - Nút "Đăng Ký Tài Khoản" hiển thị rõ tên vai trò đang chọn: Đăng Ký Tài Khoản (Người Thuê / Chủ Trọ).
   2. **Luồng sau khi đăng ký quay về đăng nhập:**
-     - Lưu đầy đủ thông tin tài khoản vào Firestore users với: ole, aiTro, aiTro_id (1 cho renter, 2 cho host), userCode (5 ký tự 3 số 2 chữ), hoTen, soDienThoai, v.v.
+     - Lưu đầy đủ thông tin tài khoản vào Firestore users với: 
+ole, aiTro, aiTro_id (1 cho renter, 2 cho host), userCode (5 ký tự 3 số 2 chữ), hoTen, soDienThoai, v.v.
      - Sau khi lưu thành công, tự động gọi uthService.signOut() để không bị chuyển thẳng vào dashboard mà giữ trạng thái đăng xuất.
      - Hiển thị SnackBar thông báo: "Đăng ký tài khoản thành công! Vui lòng đăng nhập."
      - Điều hướng quay về LoginScreen (Navigator.pop(context, email)), tự động điền sẵn email vừa tạo vào ô đăng nhập để người dùng không cần gõ lại.
