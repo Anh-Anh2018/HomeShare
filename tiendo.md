@@ -1446,6 +1446,37 @@ huquynh: https://github.com/23211tt0240-NhuQuynh/homeshare.git.
 * **Kiểm thử chất lượng & Cài đặt thiết bị:**
   - `analyze_files`: **No errors** (0 lỗi tĩnh).
   - Git: Đã commit và push lên nhánh `homeshare` tại `https://github.com/Anh-Anh2018/HomeShare.git`.
-  - **Thiết bị thật:** Xiaomi/Redmi (`25100RA69G` / serial `lj6hwwwgauugwkci`, Android 16 / API 36).
+  - **Thiết bị thật:** Samsung Galaxy A50 (`SM-A505F` / serial `R58M68KF70K`) & Xiaomi/Redmi (`25100RA69G` / serial `lj6hwwwgauugwkci`).
   - **Đóng gói & Cài đặt:** Đã build thành công `build\app\outputs\flutter-apk\app-debug.apk` và nạp thành công qua ADB USB (`Performing Streamed Install -> Success`).
   - **Khởi chạy ứng dụng:** Đã kích hoạt và mở app tự động trên điện thoại.
+
+---
+
+### Phase 2.34: Ràng Buộc Điền Đầy Đủ Thông Tin Từng Bước Mới Cho Bước Tiếp Theo (Đăng Tin Ở Ghép)
+* **Ngày hoàn thành:** 04/10/2026
+* **Yêu cầu người dùng:** *"phần đăng bài ràng buộc phải điền đủ hết mới cho bước tiếp theo"*.
+* **Giải pháp kỹ thuật chi tiết (`create_roommate_post_screen.dart`):**
+  1. **Nâng cấp `_inputDecoration()` & `_buildTextField()`:**
+     - Bổ sung `errorBorder`, `focusedErrorBorder` (viền đỏ nổi bật) và `errorStyle` chuẩn Material 3.
+     - Tích hợp tham số `validator` và `autovalidateMode: AutovalidateMode.onUserInteraction` cho toàn bộ các `TextFormField` trong màn hình đăng bài để lập tức báo lỗi và tự xóa thông báo lỗi ngay khi người dùng nhập đúng.
+  2. **Ràng buộc nghiêm ngặt Bước 1 (Hồ sơ bản thân - `_validateStep0()`):**
+     - Họ và tên: Không được để trống, tối thiểu 2 ký tự.
+     - Tuổi: Bắt buộc là số nguyên hợp lệ trong khoảng 16 - 100 tuổi.
+     - Nghề nghiệp / Trường học: Không được để trống.
+     - Số điện thoại / Zalo: Bắt buộc đúng định dạng 10 chữ số Việt Nam (đầu số 03, 05, 07, 08, 09).
+     - *Chặn chuyển sang Bước 2 nếu chưa điền đầy đủ và đúng chuẩn.*
+  3. **Ràng buộc nghiêm ngặt Bước 2 (Phòng & Giá - `_validateStep1()`):**
+     - Tiêu đề bài đăng: Không được để trống, tối thiểu 6 ký tự.
+     - Chi phí thuê / Ngân sách: Bắt buộc là số tiền hợp lệ (> 0đ, tối thiểu 100.000 VNĐ).
+     - Tỉnh / Thành phố, Quận / Huyện, Phường / Xã, Loại hình nhà ở, Giới tính tìm kiếm: Đều được kiểm tra và có giá trị hợp lệ.
+     - Địa chỉ cụ thể: Không được để trống.
+     - Mô tả chi tiết phòng & yêu cầu: Bắt buộc tối thiểu 10 ký tự.
+     - *Chặn chuyển sang Bước 3 nếu chưa hoàn thành các trường bắt buộc.*
+  4. **Ràng buộc nghiêm ngặt Bước 3 (Lối sống & Ảnh - `_validateStep2()`):**
+     - Thói quen sinh hoạt & Lối sống: Bắt buộc chọn ít nhất 1 tiêu chí để thuật toán AI có cơ sở ghép phòng tương thích.
+     - Ảnh phòng thực tế: Nếu chọn "Đã có phòng sẵn" (`_hasRoom == true`), bắt buộc phải tải lên ít nhất 1 ảnh phòng thực tế để người xem có thể đánh giá phòng.
+  5. **Bảo vệ toàn diện nút Tiếp tục & Đăng bài:**
+     - Tại `_buildBottomActionBar`: Chỉ khi bước hiện tại vượt qua hàm validation tương ứng (`_validateStep0()`, `_validateStep1()`, `_validateStep2()`) thì mới kích hoạt chuyển sang bước tiếp theo hoặc tiến hành đăng bài.
+     - Tại `_submitPost()`: Kiểm tra lại toàn diện cả 3 bước; nếu có bất kỳ bước nào thiếu thông tin, tự động đưa người dùng về lại bước đó và highlight trường thiếu.
+* **Kiểm thử chất lượng:**
+  - `analyze_files`: **No errors** (0 lỗi tĩnh).
