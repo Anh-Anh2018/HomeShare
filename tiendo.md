@@ -1443,6 +1443,9 @@ huquynh: https://github.com/23211tt0240-NhuQuynh/homeshare.git.
   5. **Hiển thị bong bóng trích dẫn trong phòng chat:**
      - Thiết kế widget `_buildReplyQuote()` đẹp mắt theo phong cách Telegram/Zalo: viền bo tròn, đường gạch dọc màu chủ đạo bên trái, hiển thị tên người được trả lời và nội dung trích đoạn.
      - Tích hợp trích dẫn hài hòa vào cả bong bóng tin nhắn văn bản và bong bóng ảnh.
-* **Kiểm thử chất lượng:**
+* **Kiểm thử chất lượng & Cài đặt thiết bị:**
   - `analyze_files`: **No errors** (0 lỗi tĩnh).
   - Git: Đã commit và push lên nhánh `homeshare` tại `https://github.com/Anh-Anh2018/HomeShare.git`.
+  - **Thiết bị thật:** Xiaomi/Redmi (`25100RA69G` / serial `lj6hwwwgauugwkci`, Android 16 / API 36).
+  - **Đóng gói & Cài đặt:** Đã build thành công `build\app\outputs\flutter-apk\app-debug.apk` và nạp thành công qua ADB USB (`Performing Streamed Install -> Success`).
+  - **Khởi chạy ứng dụng:** Đã kích hoạt và mở app tự động trên điện thoại.
