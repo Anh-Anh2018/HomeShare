@@ -1857,7 +1857,8 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildMessageBubbleBody(ChatMessageModel msg, bool isMe) {
