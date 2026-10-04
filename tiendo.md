@@ -1421,4 +1421,28 @@ huquynh: https://github.com/23211tt0240-NhuQuynh/homeshare.git.
   4. **Bổ sung tùy chọn "Chụp ảnh":** Thêm nút Chụp ảnh từ Camera bên cạnh Gửi ảnh Album trong menu đính kèm.
 * **Kiểm thử chất lượng:**
   - `analyze_files`: **No errors** (0 lỗi tĩnh).
-  - Đang biên dịch và nạp app trực tiếp vào điện thoại Samsung Galaxy A50 (`SM-A505F`).
+  - Đã đồng bộ nhánh `homeshare` lên `https://github.com/Anh-Anh2018/HomeShare.git`.
+
+---
+
+### Phase 2.33: Triển Khai Tính Năng Trả Lời Tin Nhắn (Swipe To Reply & Quote Reply)
+* **Ngày hoàn thành:** 04/10/2026
+* **Yêu cầu người dùng:** *"làm trả lời tin nhắn và up git"*.
+* **Giải pháp kỹ thuật chi tiết:**
+  1. **Nâng cấp Model Tin nhắn (`chat_model.dart`):**
+     - Bổ sung getter `replyTo` và `isReply`: Phân tích và trích xuất dữ liệu trả lời từ trường `extraData['replyTo']` (gồm `messageId`, `senderId`, `senderName`, `text`, `messageType`) tương thích 100% với cấu trúc Firestore hiện tại mà không làm phá vỡ dữ liệu cũ.
+  2. **Thao tác kích hoạt trả lời đa năng (`chat_detail_screen.dart`):**
+     - **Thao tác 1 (Swipe-to-reply):** Bọc từng bong bóng tin nhắn bằng `Dismissible` với hướng trượt `startToEnd`. Khi vuốt nhẹ từ trái sang phải, icon trả lời `Icons.reply_rounded` sẽ xuất hiện và lập tức mở chế độ trả lời với hiệu ứng phản hồi tự nhiên.
+     - **Thao tác 2 (Menu nhấn giữ):** Bổ sung nút *"Trả lời tin nhắn"* trên cùng của bottom sheet khi người dùng long-press bất kỳ tin nhắn nào (của mình hoặc đối phương).
+  3. **Giao diện thanh soạn thảo (Reply Banner):**
+     - Khi kích hoạt trả lời, tự động focus con trỏ vào ô nhập và bật bàn phím qua `FocusNode`.
+     - Phía trên ô nhập hiển thị thanh banner ghim: *"Đang trả lời [Tên đối tác / chính bạn]: [Nội dung trích đoạn]"* kèm nút đóng `X` để người dùng dễ dàng hủy bỏ trả lời bất kỳ lúc nào.
+  4. **Đồng bộ dữ liệu gửi đi:**
+     - Tự động gắn đối tượng `replyTo` vào `extraData` của tin nhắn văn bản (`_sendMessage`) cũng như tin nhắn đa phương tiện (`_sendRichMessage`).
+     - Tự động reset trạng thái reply sau khi gửi thành công.
+  5. **Hiển thị bong bóng trích dẫn trong phòng chat:**
+     - Thiết kế widget `_buildReplyQuote()` đẹp mắt theo phong cách Telegram/Zalo: viền bo tròn, đường gạch dọc màu chủ đạo bên trái, hiển thị tên người được trả lời và nội dung trích đoạn.
+     - Tích hợp trích dẫn hài hòa vào cả bong bóng tin nhắn văn bản và bong bóng ảnh.
+* **Kiểm thử chất lượng:**
+  - `analyze_files`: **No errors** (0 lỗi tĩnh).
+  - Git: Đã commit và push lên nhánh `homeshare` tại `https://github.com/Anh-Anh2018/HomeShare.git`.

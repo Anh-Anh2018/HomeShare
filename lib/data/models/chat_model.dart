@@ -29,6 +29,12 @@ class ChatMessageModel {
   bool get daDoc => isRead || status == 'read';
   String get trangThaiTinNhan => status;
 
+  // Trả lời tin nhắn (Reply)
+  Map<String, dynamic>? get replyTo => (extraData['replyTo'] is Map)
+      ? Map<String, dynamic>.from(extraData['replyTo'] as Map)
+      : null;
+  bool get isReply => replyTo != null && replyTo!.isNotEmpty;
+
   ChatMessageModel({
     required this.id,
     this.conversationId = '',
