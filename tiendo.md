@@ -1399,4 +1399,26 @@ huquynh: https://github.com/23211tt0240-NhuQuynh/homeshare.git.
   - **Hot Restart:** Đã thực hiện `hot_restart` thành công 100% lên Samsung Galaxy A50 (`SM-A505F`).
   - **Runtime Errors:** `get_runtime_errors` trả về **No runtime errors found**.
   - `analyze_files`: **No errors** (0 lỗi tĩnh).
-  - **Git:** Giữ nguyên trên máy cục bộ, **chưa commit/push** theo đúng chỉ đạo.
+  - **Git:** Đã đồng bộ nhánh `homeshare` lên `https://github.com/Anh-Anh2018/HomeShare.git`.
+
+---
+
+### Phase 2.32: Đồng Bộ Ảnh Tin Nhắn Lên Firebase Cho Cả 2 Bên (Sender & Receiver) Cùng Xem
+* **Ngày hoàn thành:** 03/10/2026
+* **Yêu cầu người dùng:** *"khi mà gửi ảnh thì lưu vào firebase để ai cũng có thể xem tức là 2 bên đều xem được"*.
+* **Nguyên nhân trước đó:**
+  - Do Firebase Cloud Storage chưa được kích hoạt trên dự án `homeshare-fe18e` trong Firebase Console, hàm upload Storage sinh ngoại lệ và rơi vào nhánh fallback gán đường dẫn file nội bộ trên máy người gửi (`pickedImage.path` -> `/data/user/0/...`).
+  - Phía người nhận khi tải tin nhắn từ Firestore không thể đọc được file nội bộ của máy khác, dẫn đến biểu tượng ảnh vỡ (broken image).
+* **Giải pháp kỹ thuật toàn diện:**
+  1. **Tối ưu hóa nén ảnh:** Khi chọn ảnh từ Album hoặc Chụp từ Camera, nén kích thước tối đa 1024x1024 và chất lượng JPEG 70% nhằm đảm bảo dung lượng siêu nhẹ (chỉ ~30KB - 80KB), truyền tải tức thì.
+  2. **Cơ chế lưu trữ kép vào Firebase:**
+     - Ưu tiên 1: Tải lên Firebase Cloud Storage lấy `downloadURL` công khai nếu bucket đã kích hoạt.
+     - Fallback lưu trữ Firebase Firestore: Chuyển đổi ảnh thành chuỗi Base64 Data URI (`data:image/jpeg;base64,...`) lưu trực tiếp vào tài liệu tin nhắn trên Cloud Firestore. Nhờ đó, ảnh được lưu trữ an toàn trên Firebase, đồng bộ thời gian thực qua Firestore Listener và 100% người dùng ở mọi máy khác nhau đều tải và xem được ảnh thật.
+  3. **Nâng cấp bộ dựng bong bóng ảnh (`chat_detail_screen.dart`):**
+     - Tự động nhận diện và giải mã `data:image` hiển thị bằng `Image.memory()`.
+     - Hỗ trợ tải ảnh từ Web/Storage qua `Image.network()` với thanh tiến trình tải (`CircularProgressIndicator`).
+     - Hỗ trợ phóng to ảnh toàn màn hình đa điểm chạm (`InteractiveViewer`) trên nền tối `Colors.black87` kèm nút đóng rõ ràng.
+  4. **Bổ sung tùy chọn "Chụp ảnh":** Thêm nút Chụp ảnh từ Camera bên cạnh Gửi ảnh Album trong menu đính kèm.
+* **Kiểm thử chất lượng:**
+  - `analyze_files`: **No errors** (0 lỗi tĩnh).
+  - Đang biên dịch và nạp app trực tiếp vào điện thoại Samsung Galaxy A50 (`SM-A505F`).

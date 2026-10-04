@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -555,8 +556,10 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
               ),
               const Text('Đính kèm phương tiện & hành động', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
               const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+              Wrap(
+                spacing: 12,
+                runSpacing: 10,
+                alignment: WrapAlignment.center,
                 children: [
                   _buildAttachOption(
                     icon: Icons.photo_library_outlined,
@@ -564,7 +567,16 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                     color: Colors.blue,
                     onTap: () {
                       Navigator.pop(ctx);
-                      _pickAndSendImageFromAlbum();
+                      _pickAndSendImage(ImageSource.gallery);
+                    },
+                  ),
+                  _buildAttachOption(
+                    icon: Icons.camera_alt_outlined,
+                    label: 'Chụp ảnh',
+                    color: Colors.purple,
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      _pickAndSendImage(ImageSource.camera);
                     },
                   ),
                   _buildAttachOption(
@@ -634,14 +646,15 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
     );
   }
 
-  // Chọn và gửi ảnh thật từ thư viện Album ảnh (Gallery)
-  Future<void> _pickAndSendImageFromAlbum() async {
+  // Chọn và gửi ảnh thật (Album hoặc Camera), đồng bộ lên Firebase để cả 2 bên đều xem được
+  Future<void> _pickAndSendImage(ImageSource source) async {
     try {
       final ImagePicker picker = ImagePicker();
       final XFile? pickedImage = await picker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 85,
-        maxWidth: 1600,
+        source: source,
+        imageQuality: 70,
+        maxWidth: 1024,
+        maxHeight: 1024,
       );
 
       if (pickedImage == null) return;
@@ -654,12 +667,16 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
               children: [
                 SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
                 SizedBox(width: 12),
-                Text('Đang tải và gửi ảnh từ album...'),
+                Text('Đang tải và đồng bộ ảnh lên Firebase...'),
               ],
             ),
           ),
         );
       }
+
+      final file = File(pickedImage.path);
+      final bytes = await file.readAsBytes();
+      final base64Image = 'data:image/jpeg;base64,${base64Encode(bytes)}';
 
       String attachmentUrl = '';
       try {
@@ -671,52 +688,38 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
             .child(fileName);
 
         final uploadTask = storageRef.putFile(
-          File(pickedImage.path),
+          file,
           SettableMetadata(contentType: 'image/jpeg'),
         );
-        final snapshot = await uploadTask;
+        final snapshot = await uploadTask.timeout(const Duration(seconds: 5));
         attachmentUrl = await snapshot.ref.getDownloadURL();
       } catch (storageError) {
-        debugPrint('Firebase Storage default bucket error, trying fallback bucket: $storageError');
-        try {
-          final fallbackStorage = FirebaseStorage.instanceFor(bucket: 'gs://homeshare-fe18e.appspot.com');
-          final fileName = '${DateTime.now().millisecondsSinceEpoch}_${pickedImage.name}';
-          final storageRef = fallbackStorage
-              .ref()
-              .child('chat_media')
-              .child(widget.currentUserId)
-              .child(fileName);
-
-          final uploadTask = storageRef.putFile(
-            File(pickedImage.path),
-            SettableMetadata(contentType: 'image/jpeg'),
-          );
-          final snapshot = await uploadTask;
-          attachmentUrl = await snapshot.ref.getDownloadURL();
-        } catch (e2) {
-          debugPrint('Firebase Storage unavailable, using local path fallback: $e2');
-          attachmentUrl = pickedImage.path;
-        }
+        debugPrint('[Chat] Firebase Storage chưa kích hoạt hoặc lỗi ($storageError). Lưu ảnh trực tiếp vào Firebase Cloud Firestore.');
+        // Lưu ảnh Base64 vào Firebase Firestore để 100% cả 2 bên thiết bị đều tải và hiển thị được
+        attachmentUrl = base64Image;
       }
 
       await _sendRichMessage(
-        text: '[Hình ảnh từ album]',
+        text: source == ImageSource.camera ? '[Hình ảnh chụp]' : '[Hình ảnh từ album]',
         messageType: 'image',
         attachmentUrl: attachmentUrl,
         extraData: {
-          'localPath': pickedImage.path,
           'fileName': pickedImage.name,
+          'fileSize': bytes.length,
+          'source': source.name,
         },
       );
     } catch (e) {
       debugPrint('Error picking image: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Không thể chọn ảnh từ album: $e')),
+          SnackBar(content: Text('Không thể chọn ảnh: $e')),
         );
       }
     }
   }
+
+  Future<void> _pickAndSendImageFromAlbum() => _pickAndSendImage(ImageSource.gallery);
 
   void _sendLocationMessage() {
     _sendRichMessage(
@@ -1914,35 +1917,77 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
 
     // 5. Thẻ Hình ảnh đính kèm (Tc_CHAT_30 -> 33)
     if (msg.messageType == 'image') {
-      final isLocalFile = msg.attachmentUrl.isNotEmpty &&
-          !msg.attachmentUrl.startsWith('http://') &&
-          !msg.attachmentUrl.startsWith('https://');
-      final localFallbackPath = msg.extraData['localPath']?.toString() ?? '';
-
       Widget buildImageWidget({BoxFit fit = BoxFit.cover}) {
-        if (isLocalFile && File(msg.attachmentUrl).existsSync()) {
-          return Image.file(
-            File(msg.attachmentUrl),
+        final url = msg.attachmentUrl.trim();
+
+        // A. Ảnh dạng Base64 Data URI lưu trữ trực tiếp trên Firebase Firestore (cả 2 bên đều xem được)
+        if (url.startsWith('data:image')) {
+          try {
+            final commaIdx = url.indexOf(',');
+            final base64Data = commaIdx != -1 ? url.substring(commaIdx + 1) : url;
+            final bytes = base64Decode(base64Data);
+            return Image.memory(
+              bytes,
+              fit: fit,
+              errorBuilder: (_, _, _) => const Center(
+                child: Icon(Icons.broken_image_outlined, color: Colors.grey, size: 40),
+              ),
+            );
+          } catch (e) {
+            debugPrint('[Chat] Lỗi giải mã Base64: $e');
+          }
+        }
+
+        // B. Ảnh từ URL Online (Firebase Storage hoặc HTTP/HTTPS)
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+          return Image.network(
+            url,
             fit: fit,
-            errorBuilder: (_, __, ___) => const Center(
-              child: Icon(Icons.broken_image, color: Colors.grey, size: 40),
-            ),
-          );
-        } else if (localFallbackPath.isNotEmpty && File(localFallbackPath).existsSync()) {
-          return Image.file(
-            File(localFallbackPath),
-            fit: fit,
-            errorBuilder: (_, __, ___) => const Center(
-              child: Icon(Icons.broken_image, color: Colors.grey, size: 40),
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Center(
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                        : null,
+                  ),
+                ),
+              );
+            },
+            errorBuilder: (_, _, _) => const Center(
+              child: Icon(Icons.broken_image_outlined, color: Colors.grey, size: 40),
             ),
           );
         }
-        return Image.network(
-          msg.attachmentUrl,
-          fit: fit,
-          errorBuilder: (_, __, ___) => const Center(
-            child: Icon(Icons.broken_image, color: Colors.grey, size: 40),
-          ),
+
+        // C. Fallback file cục bộ nếu có trên cùng thiết bị
+        if (url.isNotEmpty && File(url).existsSync()) {
+          return Image.file(
+            File(url),
+            fit: fit,
+            errorBuilder: (_, _, _) => const Center(
+              child: Icon(Icons.broken_image_outlined, color: Colors.grey, size: 40),
+            ),
+          );
+        }
+
+        final localFallback = msg.extraData['localPath']?.toString() ?? '';
+        if (localFallback.isNotEmpty && File(localFallback).existsSync()) {
+          return Image.file(
+            File(localFallback),
+            fit: fit,
+            errorBuilder: (_, _, _) => const Center(
+              child: Icon(Icons.broken_image_outlined, color: Colors.grey, size: 40),
+            ),
+          );
+        }
+
+        return const Center(
+          child: Icon(Icons.broken_image_outlined, color: Colors.grey, size: 40),
         );
       }
 
@@ -1954,17 +1999,42 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
             showDialog(
               context: context,
               builder: (ctx) => Dialog(
-                backgroundColor: Colors.transparent,
+                backgroundColor: Colors.black87,
                 insetPadding: const EdgeInsets.all(12),
-                child: InteractiveViewer(
-                  child: buildImageWidget(fit: BoxFit.contain),
+                child: Stack(
+                  alignment: Alignment.topRight,
+                  children: [
+                    InteractiveViewer(
+                      clipBehavior: Clip.none,
+                      maxScale: 4.0,
+                      child: Center(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: buildImageWidget(fit: BoxFit.contain),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 10,
+                      right: 10,
+                      child: CircleAvatar(
+                        backgroundColor: Colors.black54,
+                        radius: 18,
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          icon: const Icon(Icons.close, color: Colors.white, size: 20),
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );
           },
           child: Container(
-            constraints: const BoxConstraints(maxHeight: 180, maxWidth: 220),
-            color: Colors.grey.shade200,
+            constraints: const BoxConstraints(maxHeight: 220, maxWidth: 240),
+            color: Colors.grey.shade100,
             child: buildImageWidget(fit: BoxFit.cover),
           ),
         ),

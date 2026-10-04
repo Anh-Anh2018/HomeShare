@@ -1,1 +1,26 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"homeshare-fe18e","appId":"1:452451086417:android:94df7b7ff261a664cbc870","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"homeshare-fe18e","configurations":{"android":"1:452451086417:android:94df7b7ff261a664cbc870","ios":"1:452451086417:ios:437dca5d8c41318ecbc870","web":"1:452451086417:web:90ee91f062dbae42cbc870"}}}}}}
+{
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "homeshare-fe18e",
+          "appId": "1:452451086417:android:94df7b7ff261a664cbc870",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "homeshare-fe18e",
+          "configurations": {
+            "android": "1:452451086417:android:94df7b7ff261a664cbc870",
+            "ios": "1:452451086417:ios:437dca5d8c41318ecbc870",
+            "web": "1:452451086417:web:90ee91f062dbae42cbc870"
+          }
+        }
+      }
+    }
+  }
+}
