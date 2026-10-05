@@ -1527,4 +1527,17 @@ huquynh: https://github.com/23211tt0240-NhuQuynh/homeshare.git.
   - **Thiết bị:** `25100RA69G` (POCO/Redmi/Xiaomi, serial `lj6hwwwgauugwkci`, Android 16).
   - **Đóng gói & Cài đặt:** Build debug APK thành công (`assembleDebug` 94.5s) và nạp vào máy qua `adb install` thành công (`Success`).
   - **Khởi chạy ứng dụng:** Đã kích hoạt và mở app tự động trên máy (`am start -n com.homeshare.app.home_share/.MainActivity`).
-  - **Trạng thái Git:** Đã commit và push thành công lên nhánh `homeshare` (commit `1429d39`) theo đúng chỉ đạo người dùng.
+  - **Trạng thái Git:** Đã commit và push thành công lên nhánh `homeshare` (commit `1429d39` & `37a6422`) theo đúng chỉ đạo người dùng.
+
+---
+
+### Phase 2.37: Loại Bỏ Banner Cảnh Báo Đặt Cọc Trong Chi Tiết Tin Nhắn
+* **Ngày hoàn thành:** 05/10/2026
+* **Yêu cầu người dùng:** *"xóa phần bảo vệ an toàn : tueets đối không cọc tiền trước.... trpng phần tin nhắn và push git"*.
+* **Các thay đổi đã triển khai:**
+  1. **Xóa banner cảnh báo an toàn trong khung chat:**
+     - Đã loại bỏ hoàn toàn thẻ `Container` hiển thị banner cảnh báo: *"Bảo vệ an toàn: Tuyệt đối không cọc tiền trước khi đến xem phòng trực tiếp"* nằm ở đầu khung chat trong [chat_detail_screen.dart](file:///d:/App/HomeShare/lib/features/chat/screens/chat_detail_screen.dart).
+     - Giao diện khung chat thoáng đãng hơn, tin nhắn ghim (nếu có) và danh sách tin nhắn realtime hiển thị trọn vẹn không bị che khuất.
+* **Kiểm thử chất lượng & Git:**
+  - `dart analyze lib/features/chat/screens/chat_detail_screen.dart`: **No issues found** (0 lỗi, 0 cảnh báo).
+  - Đã commit và push thành công lên nhánh `homeshare`.

@@ -1225,24 +1225,6 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
         children: [
           Column(
             children: [
-              // 1. Thẻ bảo vệ giao dịch an toàn (SRS 2.10)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                color: const Color(0xFFFEF3C7),
-                child: Row(
-                  children: [
-                    const Icon(Icons.shield_outlined, size: 16, color: Color(0xFFB45309)),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Bảo vệ an toàn: Tuyệt đối không cọc tiền trước khi đến xem phòng trực tiếp.',
-                        style: TextStyle(fontSize: 11, color: Colors.amber.shade900, fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
 
               // 2. Thẻ phòng trọ ghim trên đầu khung chat (Tc_CHAT_09 -> 11 & SRS 2.10)
               if (_showPinnedRoom && widget.pinnedRoom != null)
