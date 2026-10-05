@@ -1028,20 +1028,6 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                   _confirmRevokeMessage(msg);
                 },
               ),
-            // Xóa tin nhắn ở cả 2 phía (Xóa vĩnh viễn khỏi cuộc trò chuyện của cả 2)
-            if (isMe)
-              ListTile(
-                leading: const Icon(Icons.delete_forever_outlined, color: AppColors.danger),
-                title: const Text(
-                  'Xóa tin nhắn ở cả 2 bên',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.danger),
-                ),
-                subtitle: const Text('Xóa hoàn toàn tin nhắn này khỏi cuộc trò chuyện của cả hai người', style: TextStyle(fontSize: 11)),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _confirmDeleteForEveryone(msg);
-                },
-              ),
             ListTile(
               leading: const Icon(Icons.delete_outline, color: Color(0xFF64748B)),
               title: const Text('Xóa ở phía tôi (Chỉ mình tôi)'),
@@ -1096,45 +1082,6 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
     );
   }
 
-  // Xác nhận xóa tin nhắn ở cả 2 bên (xóa vĩnh viễn)
-  void _confirmDeleteForEveryone(ChatMessageModel msg) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Icon(Icons.delete_forever_outlined, color: AppColors.danger),
-            SizedBox(width: 8),
-            Text('Xóa tin nhắn ở cả 2 bên?', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        content: const Text(
-          'Tin nhắn này sẽ bị xóa hoàn toàn khỏi cuộc trò chuyện của cả phía bạn và phía đối phương.',
-          style: TextStyle(fontSize: 13, color: Color(0xFF475569)),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Hủy', style: TextStyle(color: Color(0xFF64748B))),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.danger,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            onPressed: () {
-              Navigator.pop(ctx);
-              _deleteForEveryone(msg.id);
-            },
-            child: const Text('Xóa cả 2 bên'),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<void> _revokeMessage(String messageId) async {
     setState(() {
       _revokedIds.add(messageId);
@@ -1153,28 +1100,6 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Đã thu hồi tin nhắn ở cả 2 bên')),
-      );
-    }
-  }
-
-  Future<void> _deleteForEveryone(String messageId) async {
-    setState(() {
-      _deletedForMeIds.add(messageId);
-    });
-
-    try {
-      await ref.read(chatServiceProvider).deleteMessagePermanently(
-        senderId: widget.currentUserId,
-        receiverId: widget.receiverId,
-        messageId: messageId,
-      );
-    } catch (e) {
-      debugPrint('Error deleting message for everyone: $e');
-    }
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã xóa vĩnh viễn tin nhắn ở cả 2 bên')),
       );
     }
   }

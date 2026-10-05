@@ -1,7 +1,9 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/services/image_storage_service.dart';
 import 'auth_provider.dart';
 
 /// Model thông tin người dùng HomeShare chuẩn hóa theo Database homeShare (DrawIO pkg_0: Tài khoản)
@@ -154,18 +156,18 @@ class UserProfile {
           : (data['ngayTao'] is Timestamp)
               ? (data['ngayTao'] as Timestamp).toDate()
               : null,
-      isCccdVerified: (data['isCccdVerified'] ?? (data['trangThaiXacMinh_id'] == 'daXacThuc')) ?? false,
-      cccdNumber: data['cccdNumber'] ?? data['soGiayTo'] ?? data['soCccd'] ?? '',
-      cccdFullName: data['cccdFullName'] ?? data['hoTenCccd'] ?? '',
-      cccdIssueDate: data['cccdIssueDate'] ?? '',
-      cccdHometown: data['cccdHometown'] ?? '',
+      isCccdVerified: (data['isCccdVerified'] ?? data['daXacThucCccd'] ?? (data['trangThaiXacMinh_id'] == 'daXacThuc')) ?? false,
+      cccdNumber: (data['cccdNumber'] ?? data['soGiayTo'] ?? data['soCccd'] ?? '').toString(),
+      cccdFullName: (data['cccdFullName'] ?? data['hoTenCccd'] ?? '').toString(),
+      cccdIssueDate: (data['cccdIssueDate'] ?? data['ngayCap'] ?? '').toString(),
+      cccdHometown: (data['cccdHometown'] ?? data['queQuan'] ?? data['diaChiThuongTru'] ?? data['cccdAddress'] ?? '').toString(),
       cccdVerifiedAt: (data['cccdVerifiedAt'] is Timestamp)
           ? (data['cccdVerifiedAt'] as Timestamp).toDate()
           : (data['ngayXacMinh'] is Timestamp)
               ? (data['ngayXacMinh'] as Timestamp).toDate()
               : null,
-      cccdFrontImageUrl: data['cccdFrontImageUrl'] ?? data['anhMatTruoc'] ?? '',
-      cccdBackImageUrl: data['cccdBackImageUrl'] ?? data['anhMatSau'] ?? '',
+      cccdFrontImageUrl: (data['cccdFrontImageUrl'] ?? data['anhMatTruoc'] ?? data['anhGiayTo_id'] ?? '').toString(),
+      cccdBackImageUrl: (data['cccdBackImageUrl'] ?? data['anhMatSau'] ?? '').toString(),
     );
   }
 
@@ -203,7 +205,9 @@ class UserProfile {
       'soGiayTo': cccdNumber,
       'soCccd': cccdNumber,
       'cccdFullName': cccdFullName,
+      'hoTenCccd': cccdFullName,
       'cccdIssueDate': cccdIssueDate,
+      'ngayCap': cccdIssueDate,
       'cccdHometown': cccdHometown,
       'cccdFrontImageUrl': cccdFrontImageUrl,
       'anhMatTruoc': cccdFrontImageUrl,
@@ -272,6 +276,7 @@ class UserProfile {
 }
 
 /// Hàm lưu kết quả xác thực CCCD eKYC vào Firestore và SharedPreferences
+/// Tự động tải ảnh mặt trước và mặt sau lên Firebase Storage để có thể truy xuất lâu dài
 Future<void> saveCccdVerificationToBackend({
   required String uid,
   required String cccdNumber,
@@ -284,6 +289,36 @@ Future<void> saveCccdVerificationToBackend({
   String cccdBackImageUrl = '',
 }) async {
   final firestore = FirebaseFirestore.instance;
+  final imageStorage = ImageStorageService();
+
+  // Tải ảnh mặt trước và mặt sau lên Firebase Storage để lưu trữ đám mây bền vững
+  String uploadedFrontUrl = cccdFrontImageUrl;
+  String uploadedBackUrl = cccdBackImageUrl;
+
+  if (cccdFrontImageUrl.isNotEmpty) {
+    try {
+      uploadedFrontUrl = await imageStorage.uploadCccdImage(
+        filePath: cccdFrontImageUrl,
+        uid: uid,
+        isFront: true,
+      );
+    } catch (e) {
+      debugPrint('[saveCccdVerificationToBackend] Lỗi upload ảnh mặt trước: $e');
+    }
+  }
+
+  if (cccdBackImageUrl.isNotEmpty) {
+    try {
+      uploadedBackUrl = await imageStorage.uploadCccdImage(
+        filePath: cccdBackImageUrl,
+        uid: uid,
+        isFront: false,
+      );
+    } catch (e) {
+      debugPrint('[saveCccdVerificationToBackend] Lỗi upload ảnh mặt sau: $e');
+    }
+  }
+
   final updateData = <String, dynamic>{
     'isCccdVerified': true,
     'daXacThucCccd': true,
@@ -296,41 +331,141 @@ Future<void> saveCccdVerificationToBackend({
     'displayName': cccdFullName,
     'hoTen': cccdFullName,
     'cccdIssueDate': cccdIssueDate,
+    'ngayCap': cccdIssueDate,
     'cccdHometown': cccdHometown,
+    'queQuan': cccdHometown,
     'gender': gender,
     'gioiTinh': gender,
     if (birthDate != null) 'birthDate': Timestamp.fromDate(birthDate),
     if (birthDate != null) 'ngaySinh': Timestamp.fromDate(birthDate),
-    if (cccdFrontImageUrl.isNotEmpty) ...{
-      'cccdFrontImageUrl': cccdFrontImageUrl,
-      'anhMatTruoc': cccdFrontImageUrl,
+    if (uploadedFrontUrl.isNotEmpty) ...{
+      'cccdFrontImageUrl': uploadedFrontUrl,
+      'anhMatTruoc': uploadedFrontUrl,
     },
-    if (cccdBackImageUrl.isNotEmpty) ...{
-      'cccdBackImageUrl': cccdBackImageUrl,
-      'anhMatSau': cccdBackImageUrl,
+    if (uploadedBackUrl.isNotEmpty) ...{
+      'cccdBackImageUrl': uploadedBackUrl,
+      'anhMatSau': uploadedBackUrl,
     },
     'cccdVerifiedAt': FieldValue.serverTimestamp(),
     'ngayXacMinh': FieldValue.serverTimestamp(),
+    'isProfileSyncedWithCccd': true,
+    'lastSyncedAt': FieldValue.serverTimestamp(),
   };
 
   try {
+    // 1. Cập nhật hồ sơ người dùng trong Firestore
     await firestore.collection('users').doc(uid).set(updateData, SetOptions(merge: true));
+
+    // 2. Ghi nhận vào bảng Xác minh danh tính chuẩn Database DrawIO (pkg_0: Tài khoản)
+    await firestore.collection('xac_minh_danh_tinh').doc(uid).set({
+      'id': uid,
+      'nguoiDung_Id': uid,
+      'loaiGiayTo_id': 'cccd',
+      'soGiayTo': cccdNumber,
+      'soCccd': cccdNumber,
+      'hoTen': cccdFullName,
+      'anhMatTruoc': uploadedFrontUrl,
+      'anhMatSau': uploadedBackUrl,
+      'trangThai_Id': 'daXacThuc',
+      'ngayXacMinh': FieldValue.serverTimestamp(),
+      'ngayCap': cccdIssueDate,
+      'queQuan': cccdHometown,
+      'gioiTinh': gender,
+      if (birthDate != null) 'ngaySinh': Timestamp.fromDate(birthDate),
+    }, SetOptions(merge: true));
   } catch (e) {
-    // Offline / fallback fallback
+    debugPrint('[saveCccdVerificationToBackend] Lỗi Firestore: $e');
   }
 
+  // 3. Lưu vào SharedPreferences để hỗ trợ truy xuất tức thì ngay cả khi offline
   try {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('cccd_verified_$uid', true);
     await prefs.setString('cccd_number_$uid', cccdNumber);
     await prefs.setString('cccd_name_$uid', cccdFullName);
-    if (cccdFrontImageUrl.isNotEmpty) {
-      await prefs.setString('cccd_front_$uid', cccdFrontImageUrl);
+    await prefs.setString('cccd_issue_date_$uid', cccdIssueDate);
+    await prefs.setString('cccd_hometown_$uid', cccdHometown);
+    await prefs.setString('cccd_gender_$uid', gender);
+    if (birthDate != null) {
+      await prefs.setString('cccd_birth_$uid', birthDate.toIso8601String());
     }
-    if (cccdBackImageUrl.isNotEmpty) {
-      await prefs.setString('cccd_back_$uid', cccdBackImageUrl);
+    if (uploadedFrontUrl.isNotEmpty) {
+      await prefs.setString('cccd_front_$uid', uploadedFrontUrl);
+    }
+    if (uploadedBackUrl.isNotEmpty) {
+      await prefs.setString('cccd_back_$uid', uploadedBackUrl);
     }
   } catch (_) {}
+}
+
+/// Lấy thông tin xác thực CCCD trực tiếp từ Cloud Firestore
+Future<Map<String, dynamic>?> fetchCccdDataFromFirestore({required String uid}) async {
+  try {
+    final firestore = FirebaseFirestore.instance;
+    final doc = await firestore.collection('users').doc(uid).get();
+    if (doc.exists && doc.data() != null) {
+      final data = doc.data()!;
+      final cccdNum = (data['cccdNumber'] ?? data['soGiayTo'] ?? data['soCccd'] ?? '').toString();
+      if (cccdNum.isNotEmpty) {
+        return data;
+      }
+    }
+
+    // Kiểm tra bảng xac_minh_danh_tinh
+    final verifyDoc = await firestore.collection('xac_minh_danh_tinh').doc(uid).get();
+    if (verifyDoc.exists && verifyDoc.data() != null) {
+      return verifyDoc.data();
+    }
+    return null;
+  } catch (e) {
+    debugPrint('[fetchCccdDataFromFirestore] Lỗi đọc CCCD từ Firestore: $e');
+    return null;
+  }
+}
+
+/// Đồng bộ thông tin từ thẻ CCCD đã quét sang các trường thông tin cơ bản của hồ sơ tài khoản
+Future<bool> syncCccdToUserProfile({required String uid}) async {
+  try {
+    final firestore = FirebaseFirestore.instance;
+    final doc = await firestore.collection('users').doc(uid).get();
+    if (!doc.exists || doc.data() == null) return false;
+    final data = doc.data()!;
+
+    final cccdName = (data['cccdFullName'] ?? data['hoTenCccd'] ?? data['hoTen'] ?? '').toString().trim();
+    final cccdGender = (data['gender'] ?? data['gioiTinh'] ?? '').toString().trim();
+    final cccdAddress = (data['cccdHometown'] ?? data['queQuan'] ?? data['cccdAddress'] ?? '').toString().trim();
+    final cccdBirth = data['birthDate'] ?? data['ngaySinh'];
+
+    final syncData = <String, dynamic>{
+      if (cccdName.isNotEmpty) ...{
+        'displayName': cccdName,
+        'hoTen': cccdName,
+      },
+      if (cccdGender.isNotEmpty) ...{
+        'gender': cccdGender,
+        'gioiTinh': cccdGender,
+      },
+      if (cccdAddress.isNotEmpty) ...{
+        'hometown': cccdAddress,
+        'queQuan': cccdAddress,
+      },
+      if (cccdBirth != null) ...{
+        'birthDate': cccdBirth,
+        'ngaySinh': cccdBirth,
+      },
+      'isProfileSyncedWithCccd': true,
+      'lastSyncedAt': FieldValue.serverTimestamp(),
+    };
+
+    if (syncData.isNotEmpty) {
+      await firestore.collection('users').doc(uid).set(syncData, SetOptions(merge: true));
+      return true;
+    }
+    return false;
+  } catch (e) {
+    debugPrint('[syncCccdToUserProfile] Lỗi đồng bộ: $e');
+    return false;
+  }
 }
 
 // StreamProvider lấy thông tin chi tiết user từ Cloud Firestore

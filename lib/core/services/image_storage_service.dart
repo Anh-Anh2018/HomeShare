@@ -101,6 +101,67 @@ class ImageStorageService {
 
     return uploadedUrls;
   }
+
+  /// Tải ảnh CCCD (mặt trước hoặc mặt sau) lên Firebase Storage
+  /// Đảm bảo lưu trữ bền vững trên Cloud để có thể truy xuất và xem lại bất cứ lúc nào
+  Future<String> uploadCccdImage({
+    required String filePath,
+    required String uid,
+    required bool isFront,
+  }) async {
+    if (filePath.isEmpty) return '';
+
+    // Nếu đã là URL online hoặc Base64 data thì giữ nguyên
+    if (filePath.startsWith('http://') ||
+        filePath.startsWith('https://') ||
+        filePath.startsWith('data:image')) {
+      return filePath;
+    }
+
+    // Trường hợp ảnh mẫu thử nghiệm Demo
+    if (filePath.contains('demo_cccd_front') || filePath.contains('demo_cccd_back')) {
+      return isFront
+          ? 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800'
+          : 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=800';
+    }
+
+    final file = File(filePath);
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final fileName = '${isFront ? "front" : "back"}_$timestamp.jpg';
+
+    if (!file.existsSync()) {
+      debugPrint('[ImageStorageService] File CCCD cục bộ không tồn tại: $filePath');
+      return '';
+    }
+
+    try {
+      final storageRef = _storage.ref().child('users/$uid/cccd/$fileName');
+      final metadata = SettableMetadata(
+        contentType: 'image/jpeg',
+        customMetadata: {
+          'uid': uid,
+          'type': isFront ? 'cccd_front' : 'cccd_back',
+          'uploadedAt': DateTime.now().toIso8601String(),
+        },
+      );
+
+      final uploadTask = storageRef.putFile(file, metadata);
+      final snapshot = await uploadTask.timeout(const Duration(seconds: 15));
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+      debugPrint('[ImageStorageService] Tải ảnh CCCD (${isFront ? "mặt trước" : "mặt sau"}) lên Firebase Storage thành công: $downloadUrl');
+      return downloadUrl;
+    } catch (e) {
+      debugPrint('[ImageStorageService] Lỗi upload Firebase Storage CCCD ($e), chuyển sang lưu Base64 Data URI...');
+      try {
+        final bytes = await file.readAsBytes();
+        final base64String = base64Encode(bytes);
+        return 'data:image/jpeg;base64,$base64String';
+      } catch (encodeErr) {
+        debugPrint('[ImageStorageService] Lỗi mã hóa Base64 CCCD: $encodeErr');
+        return filePath;
+      }
+    }
+  }
 }
 
 final imageStorageServiceProvider = Provider<ImageStorageService>((ref) {

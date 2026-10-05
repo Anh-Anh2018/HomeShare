@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
@@ -433,12 +435,60 @@ class AccountSettingsScreen extends ConsumerWidget {
               const SizedBox(height: 24),
               const Divider(height: 1),
               const SizedBox(height: 16),
+              _buildProfileDetailRow(Icons.badge_outlined, 'Họ và tên', profile?.displayName ?? 'Chưa cập nhật'),
               _buildProfileDetailRow(Icons.email_outlined, 'Email', profile?.email ?? 'Chưa cập nhật'),
-              _buildProfileDetailRow(Icons.phone_outlined, 'Số điện thoại', profile?.phoneNumber.isNotEmpty == true ? profile!.phoneNumber : '0981234567'),
-              _buildProfileDetailRow(Icons.badge_outlined, 'Vai trò', (profile?.role == 'landlord' || profile?.role == 'chutro') ? 'Chủ trọ' : 'Người thuê phòng'),
+              _buildProfileDetailRow(Icons.phone_outlined, 'Số điện thoại', profile?.phoneNumber.isNotEmpty == true ? profile!.phoneNumber : 'Chưa cập nhật'),
+              _buildProfileDetailRow(Icons.assignment_ind_outlined, 'Vai trò', (profile?.role == 'landlord' || profile?.role == 'chutro') ? 'Chủ trọ' : 'Người thuê phòng'),
               _buildProfileDetailRow(Icons.work_outline, 'Nghề nghiệp', profile?.occupation.isNotEmpty == true ? profile!.occupation : 'Sinh viên / Đã đi làm'),
-              _buildProfileDetailRow(Icons.verified_user_outlined, 'Định danh CCCD', profile?.isCccdVerified == true ? 'Đã xác thực CCCD gắn chip ✓' : 'Chưa định danh (eKYC)'),
-              const SizedBox(height: 24),
+
+              if (profile?.isCccdVerified == true) ...[
+                const SizedBox(height: 8),
+                const Divider(height: 1),
+                const SizedBox(height: 8),
+                _buildProfileDetailRow(
+                  Icons.verified,
+                  'Số CCCD định danh',
+                  profile!.cccdNumber.isNotEmpty
+                      ? '${profile.cccdNumber.substring(0, 4)} **** ${profile.cccdNumber.substring(profile.cccdNumber.length - 4)}'
+                      : 'Đã xác thực',
+                ),
+                if (profile.cccdFullName.isNotEmpty)
+                  _buildProfileDetailRow(Icons.badge, 'Tên trên CCCD', profile.cccdFullName),
+                if (profile.birthDate != null)
+                  _buildProfileDetailRow(
+                    Icons.cake_outlined,
+                    'Ngày sinh (CCCD)',
+                    '${profile.birthDate!.day.toString().padLeft(2, '0')}/${profile.birthDate!.month.toString().padLeft(2, '0')}/${profile.birthDate!.year}',
+                  ),
+                _buildProfileDetailRow(Icons.transgender, 'Giới tính', profile.gender),
+                if (profile.cccdHometown.isNotEmpty || profile.hometown.isNotEmpty)
+                  _buildProfileDetailRow(
+                    Icons.home_outlined,
+                    'Quê quán / Thường trú',
+                    profile.cccdHometown.isNotEmpty ? profile.cccdHometown : profile.hometown,
+                  ),
+                _buildProfileDetailRow(Icons.check_circle_outline, 'Trạng thái eKYC', 'Đã lưu & đồng bộ Cloud ✓'),
+
+                if (profile.cccdFrontImageUrl.isNotEmpty || profile.cccdBackImageUrl.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.primary),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    icon: const Icon(Icons.photo_library, color: AppColors.primary, size: 18),
+                    label: const Text(
+                      'Xem ảnh thẻ CCCD 2 mặt (Firebase Cloud)',
+                      style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                    onPressed: () => _showCccdImagesDialog(context, profile),
+                  ),
+                ],
+              ] else
+                _buildProfileDetailRow(Icons.verified_user_outlined, 'Định danh CCCD', 'Chưa định danh (eKYC)'),
+
+              const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -458,6 +508,100 @@ class AccountSettingsScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  void _showCccdImagesDialog(BuildContext context, UserProfile profile) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.verified, color: AppColors.primary, size: 22),
+                        SizedBox(width: 8),
+                        Text('Ảnh Thẻ CCCD Trên Cloud', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(ctx),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Text('Mặt trước CCCD:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textDark)),
+                const SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    height: 140,
+                    color: Colors.grey.shade100,
+                    child: profile.cccdFrontImageUrl.isNotEmpty
+                        ? _buildImageWidget(profile.cccdFrontImageUrl)
+                        : const Center(child: Text('Chưa có ảnh mặt trước')),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text('Mặt sau CCCD:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textDark)),
+                const SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    height: 140,
+                    color: Colors.grey.shade100,
+                    child: profile.cccdBackImageUrl.isNotEmpty
+                        ? _buildImageWidget(profile.cccdBackImageUrl)
+                        : const Center(child: Text('Chưa có ảnh mặt sau')),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Đóng'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageWidget(String imageUrl) {
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return Image.network(
+        imageUrl,
+        fit: BoxFit.contain,
+        loadingBuilder: (_, child, progress) {
+          if (progress == null) return child;
+          return const Center(child: CircularProgressIndicator());
+        },
+        errorBuilder: (context, error, stackTrace) => const Center(
+          child: Icon(Icons.broken_image, color: Colors.grey, size: 40),
+        ),
+      );
+    } else if (imageUrl.startsWith('data:image')) {
+      try {
+        final base64Data = imageUrl.split(',').last;
+        return Image.memory(base64Decode(base64Data), fit: BoxFit.contain);
+      } catch (_) {}
+    } else if (File(imageUrl).existsSync()) {
+      return Image.file(File(imageUrl), fit: BoxFit.contain);
+    }
+    return const Center(child: Icon(Icons.image_not_supported, color: Colors.grey, size: 40));
   }
 
   Widget _buildProfileDetailRow(IconData icon, String label, String value) {
