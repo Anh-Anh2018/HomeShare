@@ -1527,4 +1527,4 @@ huquynh: https://github.com/23211tt0240-NhuQuynh/homeshare.git.
   - **Thiết bị:** `25100RA69G` (POCO/Redmi/Xiaomi, serial `lj6hwwwgauugwkci`, Android 16).
   - **Đóng gói & Cài đặt:** Build debug APK thành công (`assembleDebug` 94.5s) và nạp vào máy qua `adb install` thành công (`Success`).
   - **Khởi chạy ứng dụng:** Đã kích hoạt và mở app tự động trên máy (`am start -n com.homeshare.app.home_share/.MainActivity`).
-  - **Trạng thái Git:** Giữ nguyên cục bộ, chờ người dùng kiểm tra trên máy thật và xác nhận "ok" mới thực hiện push Git.
+  - **Trạng thái Git:** Đã commit và push thành công lên nhánh `homeshare` (commit `1429d39`) theo đúng chỉ đạo người dùng.
