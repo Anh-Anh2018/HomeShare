@@ -1422,3 +1422,15 @@ huquynh: https://github.com/23211tt0240-NhuQuynh/homeshare.git.
 * **Kiểm thử chất lượng:**
   - `analyze_files`: **No errors** (0 lỗi tĩnh).
   - Đang biên dịch và nạp app trực tiếp vào điện thoại Samsung Galaxy A50 (`SM-A505F`).
+
+---
+
+### Phase 2.33: Sửa lỗi build Android khi thêm Agora (`checkDebugAarMetadata`)
+* **Ngày hoàn thành:** 05/10/2026
+* **Yêu cầu người dùng:** Build debug thất bại tại `:agora_rtc_engine:checkDebugAarMetadata` với 20 lỗi AAR metadata.
+* **Hiện tượng:** `assembleDebug` dừng sau khoảng 1 phút 45 giây. Mọi thư viện AndroidX (fragment, lifecycle, core, window, ...) yêu cầu biên dịch với Android SDK 34 trở lên, trong khi module `:agora_rtc_engine` đang dùng `android-31`.
+* **Nguyên nhân:** `agora_rtc_engine` 6.6.4 đọc `rootProject.ext.compileSdkVersion`. Nếu không có giá trị này, plugin tự fallback `compileSdkVersion 31` trong `android/build.gradle` của chính plugin. App thì dùng `flutter.compileSdkVersion`, nhưng SDK của app không được plugin Agora kế thừa.
+* **Cách khắc phục:**
+  1. `android/settings.gradle.kts`: gán `compileSdkVersion = 36` trên root project trước khi các plugin được cấu hình, đúng chỗ Agora đọc.
+  2. `android/build.gradle.kts`: khai báo cùng giá trị 36, và ép `LibraryExtension.compileSdkVersion(36)` cho mọi module Android library sau khi Gradle nạp plugin. Nhánh này chạy cả khi project đã được đánh giá xong, tránh lỗi `Cannot run Project.afterEvaluate`.
+* **Kiểm thử:** `gradlew :agora_rtc_engine:checkDebugAarMetadata` — **BUILD SUCCESSFUL**. Task từng báo 20 lỗi AAR không còn thất bại. Chạy lại app bằng `flutter run` hoặc `flutter build apk --debug` để cài bản mới.

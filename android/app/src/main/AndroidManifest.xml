@@ -1,5 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Android 13+: quyền hiện thông báo cuộc gọi. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Rung khi thông báo cuộc gọi đến. -->
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
@@ -40,6 +44,10 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Kênh mặc định của FCM. Phải trùng callNotificationChannelId trong app. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="calls" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

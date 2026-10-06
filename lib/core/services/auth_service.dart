@@ -82,8 +82,14 @@ class AuthService {
     }
   }
 
-  // Đăng xuất
+  // Đăng xuất. Xóa fcmToken trước để máy này không còn nhận chuông của tài khoản vừa thoát.
   Future<void> signOut() async {
+    final uid = _auth.currentUser?.uid;
+    if (uid != null) {
+      await _firestore.collection('users').doc(uid).set({
+        'fcmToken': FieldValue.delete(),
+      }, SetOptions(merge: true));
+    }
     await _auth.signOut();
   }
 

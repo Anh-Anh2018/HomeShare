@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../constants/agora_config.dart';
 import 'chat_service.dart';
 
 class CallPermissions {
@@ -55,7 +55,7 @@ class CallSession {
       chatId: data['chatId']?.toString() ?? '',
       type: data['type']?.toString() ?? 'audio',
       status: data['status']?.toString() ?? 'ringing',
-      channelName: data['channelName']?.toString() ?? AgoraConfig.channelName,
+      channelName: data['channelName']?.toString() ?? doc.id,
       durationSeconds: (data['durationSeconds'] as num?)?.toInt() ?? 0,
       createdAt: created is Timestamp ? created.toDate() : DateTime.now(),
     );
@@ -85,7 +85,7 @@ class CallService {
       chatId: ChatService.getChatId(callerId, calleeId),
       type: video ? 'video' : 'audio',
       status: 'ringing',
-      channelName: AgoraConfig.channelName,
+      channelName: doc.id,
       createdAt: now,
     );
     await doc.set({
@@ -119,6 +119,20 @@ class CallService {
       if (ringing.isEmpty) return null;
       return ringing.first;
     });
+  }
+
+  /// Xin token cho dung kenh cua cuoc goi. Chung chi Agora nam tren Cloud Function.
+  Future<String> createToken(String channelName) async {
+    final functions = FirebaseFunctions.instanceFor(region: 'asia-southeast1');
+    final result = await functions.httpsCallable('createRtcToken').call({
+      'channelName': channelName,
+    });
+    final data = Map<String, dynamic>.from(result.data as Map);
+    final token = data['token']?.toString() ?? '';
+    if (token.isEmpty) {
+      throw StateError('Server khong tra token cuoc goi.');
+    }
+    return token;
   }
 
   Future<void> updateStatus(String callId, String status, {int? durationSeconds}) {

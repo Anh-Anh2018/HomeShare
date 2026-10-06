@@ -1,0 +1,14 @@
+{
+  "name": "homeshare-functions",
+  "description": "Ky token Agora cho tung cuoc goi HomeShare",
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "private": true,
+  "dependencies": {
+    "agora-token": "^2.0.5",
+    "firebase-admin": "^13.6.0",
+    "firebase-functions": "^6.6.0"
+  }
+}

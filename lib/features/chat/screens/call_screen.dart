@@ -181,6 +181,7 @@ class _CallScreenState extends ConsumerState<CallScreen> {
   }
 
   Future<void> _join() async {
+    final callService = ref.read(callServiceProvider);
     try {
       final engine = createAgoraRtcEngine();
       _engine = engine;
@@ -207,7 +208,7 @@ class _CallScreenState extends ConsumerState<CallScreen> {
         },
         onError: (err, msg) {
           if (!mounted) return;
-          setState(() => _errorText = 'Lỗi kết nối ($err). Kiểm tra lại token và tên kênh homeshare_test.');
+          setState(() => _errorText = 'Lỗi kết nối ($err). Kiểm tra Cloud Function createRtcToken và App Certificate.');
         },
       ));
 
@@ -220,9 +221,10 @@ class _CallScreenState extends ConsumerState<CallScreen> {
       }
       await engine.setDefaultAudioRouteToSpeakerphone(_speakerOn);
 
+      final token = await callService.createToken(widget.call.channelName);
       await engine.joinChannel(
-        token: AgoraConfig.token,
-        channelId: AgoraConfig.channelName,
+        token: token,
+        channelId: widget.call.channelName,
         uid: 0,
         options: ChannelMediaOptions(
           channelProfile: ChannelProfileType.channelProfileCommunication,
@@ -356,7 +358,7 @@ class _CallScreenState extends ConsumerState<CallScreen> {
                 controller: VideoViewController.remote(
                   rtcEngine: _engine!,
                   canvas: VideoCanvas(uid: _remoteUid),
-                  connection: const RtcConnection(channelId: AgoraConfig.channelName),
+                  connection: RtcConnection(channelId: widget.call.channelName),
                 ),
               )
             else if (showVideo && _joined)
