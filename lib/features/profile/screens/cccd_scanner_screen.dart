@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -400,6 +401,185 @@ class _CccdScannerScreenState extends ConsumerState<CccdScannerScreen> with Sing
     _showVerificationModal(sampleData);
   }
 
+  // Quét mã QR CCCD từ ảnh trong Thư viện ảnh (Bộ sưu tập)
+  Future<void> _scanFromGalleryImage() async {
+    if (_isProcessing) return;
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(source: ImageSource.gallery, imageQuality: 95);
+      if (picked == null) return;
+
+      setState(() => _isProcessing = true);
+      HapticFeedback.mediumImpact();
+
+      final capture = await _scannerController.analyzeImage(picked.path);
+      if (capture != null && capture.barcodes.isNotEmpty) {
+        bool foundValid = false;
+        for (final barcode in capture.barcodes) {
+          String rawValue = barcode.rawValue ?? '';
+          // ignore: deprecated_member_use
+          final List<int>? rawBytes = barcode.rawBytes;
+          if (rawBytes != null && rawBytes.isNotEmpty) {
+            try {
+              final decoded = utf8.decode(rawBytes, allowMalformed: true);
+              if (decoded.trim().isNotEmpty) {
+                rawValue = decoded;
+              }
+            } catch (_) {}
+          } else if (rawValue.isNotEmpty) {
+            try {
+              final bytes = latin1.encode(rawValue);
+              final fixedUtf8 = utf8.decode(bytes);
+              if (fixedUtf8.contains('|')) {
+                rawValue = fixedUtf8;
+              }
+            } catch (_) {}
+          }
+
+          final trimmed = rawValue.trim().replaceAll('\uFEFF', '');
+          if (trimmed.contains('|') || trimmed.replaceAll(RegExp(r'\D'), '').length >= 12) {
+            foundValid = true;
+            HapticFeedback.heavyImpact();
+            SystemSound.play(SystemSoundType.click);
+            final cccd = CccdData.fromQrString(trimmed);
+            _showVerificationModal(cccd, isRealScan: true, rawQrText: trimmed);
+            break;
+          }
+        }
+
+        if (!foundValid) {
+          setState(() => _isProcessing = false);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Không tìm thấy định dạng mã QR CCCD hợp lệ trong ảnh này.'),
+                backgroundColor: Colors.amber,
+              ),
+            );
+          }
+        }
+      } else {
+        setState(() => _isProcessing = false);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Không quét được mã QR từ ảnh đã chọn. Vui lòng chọn ảnh rõ nét hơn hoặc đưa camera lại gần thẻ.'),
+              backgroundColor: Colors.amber,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      setState(() => _isProcessing = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi khi phân tích ảnh: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  // Hộp thoại chỉnh sửa thông tin CCCD khi quét bị nhầm lẫn hoặc mờ
+  void _showEditInfoDialog(CccdData currentData) {
+    final idController = TextEditingController(text: currentData.idNumber);
+    final nameController = TextEditingController(text: currentData.fullName);
+    final dobController = TextEditingController(text: currentData.birthDate);
+    final genderController = TextEditingController(text: currentData.gender);
+    final addrController = TextEditingController(text: currentData.address);
+    final issueController = TextEditingController(text: currentData.issueDate);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.edit_note, color: AppColors.primary, size: 24),
+            SizedBox(width: 8),
+            Text('Chỉnh Sửa Thông Tin CCCD', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: idController,
+                decoration: const InputDecoration(labelText: 'Số CCCD (12 số)', isDense: true),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(labelText: 'Họ và tên', isDense: true),
+                textCapitalization: TextCapitalization.characters,
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: dobController,
+                      decoration: const InputDecoration(labelText: 'Ngày sinh (dd/MM/yyyy)', isDense: true),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: genderController,
+                      decoration: const InputDecoration(labelText: 'Giới tính', isDense: true),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: addrController,
+                decoration: const InputDecoration(labelText: 'Nơi thường trú', isDense: true),
+                maxLines: 2,
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: issueController,
+                decoration: const InputDecoration(labelText: 'Ngày cấp (dd/MM/yyyy)', isDense: true),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              final updated = CccdData(
+                idNumber: idController.text.trim(),
+                oldCmnd: currentData.oldCmnd,
+                fullName: nameController.text.trim(),
+                birthDate: dobController.text.trim(),
+                gender: genderController.text.trim(),
+                address: addrController.text.trim(),
+                issueDate: issueController.text.trim(),
+              );
+              Navigator.pop(context); // Đóng modal bottom sheet cũ
+              _showVerificationModal(updated, isRealScan: true); // Mở lại modal với dữ liệu đã sửa
+            },
+            child: const Text('Lưu & Cập Nhật'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showVerificationModal(CccdData cccd, {bool isRealScan = false, String? rawQrText}) {
     showModalBottomSheet(
       context: context,
@@ -479,11 +659,32 @@ class _CccdScannerScreenState extends ConsumerState<CccdScannerScreen> with Sing
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Row(
+                        Row(
                           children: [
-                            Icon(Icons.credit_card, color: AppColors.primary, size: 20),
-                            SizedBox(width: 6),
-                            Text('CĂN CƯỚC CÔNG DÂN GẮN CHIP', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.primary)),
+                            const Icon(Icons.credit_card, color: AppColors.primary, size: 20),
+                            const SizedBox(width: 6),
+                            const Text('CĂN CƯỚC CÔNG DÂN GẮN CHIP', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.primary)),
+                            const SizedBox(width: 8),
+                            InkWell(
+                              onTap: () => _showEditInfoDialog(cccd),
+                              borderRadius: BorderRadius.circular(4),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryContainer,
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.edit, size: 11, color: AppColors.primary),
+                                    SizedBox(width: 2),
+                                    Text('Sửa', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                         Container(
@@ -905,9 +1106,16 @@ class _CccdScannerScreenState extends ConsumerState<CccdScannerScreen> with Sing
                       children: [
                         // Đổi camera trước / sau
                         IconButton(
-                          icon: const Icon(Icons.cameraswitch, color: Colors.white70, size: 26),
+                          icon: const Icon(Icons.cameraswitch, color: Colors.white70, size: 24),
                           tooltip: 'Đổi camera',
                           onPressed: () => _scannerController.switchCamera(),
+                        ),
+
+                        // Nút Quét mã QR từ ảnh Thư viện
+                        IconButton(
+                          icon: const Icon(Icons.photo_library_outlined, color: Colors.white, size: 24),
+                          tooltip: 'Quét từ ảnh thư viện',
+                          onPressed: _scanFromGalleryImage,
                         ),
 
                         // Nút Nhập / Dán Chuỗi QR Thật
@@ -915,11 +1123,11 @@ class _CccdScannerScreenState extends ConsumerState<CccdScannerScreen> with Sing
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.white,
                             side: const BorderSide(color: Colors.white38),
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                           ),
-                          icon: const Icon(Icons.paste_rounded, size: 18, color: Colors.amber),
-                          label: const Text('Dán QR Thật', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12.5)),
+                          icon: const Icon(Icons.paste_rounded, size: 16, color: Colors.amber),
+                          label: const Text('Dán QR Thật', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
                           onPressed: _pasteRawQrDialog,
                         ),
 
@@ -928,11 +1136,11 @@ class _CccdScannerScreenState extends ConsumerState<CccdScannerScreen> with Sing
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white24,
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                           ),
-                          icon: const Icon(Icons.qr_code_scanner, size: 18),
-                          label: const Text('Thử Mẫu', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5)),
+                          icon: const Icon(Icons.qr_code_scanner, size: 16),
+                          label: const Text('Thử Mẫu', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                           onPressed: _simulateSampleScan,
                         ),
                       ],

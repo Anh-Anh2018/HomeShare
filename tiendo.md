@@ -1421,4 +1421,137 @@ huquynh: https://github.com/23211tt0240-NhuQuynh/homeshare.git.
   4. **Bổ sung tùy chọn "Chụp ảnh":** Thêm nút Chụp ảnh từ Camera bên cạnh Gửi ảnh Album trong menu đính kèm.
 * **Kiểm thử chất lượng:**
   - `analyze_files`: **No errors** (0 lỗi tĩnh).
-  - Đang biên dịch và nạp app trực tiếp vào điện thoại Samsung Galaxy A50 (`SM-A505F`).
+  - Đã đồng bộ nhánh `homeshare` lên `https://github.com/Anh-Anh2018/HomeShare.git`.
+
+---
+
+### Phase 2.33: Triển Khai Tính Năng Trả Lời Tin Nhắn (Swipe To Reply & Quote Reply)
+* **Ngày hoàn thành:** 04/10/2026
+* **Yêu cầu người dùng:** *"làm trả lời tin nhắn và up git"*.
+* **Giải pháp kỹ thuật chi tiết:**
+  1. **Nâng cấp Model Tin nhắn (`chat_model.dart`):**
+     - Bổ sung getter `replyTo` và `isReply`: Phân tích và trích xuất dữ liệu trả lời từ trường `extraData['replyTo']` (gồm `messageId`, `senderId`, `senderName`, `text`, `messageType`) tương thích 100% với cấu trúc Firestore hiện tại mà không làm phá vỡ dữ liệu cũ.
+  2. **Thao tác kích hoạt trả lời đa năng (`chat_detail_screen.dart`):**
+     - **Thao tác 1 (Swipe-to-reply):** Bọc từng bong bóng tin nhắn bằng `Dismissible` với hướng trượt `startToEnd`. Khi vuốt nhẹ từ trái sang phải, icon trả lời `Icons.reply_rounded` sẽ xuất hiện và lập tức mở chế độ trả lời với hiệu ứng phản hồi tự nhiên.
+     - **Thao tác 2 (Menu nhấn giữ):** Bổ sung nút *"Trả lời tin nhắn"* trên cùng của bottom sheet khi người dùng long-press bất kỳ tin nhắn nào (của mình hoặc đối phương).
+  3. **Giao diện thanh soạn thảo (Reply Banner):**
+     - Khi kích hoạt trả lời, tự động focus con trỏ vào ô nhập và bật bàn phím qua `FocusNode`.
+     - Phía trên ô nhập hiển thị thanh banner ghim: *"Đang trả lời [Tên đối tác / chính bạn]: [Nội dung trích đoạn]"* kèm nút đóng `X` để người dùng dễ dàng hủy bỏ trả lời bất kỳ lúc nào.
+  4. **Đồng bộ dữ liệu gửi đi:**
+     - Tự động gắn đối tượng `replyTo` vào `extraData` của tin nhắn văn bản (`_sendMessage`) cũng như tin nhắn đa phương tiện (`_sendRichMessage`).
+     - Tự động reset trạng thái reply sau khi gửi thành công.
+  5. **Hiển thị bong bóng trích dẫn trong phòng chat:**
+     - Thiết kế widget `_buildReplyQuote()` đẹp mắt theo phong cách Telegram/Zalo: viền bo tròn, đường gạch dọc màu chủ đạo bên trái, hiển thị tên người được trả lời và nội dung trích đoạn.
+     - Tích hợp trích dẫn hài hòa vào cả bong bóng tin nhắn văn bản và bong bóng ảnh.
+* **Kiểm thử chất lượng & Cài đặt thiết bị:**
+  - `analyze_files`: **No errors** (0 lỗi tĩnh).
+  - Git: Đã commit và push lên nhánh `homeshare` tại `https://github.com/Anh-Anh2018/HomeShare.git`.
+  - **Thiết bị thật:** Samsung Galaxy A50 (`SM-A505F` / serial `R58M68KF70K`) & Xiaomi/Redmi (`25100RA69G` / serial `lj6hwwwgauugwkci`).
+  - **Đóng gói & Cài đặt:** Đã build thành công `build\app\outputs\flutter-apk\app-debug.apk` và nạp thành công qua ADB USB (`Performing Streamed Install -> Success`).
+  - **Khởi chạy ứng dụng:** Đã kích hoạt và mở app tự động trên điện thoại.
+
+---
+
+### Phase 2.34: Ràng Buộc Điền Đầy Đủ Thông Tin Từng Bước Mới Cho Bước Tiếp Theo (Đăng Tin Ở Ghép)
+* **Ngày hoàn thành:** 04/10/2026
+* **Yêu cầu người dùng:** *"phần đăng bài ràng buộc phải điền đủ hết mới cho bước tiếp theo"*.
+* **Giải pháp kỹ thuật chi tiết (`create_roommate_post_screen.dart`):**
+  1. **Nâng cấp `_inputDecoration()` & `_buildTextField()`:**
+     - Bổ sung `errorBorder`, `focusedErrorBorder` (viền đỏ nổi bật) và `errorStyle` chuẩn Material 3.
+     - Tích hợp tham số `validator` và `autovalidateMode: AutovalidateMode.onUserInteraction` cho toàn bộ các `TextFormField` trong màn hình đăng bài để lập tức báo lỗi và tự xóa thông báo lỗi ngay khi người dùng nhập đúng.
+  2. **Ràng buộc nghiêm ngặt Bước 1 (Hồ sơ bản thân - `_validateStep0()`):**
+     - Họ và tên: Không được để trống, tối thiểu 2 ký tự.
+     - Tuổi: Bắt buộc là số nguyên hợp lệ trong khoảng 16 - 100 tuổi.
+     - Nghề nghiệp / Trường học: Không được để trống.
+     - Số điện thoại / Zalo: Bắt buộc đúng định dạng 10 chữ số Việt Nam (đầu số 03, 05, 07, 08, 09).
+     - *Chặn chuyển sang Bước 2 nếu chưa điền đầy đủ và đúng chuẩn.*
+  3. **Ràng buộc nghiêm ngặt Bước 2 (Phòng & Giá - `_validateStep1()`):**
+     - Tiêu đề bài đăng: Không được để trống, tối thiểu 6 ký tự.
+     - Chi phí thuê / Ngân sách: Bắt buộc là số tiền hợp lệ (> 0đ, tối thiểu 100.000 VNĐ).
+     - Tỉnh / Thành phố, Quận / Huyện, Phường / Xã, Loại hình nhà ở, Giới tính tìm kiếm: Đều được kiểm tra và có giá trị hợp lệ.
+     - Địa chỉ cụ thể: Không được để trống.
+     - Mô tả chi tiết phòng & yêu cầu: Bắt buộc tối thiểu 10 ký tự.
+     - *Chặn chuyển sang Bước 3 nếu chưa hoàn thành các trường bắt buộc.*
+  4. **Ràng buộc nghiêm ngặt Bước 3 (Lối sống & Ảnh - `_validateStep2()`):**
+     - Thói quen sinh hoạt & Lối sống: Bắt buộc chọn ít nhất 1 tiêu chí để thuật toán AI có cơ sở ghép phòng tương thích.
+     - Ảnh phòng thực tế: Nếu chọn "Đã có phòng sẵn" (`_hasRoom == true`), bắt buộc phải tải lên ít nhất 1 ảnh phòng thực tế để người xem có thể đánh giá phòng.
+  5. **Bảo vệ toàn diện nút Tiếp tục & Đăng bài:**
+     - Tại `_buildBottomActionBar`: Chỉ khi bước hiện tại vượt qua hàm validation tương ứng (`_validateStep0()`, `_validateStep1()`, `_validateStep2()`) thì mới kích hoạt chuyển sang bước tiếp theo hoặc tiến hành đăng bài.
+     - Tại `_submitPost()`: Kiểm tra lại toàn diện cả 3 bước; nếu có bất kỳ bước nào thiếu thông tin, tự động đưa người dùng về lại bước đó và highlight trường thiếu.
+* **Kiểm thử chất lượng & Cài đặt thiết bị:**
+  - `analyze_files`: **No errors** (0 lỗi tĩnh).
+  - **Thiết bị thật:** Samsung Galaxy A50 (`SM-A505F` / serial `R58M68KF70K`).
+  - **Đóng gói & Cài đặt:** Đã build thành công bản debug APK mới nhất và cài đặt thành công (`Success`).
+  - **Khởi chạy ứng dụng:** Đã kích hoạt và mở app tự động trên điện thoại để người dùng trực tiếp kiểm tra và trải nghiệm các tính năng ràng buộc form đăng tin.
+  - **Lưu ý Git:** Tuân thủ tuyệt đối quy định chỉ push lên Git khi người dùng kiểm tra xong và trực tiếp yêu cầu.
+
+---
+
+### Phase 2.35: Quét CCCD Lấy Thông Tin, Lưu Ảnh 2 Mặt Lên Firebase Storage & Đồng Bộ Hai Chiều Cloud Firestore
+* **Ngày hoàn thành:** 04/10/2026
+* **Yêu cầu người dùng:** *"phần quét cccd lấy thông tin lưu ảnh mặt trước mặt sau và phần thông tin quét đc phải lưu firebase và phần thông tin đồng bộ lấy từ trong đó ra"*.
+* **Giải pháp kỹ thuật chi tiết:**
+  1. **Nâng cấp quét CCCD linh hoạt & Tự động bóc tách (`cccd_scanner_screen.dart`, `cccd_verification_screen.dart`):**
+     - **Quét từ ảnh thư viện:** Bổ sung nút "Quét từ ảnh thư viện" trên thanh công cụ camera và trong modal xác minh, tích hợp `MobileScannerController.analyzeImage(path)` cho phép chọn ảnh CCCD có sẵn trong máy để giải mã QR tức thì mà không bắt buộc quét thẻ trực tiếp.
+     - **Tự động quét QR từ ảnh mặt trước:** Khi người dùng chụp hoặc tải lên ảnh mặt trước CCCD (`_frontImage`), ứng dụng tự động chạy giải mã QR ở góc trên thẻ (`_tryAutoScanQrFromFrontImage`), nếu phát hiện mã QR sẽ tự động bóc tách 7 trường thông tin và điền sẵn vào form.
+     - **Chỉnh sửa thông tin linh hoạt:** Hỗ trợ modal "Chỉnh sửa thông tin CCCD" (`_showEditInfoDialog`) cho phép người dùng xem xét, sửa đổi số CCCD, họ tên, ngày sinh, giới tính, quê quán, ngày cấp trước khi lưu.
+  2. **Lưu trữ chuẩn CSDL Firebase Storage & Firestore (`user_provider.dart`):**
+     - **Firebase Storage:** Tải 2 ảnh CCCD (mặt trước & mặt sau) lên thư mục `users/{uid}/cccd/front_{timestamp}.jpg` và `back_{timestamp}.jpg`, tự động fallback base64 nếu không thể kết nối Storage trực tiếp.
+     - **Chuẩn hóa 2 bảng CSDL theo `Database homeShare.drawio` (pkg_0: Tài khoản):**
+       - Bảng `xac_minh_danh_tinh/{uid}`: Lưu `soGiayTo`, `loaiGiayTo_id: 1` (CCCD gắn chip), `anhMatTruocUrl`, `anhMatSauUrl`, `ngayXacMinh`, `trangThai_Id: 2` (Đã xác minh).
+       - Document `users/{uid}`: Lưu đồng bộ đầy đủ các trường song ngữ (`cccdNumber`, `soCccd`, `soGiayTo`, `cccdFullName`, `hoTenCccd`, `cccdFrontImageUrl`, `anhMatTruoc`, `cccdBackImageUrl`, `anhMatSau`, `cccdHometown`, `queQuan`, `cccdIssueDate`, `ngayCap`, `isCccdVerified: true`, `daXacThucCccd: true`).
+     - **Đồng bộ vào Hồ sơ người dùng (`syncCccdToUserProfile`):** Tự động đồng bộ họ tên CCCD sang `displayName`/`hoTen`, giới tính sang `gender`/`gioiTinh`, ngày sinh sang `birthDate`/`ngaySinh`, quê quán sang `hometown`/`queQuan`.
+     - **Cache SharedPreferences:** Lưu lại bản sao tại máy để người dùng vào xem tức thì mà không phải chờ tải mạng.
+  3. **Đồng bộ hai chiều và hiển thị dữ liệu ở mọi nơi (`cccd_verification_screen.dart`, `account_settings_screen.dart`):**
+     - **Sửa triệt để lỗi màn hình trắng 0/3 mục:** Trước đây hàm tải chỉ chạy 1 lần lúc Provider stream chưa kịp nạp dữ liệu. Đã bổ sung `_fetchAndSyncFromFirebase()` tải trực tiếp tức thì từ Firestore doc `users/{uid}` & `xac_minh_danh_tinh/{uid}` ngay tại `initState`, đồng thời lắng nghe realtime qua `ref.listen(userProfileProvider)`.
+     - **Thanh trạng thái Cloud Sync:** Hiển thị banner *"ĐÃ ĐỒNG BỘ DỮ LIỆU TỪ FIREBASE CLOUD"* kèm nút *"Đồng bộ vào Hồ sơ"* và *"Tải lại từ Cloud"*.
+     - **Xem chi tiết & Phóng to ảnh 2 mặt Cloud (`account_settings_screen.dart`):** Trong màn hình Cài đặt tài khoản, người dùng có thể xem chi tiết hồ sơ xác thực và mở popup xem phóng to cả 2 ảnh mặt trước & mặt sau tải trực tiếp từ Firebase Storage URL.
+* **Kiểm thử chất lượng:**
+  - `dart analyze`: **0 errors, 0 warnings, 0 issues** trên cả 4 file (`cccd_verification_screen.dart`, `cccd_scanner_screen.dart`, `account_settings_screen.dart`, `user_provider.dart`).
+  - Đảm bảo tương thích ngược 100% với toàn bộ hệ thống cơ sở dữ liệu hiện hữu.
+
+---
+
+### Phase 2.36: Tinh Gọn Menu Thao Tác Tin Nhắn: Giữ "Thu Hồi", Loại Bỏ "Xóa 2 Bên"
+* **Ngày hoàn thành:** 05/10/2026
+* **Yêu cầu người dùng:** *"phần xóa tin nhắn 2 bên để lại cái thu hồi còn cái xóa kia bỏ đi"*.
+* **Các thay đổi đã triển khai:**
+  1. **Loại bỏ tùy chọn "Xóa tin nhắn ở cả 2 bên" vĩnh viễn:**
+     - Xóa `ListTile` *"Xóa tin nhắn ở cả 2 bên"* trong menu thao tác khi nhấn giữ tin nhắn (`_showMessageContextMenu` tại [chat_detail_screen.dart](file:///d:/App/HomeShare/lib/features/chat/screens/chat_detail_screen.dart)).
+     - Dọn dẹp các hàm logic không còn sử dụng: `_confirmDeleteForEveryone()` và `_deleteForEveryone()`.
+  2. **Giữ lại và tối ưu hóa tính năng "Thu hồi tin nhắn (Cả 2 bên)":**
+     - Giữ nguyên tùy chọn **"Thu hồi tin nhắn (Cả 2 bên)"** (`_confirmRevokeMessage` / `_revokeMessage`): Đồng bộ trạng thái `revoked` cho cả 2 phía và hiển thị bong bóng *"Tin nhắn đã được thu hồi"* chuẩn theo thiết kế UX của các nền tảng chat phổ biến (Zalo, Messenger).
+     - Giữ nguyên tùy chọn **"Xóa ở phía tôi (Chỉ mình tôi)"** (`_deleteForMe`): Cho phép người dùng chủ động ẩn tin nhắn trên thiết bị cá nhân mà không ảnh hưởng tới đối phương.
+* **Kiểm thử chất lượng & Cài đặt thiết bị:**
+  - `dart analyze lib/features/chat/screens/chat_detail_screen.dart`: **No issues found** (0 lỗi, 0 cảnh báo).
+  - **Thiết bị:** `25100RA69G` (POCO/Redmi/Xiaomi, serial `lj6hwwwgauugwkci`, Android 16).
+  - **Đóng gói & Cài đặt:** Build debug APK thành công (`assembleDebug` 94.5s) và nạp vào máy qua `adb install` thành công (`Success`).
+  - **Khởi chạy ứng dụng:** Đã kích hoạt và mở app tự động trên máy (`am start -n com.homeshare.app.home_share/.MainActivity`).
+  - **Trạng thái Git:** Đã commit và push thành công lên nhánh `homeshare` (commit `1429d39` & `37a6422`) theo đúng chỉ đạo người dùng.
+
+---
+
+### Phase 2.37: Loại Bỏ Banner Cảnh Báo Đặt Cọc Trong Chi Tiết Tin Nhắn
+* **Ngày hoàn thành:** 05/10/2026
+* **Yêu cầu người dùng:** *"xóa phần bảo vệ an toàn : tueets đối không cọc tiền trước.... trpng phần tin nhắn và push git"*.
+* **Các thay đổi đã triển khai:**
+  1. **Xóa banner cảnh báo an toàn trong khung chat:**
+     - Đã loại bỏ hoàn toàn thẻ `Container` hiển thị banner cảnh báo: *"Bảo vệ an toàn: Tuyệt đối không cọc tiền trước khi đến xem phòng trực tiếp"* nằm ở đầu khung chat trong [chat_detail_screen.dart](file:///d:/App/HomeShare/lib/features/chat/screens/chat_detail_screen.dart).
+     - Giao diện khung chat thoáng đãng hơn, tin nhắn ghim (nếu có) và danh sách tin nhắn realtime hiển thị trọn vẹn không bị che khuất.
+* **Kiểm thử chất lượng & Git:**
+  - `dart analyze lib/features/chat/screens/chat_detail_screen.dart`: **No issues found** (0 lỗi, 0 cảnh báo).
+  - Đã commit và push thành công lên nhánh `homeshare`.
+---
+
+### Phase 2.38: Đồng Bộ Toàn Bộ Mã Nguồn Từ Branch homeshare Sang Branch dev-TOAN (Repo NhuQuynh)
+* **Ngày hoàn thành:** 07/10/2026
+* **Yêu cầu người dùng:** *"copy repo này https://github.com/Anh-Anh2018/HomeShare/tree/homeshare up lên repo này https://github.com/23211tt0240-NhuQuynh/homeshare/tree/dev-TOAN"*.
+* **Các bước đã thực hiện:**
+  1. **Kiểm tra trạng thái & Lịch sử Commit:**
+     - Nhánh nguồn: `origin/homeshare` tại commit `197748b6ee69b80e26ec222e1832d0e9a28bf37a`.
+     - Nhánh đích: `nhuquynh/dev-TOAN` tại commit `3a6b43173b3832a5e151472c6e9e021150acb6a5`.
+     - Xác thực lịch sử: `dev-TOAN` là direct ancestor của `homeshare` (nhánh `homeshare` đi trước 21 commits, 0 conflict, fast-forward hoàn toàn sạch).
+  2. **Thực hiện đẩy mã nguồn (Git Push):**
+     - Thực hiện kiểm tra dry-run: `git push --dry-run nhuquynh homeshare:dev-TOAN` -> Success.
+     - Thực hiện đẩy chính thức: `git push nhuquynh homeshare:dev-TOAN` -> Thành công cập nhật `3a6b431..197748b`.
+     - Xác nhận bằng `git ls-remote`: Cả 2 nhánh trên 2 repo đã trỏ chính xác cùng commit SHA `197748b6ee69b80e26ec222e1832d0e9a28bf37a`.

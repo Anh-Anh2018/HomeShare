@@ -192,8 +192,99 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
     }
   }
 
+  // --- RÀNG BUỘC ĐIỀN ĐỦ THÔNG TIN TỪNG BƯỚC ---
+  bool _validateStep0() {
+    final isValidForm = _formKey.currentState?.validate() ?? false;
+    final name = _authorNameController.text.trim();
+    final age = int.tryParse(_authorAgeController.text.trim());
+    final occ = _authorOccupationController.text.trim();
+    final phone = _phoneController.text.trim().replaceAll(' ', '');
+
+    if (!isValidForm ||
+        name.length < 2 ||
+        age == null ||
+        age < 16 ||
+        age > 100 ||
+        occ.isEmpty ||
+        !RegExp(r'^(0[3|5|7|8|9])[0-9]{8}$').hasMatch(phone)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng điền đầy đủ và chính xác tất cả thông tin ở Bước 1!'),
+          backgroundColor: AppColors.danger,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return false;
+    }
+    return true;
+  }
+
+  bool _validateStep1() {
+    final isValidForm = _formKey.currentState?.validate() ?? false;
+    final title = _titleController.text.trim();
+    final rawPrice = _priceController.text.trim().replaceAll('.', '').replaceAll(',', '');
+    final price = double.tryParse(rawPrice) ?? 0.0;
+    final address = _addressController.text.trim();
+    final desc = _descController.text.trim();
+
+    if (!isValidForm ||
+        title.length < 6 ||
+        price < 100000 ||
+        address.isEmpty ||
+        desc.length < 10) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng điền đầy đủ thông tin phòng & chi phí ở Bước 2!'),
+          backgroundColor: AppColors.danger,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return false;
+    }
+    return true;
+  }
+
+  bool _validateStep2() {
+    if (_selectedHabits.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng chọn ít nhất 1 thói quen sinh hoạt / lối sống!'),
+          backgroundColor: AppColors.danger,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return false;
+    }
+
+    if (_hasRoom && _selectedImages.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vì bạn đã có phòng sẵn, vui lòng tải lên ít nhất 1 hình ảnh phòng thực tế!'),
+          backgroundColor: AppColors.danger,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return false;
+    }
+
+    return true;
+  }
+
   Future<void> _submitPost() async {
     if (_isSubmitting) return;
+
+    if (!_validateStep0()) {
+      setState(() => _currentStep = 0);
+      return;
+    }
+    if (!_validateStep1()) {
+      setState(() => _currentStep = 1);
+      return;
+    }
+    if (!_validateStep2()) {
+      setState(() => _currentStep = 2);
+      return;
+    }
 
     final user = ref.read(currentUserProvider);
     final profile = ref.read(userProfileProvider).value;
@@ -209,29 +300,9 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
     }
 
     final title = _titleController.text.trim();
-    if (title.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng nhập tiêu đề bài đăng!'), backgroundColor: AppColors.danger),
-      );
-      return;
-    }
-
     final rawPrice = _priceController.text.trim().replaceAll('.', '').replaceAll(',', '');
     final price = double.tryParse(rawPrice) ?? 0.0;
-    if (price <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng nhập số tiền thuê / ngân sách hợp lệ!'), backgroundColor: AppColors.danger),
-      );
-      return;
-    }
-
     final specificAddress = _addressController.text.trim();
-    if (specificAddress.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng nhập địa chỉ cụ thể!'), backgroundColor: AppColors.danger),
-      );
-      return;
-    }
 
     final authorId = user.uid;
     final authorName = _authorNameController.text.trim().isNotEmpty
@@ -462,15 +533,40 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
           subtitle: 'Giúp người tìm phòng hiểu rõ hơn về bạn cùng phòng tiềm năng',
           icon: Icons.person_outline,
           children: [
-            _buildTextField(label: 'Họ và tên *', controller: _authorNameController),
+            _buildTextField(
+              label: 'Họ và tên *',
+              controller: _authorNameController,
+              hint: 'Nhập họ và tên đầy đủ',
+              validator: (val) {
+                if (val == null || val.trim().isEmpty) {
+                  return 'Vui lòng nhập họ và tên của bạn';
+                }
+                if (val.trim().length < 2) {
+                  return 'Họ và tên tối thiểu 2 ký tự';
+                }
+                return null;
+              },
+            ),
             const SizedBox(height: 12),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: _buildTextField(
                     label: 'Tuổi *',
                     controller: _authorAgeController,
                     keyboardType: TextInputType.number,
+                    hint: 'Ví dụ: 21',
+                    validator: (val) {
+                      if (val == null || val.trim().isEmpty) {
+                        return 'Vui lòng nhập tuổi';
+                      }
+                      final age = int.tryParse(val.trim());
+                      if (age == null || age < 16 || age > 100) {
+                        return 'Từ 16 - 100 tuổi';
+                      }
+                      return null;
+                    },
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -497,12 +593,29 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
               label: 'Nghề nghiệp / Trường học *',
               controller: _authorOccupationController,
               hint: 'Ví dụ: SV Đại học Bách Khoa / Lập trình viên',
+              validator: (val) {
+                if (val == null || val.trim().isEmpty) {
+                  return 'Vui lòng nhập nghề nghiệp hoặc trường học';
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 12),
             _buildTextField(
               label: 'Số điện thoại / Zalo liên hệ *',
               controller: _phoneController,
               keyboardType: TextInputType.phone,
+              hint: 'Ví dụ: 0912345678',
+              validator: (val) {
+                if (val == null || val.trim().isEmpty) {
+                  return 'Vui lòng nhập số điện thoại liên hệ';
+                }
+                final clean = val.trim().replaceAll(' ', '');
+                if (!RegExp(r'^(0[3|5|7|8|9])[0-9]{8}$').hasMatch(clean)) {
+                  return 'Số điện thoại không hợp lệ (10 số, đầu 03, 05, 07, 08, 09)';
+                }
+                return null;
+              },
             ),
           ],
         ),
@@ -550,6 +663,15 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
               label: 'Tiêu đề bài đăng *',
               controller: _titleController,
               hint: 'Ví dụ: Tìm bạn nữ ở ghép căn hộ 2PN',
+              validator: (val) {
+                if (val == null || val.trim().isEmpty) {
+                  return 'Vui lòng nhập tiêu đề bài đăng';
+                }
+                if (val.trim().length < 6) {
+                  return 'Tiêu đề bài đăng tối thiểu 6 ký tự';
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 12),
             _buildTextField(
@@ -557,6 +679,17 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
               controller: _priceController,
               keyboardType: TextInputType.number,
               hint: 'Ví dụ: 1800000',
+              validator: (val) {
+                if (val == null || val.trim().isEmpty) {
+                  return 'Vui lòng nhập số tiền chi phí';
+                }
+                final raw = val.trim().replaceAll('.', '').replaceAll(',', '');
+                final p = double.tryParse(raw);
+                if (p == null || p < 100000) {
+                  return 'Chi phí tối thiểu từ 100.000 VNĐ';
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 12),
             Column(
@@ -673,6 +806,12 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
               label: 'Địa chỉ cụ thể *',
               controller: _addressController,
               hint: 'Ví dụ: Số 10 đường Số 8, P. Linh Trung',
+              validator: (val) {
+                if (val == null || val.trim().isEmpty) {
+                  return 'Vui lòng nhập địa chỉ cụ thể của phòng';
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 12),
             _buildTextField(
@@ -680,6 +819,15 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
               controller: _descController,
               maxLines: 3,
               hint: 'Mô tả không gian, tiện ích có sẵn, giờ giấc, nội quy phòng...',
+              validator: (val) {
+                if (val == null || val.trim().isEmpty) {
+                  return 'Vui lòng nhập mô tả chi tiết phòng';
+                }
+                if (val.trim().length < 10) {
+                  return 'Mô tả chi tiết tối thiểu 10 ký tự';
+                }
+                return null;
+              },
             ),
           ],
         ),
@@ -693,8 +841,8 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionCard(
-          title: 'Thói quen sinh hoạt & Lối sống',
-          subtitle: 'Chọn các tiêu chí giúp AI kết nối bạn cùng phòng tương thích',
+          title: 'Thói quen sinh hoạt & Lối sống *',
+          subtitle: 'Chọn ít nhất 1 tiêu chí giúp AI kết nối bạn cùng phòng tương thích nhất',
           icon: Icons.interests_outlined,
           children: [
             Wrap(
@@ -753,8 +901,10 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
         const SizedBox(height: 16),
 
         _buildSectionCard(
-          title: 'Hình ảnh phòng (nếu có)',
-          subtitle: 'Bài đăng có hình ảnh thực tế nhận được nhiều liên hệ hơn 300%',
+          title: _hasRoom ? 'Hình ảnh phòng thực tế *' : 'Hình ảnh phòng (nếu có)',
+          subtitle: _hasRoom
+              ? 'Vì bạn đã có phòng sẵn, vui lòng tải ít nhất 1 ảnh phòng thật'
+              : 'Bài đăng có hình ảnh thực tế nhận được nhiều liên hệ hơn 300%',
           icon: Icons.photo_library_outlined,
           children: [
             if (_selectedImages.isNotEmpty)
@@ -851,10 +1001,18 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
             flex: 2,
             child: ElevatedButton(
               onPressed: () {
-                if (_currentStep < 2) {
-                  setState(() => _currentStep++);
+                if (_currentStep == 0) {
+                  if (_validateStep0()) {
+                    setState(() => _currentStep = 1);
+                  }
+                } else if (_currentStep == 1) {
+                  if (_validateStep1()) {
+                    setState(() => _currentStep = 2);
+                  }
                 } else {
-                  _submitPost();
+                  if (_validateStep2()) {
+                    _submitPost();
+                  }
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -963,6 +1121,7 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
     String? hint,
     TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
+    String? Function(String?)? validator,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -973,6 +1132,8 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
           controller: controller,
           keyboardType: keyboardType,
           maxLines: maxLines,
+          validator: validator,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           decoration: _inputDecoration(hint: hint),
         ),
       ],
@@ -999,6 +1160,15 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
         borderRadius: BorderRadius.circular(10),
         borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
       ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: AppColors.danger, width: 1.2),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: AppColors.danger, width: 1.5),
+      ),
+      errorStyle: const TextStyle(fontSize: 11, color: AppColors.danger, height: 1.2),
     );
   }
 }
