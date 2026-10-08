@@ -164,7 +164,12 @@ class _CreateRoommatePostScreenState extends ConsumerState<CreateRoommatePostScr
 
   Future<void> _pickImage(ImageSource source) async {
     try {
-      final picked = await _imagePicker.pickImage(source: source, imageQuality: 85);
+      final picked = await _imagePicker.pickImage(
+        source: source,
+        imageQuality: 70,
+        maxWidth: 1024,
+        maxHeight: 1024,
+      );
       if (picked != null) {
         setState(() {
           _selectedImages.add(picked.path);

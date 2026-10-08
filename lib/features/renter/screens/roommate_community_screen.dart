@@ -1100,6 +1100,7 @@ class _RoommateCommunityScreenState extends ConsumerState<RoommateCommunityScree
   }
 
   Widget _buildRoomImage(String imgUrl) {
+    imgUrl = imgUrl.trim();
     if (imgUrl.isEmpty) {
       return Container(
         color: const Color(0xFFF1F5F9),

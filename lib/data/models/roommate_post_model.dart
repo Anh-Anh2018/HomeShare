@@ -243,7 +243,8 @@ class RoommatePostModel {
       'habits': habits,
       'thoiQuen': habits,
       'images': images,
-      'anhTinOGhep': images,
+      // Ảnh Base64 đã khá dài; không ghi thêm bản sao vào anhTinOGhep kẻo document vượt 1MB và máy kia không nhận được bài.
+      if (!images.any((path) => path.startsWith('data:image'))) 'anhTinOGhep': images,
       'imageCaptions': imageCaptions,
       'isVerified': isVerified,
       'matchRate': matchRate,

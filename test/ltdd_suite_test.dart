@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:home_share/data/models/room_model.dart';
 import 'package:home_share/data/models/roommate_post_model.dart';
@@ -11,6 +14,7 @@ import 'package:home_share/features/profile/screens/cccd_scanner_screen.dart';
 import 'package:home_share/core/utils/vietqr_helper.dart';
 import 'package:home_share/core/services/roommate_service.dart';
 import 'package:home_share/core/services/image_storage_service.dart';
+import 'package:image/image.dart' as img;
 import 'package:home_share/core/constants/app_colors.dart';
 import 'package:home_share/core/theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -1018,6 +1022,44 @@ void main() {
 
       expect(fallbackUrl.startsWith('http'), isTrue);
       expect(fallbackUrl, contains('unsplash.com'));
+    });
+
+    test('Tc_SYNC_11b: Ảnh thật trên máy được lưu Base64, không bị thay bằng ảnh mẫu', () async {
+      final service = ImageStorageService(skipRemoteUpload: true);
+      final file = File('${Directory.systemTemp.path}${Platform.pathSeparator}homeshare_post_photo.jpg');
+      // JPEG 1x1 hợp lệ
+      const tinyJpeg = '/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=';
+      await file.writeAsBytes(base64Decode(tinyJpeg));
+
+      final stored = await service.uploadSingleImage(
+        filePath: file.path,
+        folder: 'roommate_posts/test',
+        fileName: 'photo.jpg',
+      );
+
+      expect(stored.startsWith('data:image/jpeg;base64,'), isTrue);
+      expect(stored.contains('unsplash.com'), isFalse);
+      final decoded = base64Decode(stored.split(',').last);
+      expect(decoded, isNotEmpty);
+
+      if (file.existsSync()) {
+        await file.delete();
+      }
+    });
+
+    test('Tc_SYNC_11c: Ảnh lớn được nén xuống dưới ngưỡng lưu Firestore', () {
+      final picture = img.Image(width: 1400, height: 1000);
+      for (var y = 0; y < picture.height; y++) {
+        for (var x = 0; x < picture.width; x++) {
+          picture.setPixelRgb(x, y, (x * 13) % 255, (y * 7) % 255, (x + y) % 255);
+        }
+      }
+      final raw = Uint8List.fromList(img.encodeJpg(picture, quality: 90));
+      const limit = 80 * 1024;
+      final compressed = compressJpegToLimit((raw, limit));
+
+      expect(compressed.length, lessThanOrEqualTo(limit));
+      expect(img.decodeJpg(compressed), isNotNull);
     });
 
     test('Tc_SYNC_16 - 20: ConversationModel phân giải chính xác partnerName hai chiều giữa 2 người dùng', () {

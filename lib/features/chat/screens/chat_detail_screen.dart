@@ -9,8 +9,10 @@ import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../data/models/chat_model.dart';
 import '../../../data/models/room_model.dart';
+import '../../../core/services/call_service.dart';
 import '../../../core/services/chat_service.dart';
 import '../../renter/screens/room_detail_screen.dart';
+import 'call_screen.dart';
 
 /// Màn hình Chi tiết Tin nhắn & Trao đổi (Feature #10 theo chuẩn SRS CDLTDD & Tc_CHAT_01 -> 50)
 class ChatDetailScreen extends ConsumerStatefulWidget {
@@ -256,8 +258,42 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
     }
   }
 
-  // Gọi điện thoại trực tiếp (Tc_CHAT_04 & SRS 2.10)
-  void _makeAudioCall() {
+  Future<void> _startOnlineCall({required bool video}) async {
+    final granted = await CallPermissions.ensure(video: video);
+    if (!mounted) return;
+    if (!granted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(video ? 'Cần quyền micro và camera để gọi video.' : 'Cần quyền micro để gọi thoại.')),
+      );
+      return;
+    }
+
+    try {
+      final session = await ref.read(callServiceProvider).startCall(
+        callerId: widget.currentUserId,
+        callerName: widget.currentUserName,
+        calleeId: widget.receiverId,
+        calleeName: widget.receiverName,
+        video: video,
+      );
+      if (!mounted) return;
+      await Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => CallScreen(call: session, isCaller: true)),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Không bắt đầu được cuộc gọi: $e')),
+      );
+    }
+  }
+
+  void _makeAudioCall() => _startOnlineCall(video: false);
+
+  void _makeVideoCall() => _startOnlineCall(video: true);
+
+  // Hiện số điện thoại khi bấm vào số trong nội dung tin nhắn
+  void _showPhoneContactDialog() {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -334,83 +370,6 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                   content: Text('Đang kết nối cuộc gọi tới ${widget.receiverPhone}...'),
                   backgroundColor: AppColors.primary,
                 ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Gọi video trực tuyến (Tc_CHAT_05 & SRS 2.10)
-  void _makeVideoCall() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            const CircleAvatar(
-              backgroundColor: AppColors.primaryContainer,
-              child: Icon(Icons.videocam, color: AppColors.primary),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text('Cuộc gọi Video HomeShare', style: const TextStyle(fontSize: 16)),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              height: 140,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.black87,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.grey.shade700,
-                    child: Text(
-                      widget.receiverName.isNotEmpty ? widget.receiverName[0] : 'U',
-                      style: const TextStyle(fontSize: 24, color: Colors.white),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Đang kết nối tới ${widget.receiverName}...',
-                    style: const TextStyle(color: Colors.white70, fontSize: 13),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Tính năng xem phòng và trò chuyện mặt đối mặt trực tuyến.',
-              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            style: TextButton.styleFrom(foregroundColor: AppColors.danger),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
-            icon: const Icon(Icons.videocam, size: 18),
-            label: const Text('Kết Nối'),
-            onPressed: () {
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Đang khởi tạo kênh video bảo mật...')),
               );
             },
           ),
@@ -2257,7 +2216,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
           if (containsPhone) ...[
             const SizedBox(height: 6),
             InkWell(
-              onTap: _makeAudioCall,
+              onTap: _showPhoneContactDialog,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
