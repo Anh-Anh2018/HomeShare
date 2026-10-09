@@ -7,7 +7,7 @@ import 'package:home_share/core/services/chat_service.dart';
 import 'package:home_share/core/services/room_service.dart';
 import 'package:home_share/core/constants/vietnam_locations.dart';
 import 'package:home_share/features/auth/providers/user_provider.dart';
-import 'package:home_share/features/profile/screens/cccd_scanner_screen.dart';
+import 'package:home_share/features/profile/models/cccd_data.dart';
 import 'package:home_share/core/utils/vietqr_helper.dart';
 import 'package:home_share/core/services/roommate_service.dart';
 import 'package:home_share/core/services/image_storage_service.dart';

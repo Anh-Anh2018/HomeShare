@@ -5,212 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../auth/providers/auth_provider.dart';
-import '../../auth/providers/user_provider.dart';
+import '../models/cccd_data.dart';
+import '../services/cccd_image_evidence_validator.dart';
 
-/// Bảng tra cứu 63 mã Tỉnh / Thành phố trên thẻ CCCD Việt Nam
-const Map<String, String> kCccdProvinceCodes = {
-  '001': 'TP. Hà Nội',
-  '002': 'Hà Giang',
-  '004': 'Cao Bằng',
-  '006': 'Bắc Kạn',
-  '008': 'Tuyên Quang',
-  '010': 'Lào Cai',
-  '011': 'Điện Biên',
-  '012': 'Lai Châu',
-  '014': 'Sơn La',
-  '015': 'Yên Bái',
-  '017': 'Hòa Bình',
-  '019': 'Thái Nguyên',
-  '020': 'Lạng Sơn',
-  '022': 'Quảng Ninh',
-  '024': 'Bắc Giang',
-  '025': 'Phú Thọ',
-  '026': 'Vĩnh Phúc',
-  '027': 'Bắc Ninh',
-  '030': 'Hải Dương',
-  '031': 'TP. Hải Phòng',
-  '033': 'Hưng Yên',
-  '034': 'Thái Bình',
-  '035': 'Hà Nam',
-  '036': 'Nam Định',
-  '037': 'Ninh Bình',
-  '038': 'Thanh Hóa',
-  '040': 'Nghệ An',
-  '042': 'Hà Tĩnh',
-  '044': 'Quảng Bình',
-  '045': 'Quảng Trị',
-  '046': 'Thừa Thiên Huế',
-  '048': 'TP. Đà Nẵng',
-  '049': 'Quảng Nam',
-  '051': 'Quảng Ngãi',
-  '052': 'Bình Định',
-  '054': 'Phú Yên',
-  '056': 'Khánh Hòa',
-  '058': 'Ninh Thuận',
-  '060': 'Bình Thuận',
-  '062': 'Kon Tum',
-  '064': 'Gia Lai',
-  '066': 'Đắk Lắk',
-  '067': 'Đắk Nông',
-  '068': 'Lâm Đồng',
-  '070': 'Bình Phước',
-  '072': 'Tây Ninh',
-  '074': 'Bình Dương',
-  '075': 'Đồng Nai',
-  '077': 'Bà Rịa - Vũng Tàu',
-  '079': 'TP. Hồ Chí Minh',
-  '080': 'Long An',
-  '082': 'Tiền Giang',
-  '083': 'Bến Tre',
-  '084': 'Trà Vinh',
-  '086': 'Vĩnh Long',
-  '087': 'Đồng Tháp',
-  '089': 'An Giang',
-  '091': 'Kiên Giang',
-  '092': 'TP. Cần Thơ',
-  '093': 'Hậu Giang',
-  '094': 'Sóc Trăng',
-  '095': 'Bạc Liêu',
-  '096': 'Cà Mau',
-};
-
-/// Hàm parser chuẩn tách chuỗi QR CCCD 7 trường theo đặc tả
-CccdData? parseCCCDQR(String qrRawText) {
-  if (qrRawText.isEmpty) return null;
-  return CccdData.fromQrString(qrRawText);
-}
-
-/// Dữ liệu trích xuất từ mã QR / Chip trên thẻ CCCD
-class CccdData {
-  final String idNumber; // 12 chữ số
-  final String oldCmnd; // 9 số hoặc rỗng
-  final String fullName; // Họ và tên tiếng Việt có dấu
-  final String birthDate; // dd/MM/yyyy
-  final String gender; // Nam | Nữ
-  final String address; // Địa chỉ thường trú
-  final String issueDate; // dd/MM/yyyy
-
-  // Aliases tương thích
-  String get dateOfBirth => birthDate;
-  String get oldIdNumber => oldCmnd;
-
-  CccdData({
-    required this.idNumber,
-    this.oldCmnd = '',
-    required this.fullName,
-    required this.birthDate,
-    required this.gender,
-    required this.address,
-    required this.issueDate,
-  });
-
-  /// Kiểm tra 12 chữ số CCCD hợp lệ
-  bool get isValid12Digits => RegExp(r'^\d{12}$').hasMatch(idNumber);
-
-  /// 3 số đầu: Mã Tỉnh/Thành phố nơi đăng ký khai sinh
-  String? get provinceCode => idNumber.length >= 3 ? idNumber.substring(0, 3) : null;
-  String? get provinceName => provinceCode != null ? kCccdProvinceCodes[provinceCode] : null;
-
-  /// Số thứ 4: Thế kỷ sinh và giới tính
-  String? get analyzedGender {
-    if (idNumber.length >= 4) {
-      final code = idNumber[3];
-      if (['0', '2', '4', '6', '8'].contains(code)) return 'Nam';
-      if (['1', '3', '5', '7', '9'].contains(code)) return 'Nữ';
-    }
-    return null;
-  }
-
-  /// 2 số tiếp theo (vị trí 5 và 6): Năm sinh
-  int? get analyzedBirthYear {
-    if (idNumber.length >= 6) {
-      final code = idNumber[3];
-      final yy = int.tryParse(idNumber.substring(4, 6));
-      if (yy != null) {
-        int century = 1900;
-        if (code == '0' || code == '1') {
-          century = 1900;
-        } else if (code == '2' || code == '3') {
-          century = 2000;
-        } else if (code == '4' || code == '5') {
-          century = 2100;
-        } else if (code == '6' || code == '7') {
-          century = 2200;
-        } else if (code == '8' || code == '9') {
-          century = 2300;
-        }
-        return century + yy;
-      }
-    }
-    return null;
-  }
-
-  /// Phân tích cú pháp chuẩn mã QR CCCD gắn chip Bộ Công An:
-  /// Chuỗi: Số_CCCD|Số_CMND_cũ|Họ_và_tên|Ngày_sinh(ddMMyyyy)|Giới_tính|Địa_chỉ|Ngày_cấp(ddMMyyyy)
-  factory CccdData.fromQrString(String raw) {
-    final parts = raw.split('|');
-    if (parts.length >= 6) {
-      final idNum = parts[0].trim();
-      final oldId = parts[1].trim();
-      final name = parts[2].trim();
-      final rawDob = parts[3].trim();
-      final genderVal = parts[4].trim();
-      final addr = parts[5].trim();
-      final rawIssue = parts.length > 6 ? parts[6].trim() : '';
-
-      String formatDate(String rawDate) {
-        if (rawDate.length == 8) {
-          return '${rawDate.substring(0, 2)}/${rawDate.substring(2, 4)}/${rawDate.substring(4, 8)}';
-        }
-        return rawDate;
-      }
-
-      return CccdData(
-        idNumber: idNum,
-        oldCmnd: oldId,
-        fullName: name,
-        birthDate: formatDate(rawDob),
-        gender: genderVal,
-        address: addr,
-        issueDate: formatDate(rawIssue),
-      );
-    }
-
-    // Trường hợp mã chỉ chứa 12 chữ số
-    final digitsOnly = raw.replaceAll(RegExp(r'\D'), '');
-    if (digitsOnly.length >= 12) {
-      final idNum = digitsOnly.substring(0, 12);
-      final provCode = idNum.substring(0, 3);
-      final prov = kCccdProvinceCodes[provCode] ?? 'Việt Nam';
-      final genderChar = idNum[3];
-      final isMale = ['0', '2', '4', '6', '8'].contains(genderChar);
-      final yrSuffix = idNum.substring(4, 6);
-      int century = 1900;
-      if (['2', '3'].contains(genderChar)) century = 2000;
-      final yr = century + (int.tryParse(yrSuffix) ?? 0);
-
-      return CccdData(
-        idNumber: idNum,
-        oldCmnd: '',
-        fullName: 'CHỦ THẺ CCCD ($idNum)',
-        birthDate: '01/01/$yr',
-        gender: isMale ? 'Nam' : 'Nữ',
-        address: 'Nơi khai sinh: $prov',
-        issueDate: '25/12/2021',
-      );
-    }
-
-    return CccdData(
-      idNumber: '079201012345',
-      fullName: 'CHỦ THẺ CCCD',
-      birthDate: '15/08/2001',
-      gender: 'Nam',
-      address: 'TP. Hồ Chí Minh',
-      issueDate: '25/12/2021',
-    );
-  }
-}
 
 /// Màn hình Camera quét mã CCCD (Chỉ hiển thị khung quét thẻ, che mờ hoàn toàn background)
 class CccdScannerScreen extends ConsumerStatefulWidget {
@@ -296,9 +93,28 @@ class _CccdScannerScreenState extends ConsumerState<CccdScannerScreen> with Sing
       }
 
       final trimmed = rawValue.trim().replaceAll('\uFEFF', '');
-      // Chỉ nhận diện nếu chuỗi đúng định dạng CCCD (có dấu | hoặc tối thiểu 12 số)
-      if (trimmed.isEmpty || (!trimmed.contains('|') && trimmed.replaceAll(RegExp(r'\D'), '').length < 12)) {
+      if (trimmed.isEmpty) {
         continue;
+      }
+
+      final cccd = const CccdImageEvidenceValidator().validateStrictQr(trimmed);
+      if (cccd == null) {
+        setState(() => _isProcessing = true);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Mã QR CCCD không hợp lệ hoặc thiếu dữ liệu.'),
+              backgroundColor: Colors.amber,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) {
+            setState(() => _isProcessing = false);
+          }
+        });
+        break;
       }
 
       // Haptic feedback & âm thanh click báo đã quét dính thẻ thật
@@ -306,7 +122,6 @@ class _CccdScannerScreenState extends ConsumerState<CccdScannerScreen> with Sing
       SystemSound.play(SystemSoundType.click);
 
       setState(() => _isProcessing = true);
-      final cccd = CccdData.fromQrString(trimmed);
       _showVerificationModal(cccd, isRealScan: true, rawQrText: trimmed);
       break;
     }
@@ -362,7 +177,19 @@ class _CccdScannerScreenState extends ConsumerState<CccdScannerScreen> with Sing
               final text = textController.text.trim();
               if (text.isNotEmpty) {
                 Navigator.pop(ctx);
-                final cccd = CccdData.fromQrString(text);
+                final cccd = const CccdImageEvidenceValidator().validateStrictQr(text);
+                if (cccd == null) {
+                  setState(() => _isProcessing = false);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Mã QR CCCD không hợp lệ hoặc thiếu dữ liệu.'),
+                        backgroundColor: Colors.amber,
+                      ),
+                    );
+                  }
+                  return;
+                }
                 HapticFeedback.heavyImpact();
                 setState(() => _isProcessing = true);
                 _showVerificationModal(cccd, isRealScan: true, rawQrText: text);
@@ -373,32 +200,6 @@ class _CccdScannerScreenState extends ConsumerState<CccdScannerScreen> with Sing
         ],
       ),
     );
-  }
-
-  // Quét mô phỏng thẻ CCCD mẫu
-  void _simulateSampleScan() {
-    if (_isProcessing) return;
-    HapticFeedback.mediumImpact();
-    setState(() => _isProcessing = true);
-
-    final user = ref.read(currentUserProvider);
-    final profile = ref.read(userProfileProvider).value;
-
-    final sampleData = CccdData(
-      idNumber: '079201012345',
-      oldCmnd: '025896321',
-      fullName: (profile?.displayName.isNotEmpty ?? false)
-          ? profile!.displayName.toUpperCase()
-          : (user?.displayName?.toUpperCase() ?? 'NGUYỄN VĂN AN'),
-      birthDate: '15/08/2001',
-      gender: profile?.gender ?? 'Nam',
-      address: profile?.address.isNotEmpty ?? false
-          ? profile!.address
-          : 'Số 123 Võ Văn Ngân, Phường Linh Chiểu, TP. Thủ Đức, TP. Hồ Chí Minh',
-      issueDate: '25/12/2021',
-    );
-
-    _showVerificationModal(sampleData);
   }
 
   // Quét mã QR CCCD từ ảnh trong Thư viện ảnh (Bộ sưu tập)
@@ -437,11 +238,13 @@ class _CccdScannerScreenState extends ConsumerState<CccdScannerScreen> with Sing
           }
 
           final trimmed = rawValue.trim().replaceAll('\uFEFF', '');
-          if (trimmed.contains('|') || trimmed.replaceAll(RegExp(r'\D'), '').length >= 12) {
+          if (trimmed.isEmpty) continue;
+
+          final cccd = const CccdImageEvidenceValidator().validateStrictQr(trimmed);
+          if (cccd != null) {
             foundValid = true;
             HapticFeedback.heavyImpact();
             SystemSound.play(SystemSoundType.click);
-            final cccd = CccdData.fromQrString(trimmed);
             _showVerificationModal(cccd, isRealScan: true, rawQrText: trimmed);
             break;
           }
@@ -452,7 +255,7 @@ class _CccdScannerScreenState extends ConsumerState<CccdScannerScreen> with Sing
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Không tìm thấy định dạng mã QR CCCD hợp lệ trong ảnh này.'),
+                content: Text('Mã QR CCCD không hợp lệ hoặc thiếu dữ liệu.'),
                 backgroundColor: Colors.amber,
               ),
             );
@@ -469,12 +272,12 @@ class _CccdScannerScreenState extends ConsumerState<CccdScannerScreen> with Sing
           );
         }
       }
-    } catch (e) {
+    } catch (_) {
       setState(() => _isProcessing = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Lỗi khi phân tích ảnh: $e'),
+          const SnackBar(
+            content: Text('Lỗi khi phân tích ảnh. Vui lòng thử lại.'),
             backgroundColor: Colors.red,
           ),
         );
@@ -482,103 +285,7 @@ class _CccdScannerScreenState extends ConsumerState<CccdScannerScreen> with Sing
     }
   }
 
-  // Hộp thoại chỉnh sửa thông tin CCCD khi quét bị nhầm lẫn hoặc mờ
-  void _showEditInfoDialog(CccdData currentData) {
-    final idController = TextEditingController(text: currentData.idNumber);
-    final nameController = TextEditingController(text: currentData.fullName);
-    final dobController = TextEditingController(text: currentData.birthDate);
-    final genderController = TextEditingController(text: currentData.gender);
-    final addrController = TextEditingController(text: currentData.address);
-    final issueController = TextEditingController(text: currentData.issueDate);
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Icon(Icons.edit_note, color: AppColors.primary, size: 24),
-            SizedBox(width: 8),
-            Text('Chỉnh Sửa Thông Tin CCCD', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: idController,
-                decoration: const InputDecoration(labelText: 'Số CCCD (12 số)', isDense: true),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'Họ và tên', isDense: true),
-                textCapitalization: TextCapitalization.characters,
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: dobController,
-                      decoration: const InputDecoration(labelText: 'Ngày sinh (dd/MM/yyyy)', isDense: true),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextField(
-                      controller: genderController,
-                      decoration: const InputDecoration(labelText: 'Giới tính', isDense: true),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: addrController,
-                decoration: const InputDecoration(labelText: 'Nơi thường trú', isDense: true),
-                maxLines: 2,
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: issueController,
-                decoration: const InputDecoration(labelText: 'Ngày cấp (dd/MM/yyyy)', isDense: true),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.pop(ctx);
-              final updated = CccdData(
-                idNumber: idController.text.trim(),
-                oldCmnd: currentData.oldCmnd,
-                fullName: nameController.text.trim(),
-                birthDate: dobController.text.trim(),
-                gender: genderController.text.trim(),
-                address: addrController.text.trim(),
-                issueDate: issueController.text.trim(),
-              );
-              Navigator.pop(context); // Đóng modal bottom sheet cũ
-              _showVerificationModal(updated, isRealScan: true); // Mở lại modal với dữ liệu đã sửa
-            },
-            child: const Text('Lưu & Cập Nhật'),
-          ),
-        ],
-      ),
-    );
-  }
+  
 
   void _showVerificationModal(CccdData cccd, {bool isRealScan = false, String? rawQrText}) {
     showModalBottomSheet(
@@ -665,26 +372,7 @@ class _CccdScannerScreenState extends ConsumerState<CccdScannerScreen> with Sing
                             const SizedBox(width: 6),
                             const Text('CĂN CƯỚC CÔNG DÂN GẮN CHIP', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.primary)),
                             const SizedBox(width: 8),
-                            InkWell(
-                              onTap: () => _showEditInfoDialog(cccd),
-                              borderRadius: BorderRadius.circular(4),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryContainer,
-                                  borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
-                                ),
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.edit, size: 11, color: AppColors.primary),
-                                    SizedBox(width: 2),
-                                    Text('Sửa', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: AppColors.primary)),
-                                  ],
-                                ),
-                              ),
-                            ),
+                            
                           ],
                         ),
                         Container(
@@ -792,45 +480,9 @@ class _CccdScannerScreenState extends ConsumerState<CccdScannerScreen> with Sing
   }
 
   Future<void> _confirmVerification(CccdData cccd) async {
-    if (widget.returnDataOnly) {
-      if (mounted) {
-        Navigator.pop(context); // Đóng modal bottom sheet
-        Navigator.pop(context, cccd); // Trả đối tượng cccd về cho màn hình xác thực 3 mục
-      }
-      return;
-    }
-
-    final user = ref.read(currentUserProvider);
-    final uid = user?.uid ?? 'guest_uid';
-
-    DateTime? parsedBirth;
-    try {
-      final parts = cccd.birthDate.split('/');
-      if (parts.length == 3) {
-        parsedBirth = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
-      }
-    } catch (_) {}
-
-    await saveCccdVerificationToBackend(
-      uid: uid,
-      cccdNumber: cccd.idNumber,
-      cccdFullName: cccd.fullName,
-      cccdIssueDate: cccd.issueDate,
-      cccdHometown: cccd.address,
-      gender: cccd.gender,
-      birthDate: parsedBirth,
-    );
-
     if (mounted) {
       Navigator.pop(context); // Đóng modal bottom sheet
-      Navigator.pop(context, cccd); // Thoát khỏi màn hình scanner
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Xác thực CCCD (eKYC) thành công! Danh tính đã được phê duyệt ✓'),
-          backgroundColor: AppColors.primary,
-        ),
-      );
+      Navigator.pop(context, cccd); // Trả đối tượng cccd về cho màn hình xác thực 3 mục
     }
   }
 
@@ -1131,18 +783,7 @@ class _CccdScannerScreenState extends ConsumerState<CccdScannerScreen> with Sing
                           onPressed: _pasteRawQrDialog,
                         ),
 
-                        // Nút Quét mô phỏng thẻ CCCD mẫu
-                        ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white24,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          ),
-                          icon: const Icon(Icons.qr_code_scanner, size: 16),
-                          label: const Text('Thử Mẫu', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                          onPressed: _simulateSampleScan,
-                        ),
+
                       ],
                     ),
                   ],

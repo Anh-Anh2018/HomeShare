@@ -201,103 +201,7 @@ class _RenterDashboardScreenState extends ConsumerState<RenterDashboardScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-
-              // 2. Banner Tìm ở ghép thông minh
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const RoommateCommunityScreen(),
-                    ),
-                  );
-                },
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.primary, AppColors.primaryLight],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Text(
-                                'TÍNH NĂNG Ở GHÉP',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Tìm bạn cùng phòng uy tín & hợp tính',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            const Text(
-                              'Tiết kiệm 50% chi phí sinh hoạt. Đã xác thực CCCD.',
-                              style: TextStyle(color: Colors.white70, fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        width: 52,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.group_add, color: Colors.white, size: 28),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
               const SizedBox(height: 20),
-
-              // 3. Danh mục tìm kiếm nhanh
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildCategoryItem(Icons.home_work_outlined, 'Phòng trọ', AppColors.primary, () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchFilterScreen(initialCategory: 'Phòng trọ')));
-                  }),
-                  _buildCategoryItem(Icons.apartment_outlined, 'Căn hộ mini', Colors.blue, () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchFilterScreen(initialCategory: 'Căn hộ mini')));
-                  }),
-                  _buildCategoryItem(Icons.groups_outlined, 'Tìm ở ghép', Colors.purple, () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const RoommateCommunityScreen()));
-                  }),
-                  _buildCategoryItem(Icons.school_outlined, 'Gần trường ĐH', Colors.orange, () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchFilterScreen()));
-                  }),
-                ],
-              ),
-              const SizedBox(height: 24),
 
               // 4. Phòng trọ gợi ý hôm nay (Realtime Firestore)
               Row(
@@ -411,39 +315,6 @@ class _RenterDashboardScreenState extends ConsumerState<RenterDashboardScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryItem(IconData icon, String label, Color color, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Column(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFF0F2F5)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Icon(icon, color: color, size: 24),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textDark),
-          ),
-        ],
       ),
     );
   }

@@ -49,44 +49,47 @@ void main() {
       expect(map['isAvailable'], isTrue);
     });
 
-    test('RoomModel fromMap parses DrawIO Vietnamese schema keys correctly', () {
-      final data = {
-        'tieuDe': 'Căn hộ Studio mini',
-        'moTa': 'Ban công thoáng mát',
-        'giaThueThang': 4200000,
-        'tienCoc': 4200000,
-        'dienTichM2': 30,
-        'diaChi': 'D2 Bình Thạnh',
-        'quanHuyen': 'Bình Thạnh',
-        'loaiPhong': 'Căn hộ mini',
-        'anhPhong': ['https://example.com/pic1.jpg'],
-        'tienIch': ['wifi', 'parking'],
-        'chuNhaId': 'host_999',
-        'tenChuNha': 'Trần Thị Chủ',
-        'soDienThoai': '0987654321',
-        'soSaoTrungBinh': 4.9,
-        'sucChua': 3,
-        'tang': 2,
-        'trangThai': 'conPhong',
-        'ngayTao': Timestamp.now(),
-      };
+    test(
+      'RoomModel fromMap parses DrawIO Vietnamese schema keys correctly',
+      () {
+        final data = {
+          'tieuDe': 'Căn hộ Studio mini',
+          'moTa': 'Ban công thoáng mát',
+          'giaThueThang': 4200000,
+          'tienCoc': 4200000,
+          'dienTichM2': 30,
+          'diaChi': 'D2 Bình Thạnh',
+          'quanHuyen': 'Bình Thạnh',
+          'loaiPhong': 'Căn hộ mini',
+          'anhPhong': ['https://example.com/pic1.jpg'],
+          'tienIch': ['wifi', 'parking'],
+          'chuNhaId': 'host_999',
+          'tenChuNha': 'Trần Thị Chủ',
+          'soDienThoai': '0987654321',
+          'soSaoTrungBinh': 4.9,
+          'sucChua': 3,
+          'tang': 2,
+          'trangThai': 'conPhong',
+          'ngayTao': Timestamp.now(),
+        };
 
-      final room = RoomModel.fromMap(data, 'room_abc');
-      expect(room.id, equals('room_abc'));
-      expect(room.title, equals('Căn hộ Studio mini'));
-      expect(room.tieuDe, equals('Căn hộ Studio mini'));
-      expect(room.price, equals(4200000.0));
-      expect(room.giaThueThang, equals(4200000.0));
-      expect(room.area, equals(30.0));
-      expect(room.dienTichM2, equals(30.0));
-      expect(room.district, equals('Bình Thạnh'));
-      expect(room.quanHuyen, equals('Bình Thạnh'));
-      expect(room.rating, equals(4.9));
-      expect(room.capacity, equals(3));
-      expect(room.floor, equals(2));
-      expect(room.isAvailable, isTrue);
-      expect(room.amenities.contains('wifi'), isTrue);
-    });
+        final room = RoomModel.fromMap(data, 'room_abc');
+        expect(room.id, equals('room_abc'));
+        expect(room.title, equals('Căn hộ Studio mini'));
+        expect(room.tieuDe, equals('Căn hộ Studio mini'));
+        expect(room.price, equals(4200000.0));
+        expect(room.giaThueThang, equals(4200000.0));
+        expect(room.area, equals(30.0));
+        expect(room.dienTichM2, equals(30.0));
+        expect(room.district, equals('Bình Thạnh'));
+        expect(room.quanHuyen, equals('Bình Thạnh'));
+        expect(room.rating, equals(4.9));
+        expect(room.capacity, equals(3));
+        expect(room.floor, equals(2));
+        expect(room.isAvailable, isTrue);
+        expect(room.amenities.contains('wifi'), isTrue);
+      },
+    );
   });
 
   group('RoommatePostModel Tests', () {
@@ -233,44 +236,47 @@ void main() {
   });
 
   group('ChatMessageModel Tests', () {
-    test('ChatMessageModel serializes text message and parses with DrawIO keys', () {
-      final msg = ChatMessageModel(
-        id: 'msg_01',
-        conversationId: 'chat_ab',
-        senderId: 'user_a',
-        senderName: 'Tuấn',
-        receiverId: 'user_b',
-        text: 'Chào bạn, phòng còn không ạ?',
-        timestamp: DateTime(2026, 10, 1, 8, 0),
-        isRead: false,
-      );
+    test(
+      'ChatMessageModel serializes text message and parses with DrawIO keys',
+      () {
+        final msg = ChatMessageModel(
+          id: 'msg_01',
+          conversationId: 'chat_ab',
+          senderId: 'user_a',
+          senderName: 'Tuấn',
+          receiverId: 'user_b',
+          text: 'Chào bạn, phòng còn không ạ?',
+          timestamp: DateTime(2026, 10, 1, 8, 0),
+          isRead: false,
+        );
 
-      final map = msg.toMap();
-      expect(map['senderId'], equals('user_a'));
-      expect(map['nguoiGuiId'], equals('user_a'));
-      expect(map['text'], equals('Chào bạn, phòng còn không ạ?'));
-      expect(map['noiDung'], equals('Chào bạn, phòng còn không ạ?'));
-      expect(map['isRead'], isFalse);
+        final map = msg.toMap();
+        expect(map['senderId'], equals('user_a'));
+        expect(map['nguoiGuiId'], equals('user_a'));
+        expect(map['text'], equals('Chào bạn, phòng còn không ạ?'));
+        expect(map['noiDung'], equals('Chào bạn, phòng còn không ạ?'));
+        expect(map['isRead'], isFalse);
 
-      final parsed = ChatMessageModel.fromMap({
-        'cuocTroChuyenId': 'chat_ab',
-        'nguoiGuiId': 'user_a',
-        'tenNguoiGui': 'Tuấn',
-        'nguoiNhanId': 'user_b',
-        'noiDung': 'Chào bạn, phòng còn không ạ?',
-        'ngayGui': Timestamp.fromDate(DateTime(2026, 10, 1, 8, 0)),
-        'trangThaiTinNhan_id': 'daDoc',
-      }, 'msg_01');
+        final parsed = ChatMessageModel.fromMap({
+          'cuocTroChuyenId': 'chat_ab',
+          'nguoiGuiId': 'user_a',
+          'tenNguoiGui': 'Tuấn',
+          'nguoiNhanId': 'user_b',
+          'noiDung': 'Chào bạn, phòng còn không ạ?',
+          'ngayGui': Timestamp.fromDate(DateTime(2026, 10, 1, 8, 0)),
+          'trangThaiTinNhan_id': 'daDoc',
+        }, 'msg_01');
 
-      expect(parsed.isRead, isTrue);
-      expect(parsed.noiDung, equals('Chào bạn, phòng còn không ạ?'));
-      expect(parsed.senderName, equals('Tuấn'));
-      expect(parsed.cuocTroChuyenId, equals('chat_ab'));
-    });
+        expect(parsed.isRead, isTrue);
+        expect(parsed.noiDung, equals('Chào bạn, phòng còn không ạ?'));
+        expect(parsed.senderName, equals('Tuấn'));
+        expect(parsed.cuocTroChuyenId, equals('chat_ab'));
+      },
+    );
   });
 
   group('UserProfile Tests', () {
-    test('UserProfile parses from DrawIO keys and enforces renter role', () {
+    test('UserProfile parses from DrawIO keys with renter role', () {
       final data = {
         'hoTen': 'Nguyễn Văn Thuê',
         'email': 'thue@gmail.com',
@@ -281,6 +287,7 @@ void main() {
         'diemUyTin': 100,
         'ngheNghiep': 'Kỹ sư phần mềm',
         'soThich': ['Đọc sách', 'Thể thao'],
+        'vaiTro': 'renter',
       };
 
       final profile = UserProfile.fromMap(data, 'u_user_99');
@@ -298,9 +305,21 @@ void main() {
 
   group('FilterParams & Riverpod Equality Tests', () {
     test('RoomFilterParams equality and hashCode work correctly', () {
-      const p1 = RoomFilterParams(district: 'Bình Thạnh', roomType: 'Phòng trọ', maxPrice: 3000000);
-      const p2 = RoomFilterParams(district: 'Bình Thạnh', roomType: 'Phòng trọ', maxPrice: 3000000);
-      const p3 = RoomFilterParams(district: 'TP. Thủ Đức', roomType: 'Phòng trọ', maxPrice: 3000000);
+      const p1 = RoomFilterParams(
+        district: 'Bình Thạnh',
+        roomType: 'Phòng trọ',
+        maxPrice: 3000000,
+      );
+      const p2 = RoomFilterParams(
+        district: 'Bình Thạnh',
+        roomType: 'Phòng trọ',
+        maxPrice: 3000000,
+      );
+      const p3 = RoomFilterParams(
+        district: 'TP. Thủ Đức',
+        roomType: 'Phòng trọ',
+        maxPrice: 3000000,
+      );
 
       expect(p1, equals(p2));
       expect(p1.hashCode, equals(p2.hashCode));
@@ -308,9 +327,18 @@ void main() {
     });
 
     test('RoommateFilterParams equality and hashCode work correctly', () {
-      const p1 = RoommateFilterParams(district: 'TP. Thủ Đức', targetGender: 'Nam');
-      const p2 = RoommateFilterParams(district: 'TP. Thủ Đức', targetGender: 'Nam');
-      const p3 = RoommateFilterParams(district: 'TP. Thủ Đức', targetGender: 'Nữ');
+      const p1 = RoommateFilterParams(
+        district: 'TP. Thủ Đức',
+        targetGender: 'Nam',
+      );
+      const p2 = RoommateFilterParams(
+        district: 'TP. Thủ Đức',
+        targetGender: 'Nam',
+      );
+      const p3 = RoommateFilterParams(
+        district: 'TP. Thủ Đức',
+        targetGender: 'Nữ',
+      );
 
       expect(p1, equals(p2));
       expect(p1.hashCode, equals(p2.hashCode));
@@ -329,35 +357,46 @@ void main() {
   });
 
   group('VietnamLocations 63 Provinces & Districts Tests', () {
-    test('Contains exactly 63 provinces and centrally-governed cities across Vietnam', () {
-      expect(VietnamLocations.provinces63.length, equals(63));
-      expect(VietnamLocations.provinces.length, equals(34));
-      expect(VietnamLocations.provinces63.contains('TP. Hồ Chí Minh'), isTrue);
-      expect(VietnamLocations.provinces63.contains('Hà Nội'), isTrue);
-      expect(VietnamLocations.provinces63.contains('Đà Nẵng'), isTrue);
-      expect(VietnamLocations.provinces63.contains('Bình Dương'), isTrue);
-      expect(VietnamLocations.provinces63.contains('Cần Thơ'), isTrue);
-      expect(VietnamLocations.provinces63.contains('Hải Phòng'), isTrue);
-      expect(VietnamLocations.provinces63.contains('Đồng Nai'), isTrue);
-      expect(VietnamLocations.provinces63.contains('Lâm Đồng'), isTrue);
-      expect(VietnamLocations.provinces63.contains('Yên Bái'), isTrue);
-    });
+    test(
+      'Contains exactly 63 provinces and centrally-governed cities across Vietnam',
+      () {
+        expect(VietnamLocations.provinces63.length, equals(63));
+        expect(VietnamLocations.provinces.length, equals(34));
+        expect(
+          VietnamLocations.provinces63.contains('TP. Hồ Chí Minh'),
+          isTrue,
+        );
+        expect(VietnamLocations.provinces63.contains('Hà Nội'), isTrue);
+        expect(VietnamLocations.provinces63.contains('Đà Nẵng'), isTrue);
+        expect(VietnamLocations.provinces63.contains('Bình Dương'), isTrue);
+        expect(VietnamLocations.provinces63.contains('Cần Thơ'), isTrue);
+        expect(VietnamLocations.provinces63.contains('Hải Phòng'), isTrue);
+        expect(VietnamLocations.provinces63.contains('Đồng Nai'), isTrue);
+        expect(VietnamLocations.provinces63.contains('Lâm Đồng'), isTrue);
+        expect(VietnamLocations.provinces63.contains('Yên Bái'), isTrue);
+      },
+    );
 
-    test('getDistricts returns comprehensive administrative units for selected province', () {
-      final hcmDistricts = VietnamLocations.getDistricts('TP. Hồ Chí Minh');
-      expect(hcmDistricts.first, equals('Tất cả'));
-      expect(hcmDistricts.contains('Quận 1'), isTrue);
-      expect(hcmDistricts.contains('Bình Thạnh'), isTrue);
-      expect(hcmDistricts.contains('TP. Thủ Đức'), isTrue);
-      expect(hcmDistricts.contains('Gò Vấp'), isTrue);
+    test(
+      'getDistricts returns comprehensive administrative units for selected province',
+      () {
+        final hcmDistricts = VietnamLocations.getDistricts('TP. Hồ Chí Minh');
+        expect(hcmDistricts.first, equals('Tất cả'));
+        expect(hcmDistricts.contains('Quận 1'), isTrue);
+        expect(hcmDistricts.contains('Bình Thạnh'), isTrue);
+        expect(hcmDistricts.contains('TP. Thủ Đức'), isTrue);
+        expect(hcmDistricts.contains('Gò Vấp'), isTrue);
 
-      final hanoiDistricts = VietnamLocations.getDistricts('Hà Nội');
-      expect(hanoiDistricts.first, equals('Tất cả'));
-      expect(hanoiDistricts.contains('Quận Cầu Giấy'), isTrue);
-      expect(hanoiDistricts.contains('Quận Đống Đa'), isTrue);
+        final hanoiDistricts = VietnamLocations.getDistricts('Hà Nội');
+        expect(hanoiDistricts.first, equals('Tất cả'));
+        expect(hanoiDistricts.contains('Quận Cầu Giấy'), isTrue);
+        expect(hanoiDistricts.contains('Quận Đống Đa'), isTrue);
 
-      final unknownDistricts = VietnamLocations.getDistricts('Unknown Province');
-      expect(unknownDistricts, equals(['Tất cả']));
-    });
+        final unknownDistricts = VietnamLocations.getDistricts(
+          'Unknown Province',
+        );
+        expect(unknownDistricts, equals(['Tất cả']));
+      },
+    );
   });
 }

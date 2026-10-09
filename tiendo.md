@@ -1555,3 +1555,22 @@ huquynh: https://github.com/23211tt0240-NhuQuynh/homeshare.git.
      - Thực hiện kiểm tra dry-run: `git push --dry-run nhuquynh homeshare:dev-TOAN` -> Success.
      - Thực hiện đẩy chính thức: `git push nhuquynh homeshare:dev-TOAN` -> Thành công cập nhật `3a6b431..197748b`.
      - Xác nhận bằng `git ls-remote`: Cả 2 nhánh trên 2 repo đã trỏ chính xác cùng commit SHA `197748b6ee69b80e26ec222e1832d0e9a28bf37a`.
+
+---
+
+### Phase 2.39: Phân Luồng Điều Hướng Theo Vai Trò (Role Routing), Bảo Vệ Save Boundary CCCD & Đẩy Mã Lên Nhánh dev-TOAN
+* **Ngày hoàn thành:** 09/10/2026
+* **Các tính năng & cải tiến kỹ thuật chính:**
+  1. **Phân luồng xác thực theo vai trò (Role-Based Routing):**
+     - Xây dựng `RoleResolver` thuần xử lý chuẩn hóa vai trò linh hoạt hỗ trợ các khóa `role`, `vaiTro`, `vaiTro_id` cùng các định danh alias (`renter`, `host`, `admin`).
+     - Tích hợp `AuthGate` trong [lib/main.dart](file:///d:/App/HomeShare/lib/main.dart): Phân luồng chính xác người dùng vào `RenterMainScreen`, `HostMainScreen`, hoặc `AdminDashboardScreen`. Các vai trò sai/thiếu sẽ chuyển tới `InvalidRoleScreen` (fail-closed, hỗ trợ đăng xuất an toàn).
+  2. **Thắt chặt an toàn eKYC CCCD & Save Boundary:**
+     - Xây dựng `CccdImageEvidenceValidator` thuần chạy 100% on-device kiểm định độc lập 2 mặt thẻ CCCD, băm hash, kiểm tra kích thước/độ phân giải và chuẩn QR 7 trường của Bộ Công An.
+     - Triển khai Save Boundary trong `saveCccdVerificationToBackend`: Chặn tuyệt đối ảnh demo, chặn trùng hash 2 mặt, chặn đảo mặt ảnh và chỉ tải lên Storage đường dẫn hợp lệ.
+  3. **Module hóa & Tối ưu Giao diện Personal Profile:**
+     - Tách nhỏ `PersonalProfileContent` thành các widget độc lập: `ProfileHeaderCard`, `ProfileCompletionCard`, `ProfileStatsCard`, `ProfileActionsCard`.
+     - Chống tràn giao diện (Overflow) trên màn hình nhỏ (320x568) và hỗ trợ Text Scale 1.3x.
+  4. **Kiểm thử chất lượng & Git Push:**
+     - `flutter analyze`: **0 issues found** (Clean 100%).
+     - `flutter test`: **128/128 tests PASSED 100%**.
+     - Đẩy mã nguồn lên nhánh `dev-TOAN` của repository `https://github.com/23211tt0240-NhuQuynh/homeshare`.
